@@ -13,9 +13,9 @@ export type ProposalModel = (typeof PROPOSAL_MODELS)[number];
 export type WorkersAiModel = typeof CLAIM_EXTRACTION_MODEL | ProposalModel;
 
 export const OPENROUTER_MODEL_EQUIVALENTS: Record<WorkersAiModel, string> = {
-  "@cf/zai-org/glm-4.7-flash": "z-ai/glm-4.5-air:free",
-  "@cf/google/gemma-4-26b-a4b-it": "google/gemma-3-27b-it:free",
-  "@cf/nvidia/nemotron-3-120b-a12b": "nvidia/nemotron-3-nano-30b-a3b:free",
+  "@cf/zai-org/glm-4.7-flash": "z-ai/glm-4.5-air",
+  "@cf/google/gemma-4-26b-a4b-it": "google/gemma-3-27b-it",
+  "@cf/nvidia/nemotron-3-120b-a12b": "nvidia/nemotron-3-nano-30b-a3b",
 };
 
 export function getOpenRouterModel(model: WorkersAiModel): string {

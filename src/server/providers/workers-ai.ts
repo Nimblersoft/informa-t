@@ -135,14 +135,24 @@ export async function runJsonWithProviderFallback<T>(options: {
 }
 
 function parseJsonResponse(value: unknown): unknown | undefined {
-  const candidate =
-    typeof value === "object" && value !== null && "response" in value
-      ? (value as { response?: unknown }).response
-      : value;
+  let candidate: unknown = value;
+  if (typeof candidate === "object" && candidate !== null && "response" in candidate) {
+    candidate = (candidate as { response?: unknown }).response;
+  }
+  if (typeof candidate === "object" && candidate !== null && "choices" in candidate) {
+    const choices = (candidate as { choices?: Array<{ message?: { content?: unknown } }> }).choices;
+    candidate = choices?.[0]?.message?.content;
+  }
 
   if (typeof candidate === "string") {
+    const trimmed = candidate.trim();
+    const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
+    const source = fenced ? fenced[1] : trimmed;
+    const startIndex = source.indexOf("{");
+    const lastIndex = source.lastIndexOf("}");
+    const sliced = startIndex >= 0 && lastIndex > startIndex ? source.slice(startIndex, lastIndex + 1) : source;
     try {
-      return JSON.parse(candidate);
+      return JSON.parse(sliced);
     } catch {
       return undefined;
     }

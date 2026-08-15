@@ -60,7 +60,7 @@ class FakeAi implements WorkersAiBinding {
       this.aborted = true;
       throw new DOMException("aborted", "AbortError");
     }
-    if (this.failProposals && input.response_format.json_schema === "proposal.v1") {
+    if (this.failProposals && !isExtraction(input)) {
       await new Promise<void>((resolve, reject) => {
         const onAbort = () => {
           this.aborted = true;
@@ -73,7 +73,7 @@ class FakeAi implements WorkersAiBinding {
         }, 5);
       });
     }
-    return input.response_format.json_schema === "claim-extraction.v1" ? JSON.stringify(extraction) : JSON.stringify(proposal);
+    return isExtraction(input) ? JSON.stringify(extraction) : JSON.stringify(proposal);
   }
 }
 
@@ -90,6 +90,10 @@ async function readEvents(response: Response) {
     const data = JSON.parse(block.match(/^data: (.+)$/m)?.[1] ?? "{}");
     return { event, data };
   });
+}
+
+function isExtraction(input: { messages?: Array<{ role: string; content: string }> }): boolean {
+  return (input.messages?.[0]?.content ?? "").includes("Extrae") || (input.messages?.[0]?.content ?? "").startsWith("La siguiente respuesta no cumple");
 }
 
 describe("POST /api/analyses SSE contract", () => {

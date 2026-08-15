@@ -65,6 +65,10 @@ class FakeAi implements WorkersAiBinding {
   }
 }
 
+function isExtraction(input: { messages?: Array<{ role: string; content: string }> }): boolean {
+  return (input.messages?.[0]?.content ?? "").includes("Extrae") || (input.messages?.[0]?.content ?? "").startsWith("La siguiente respuesta no cumple");
+}
+
 describe("text analysis engine", () => {
   it("requires all claim fields and an exclusion reason for excluded candidates", () => {
     const excluded = { ...claim(), excluded: true };
@@ -80,20 +84,20 @@ describe("text analysis engine", () => {
   });
 
   it("extracts one claim, retrieves evidence, and sends the same proposal payload to all three models", async () => {
-    const ai = new FakeAi((_model, input) => input.response_format.json_schema === "claim-extraction.v1" ? JSON.stringify(extraction()) : JSON.stringify(proposal()));
+    const ai = new FakeAi((_model, input) => isExtraction(input) ? JSON.stringify(extraction()) : JSON.stringify(proposal()));
     const result = await analyzeText({ text, ai, search: fakeSearch() });
 
     expect(result.status).toBe("completed");
     expect(result.claims).toHaveLength(1);
     expect(result.claims[0].proposals).toHaveLength(3);
     expect(result.claims[0].consensus).toEqual({ reviewFocus: "Contrastar evidencia", agreement: "3/3" });
-    const proposalCalls = ai.inputs.filter(({ input }) => (input as any).response_format.json_schema === "proposal.v1");
+    const proposalCalls = ai.inputs.filter(({ input }) => !isExtraction(input as never));
     expect(proposalCalls.map(({ model }) => model)).toEqual(PROPOSAL_MODELS);
     expect(proposalCalls.map(({ input }) => input)).toEqual([proposalCalls[0].input, proposalCalls[0].input, proposalCalls[0].input]);
   });
 
   it("processes up to three extracted claims", async () => {
-    const ai = new FakeAi((_model, input) => input.response_format.json_schema === "claim-extraction.v1" ? extraction(3) : proposal());
+    const ai = new FakeAi((_model, input) => isExtraction(input) ? extraction(3) : proposal());
     const result = await analyzeText({ text, ai, search: fakeSearch() });
 
     expect(result.claims).toHaveLength(3);
@@ -103,7 +107,7 @@ describe("text analysis engine", () => {
   it("repairs exactly one invalid JSON response", async () => {
     let extractionCalls = 0;
     const ai = new FakeAi((_model, input) => {
-      if (input.response_format.json_schema === "claim-extraction.v1") {
+      if (isExtraction(input)) {
         extractionCalls += 1;
         return extractionCalls === 1 ? "{not json" : extraction();
       }
@@ -116,7 +120,7 @@ describe("text analysis engine", () => {
   });
 
   it("records a non-repairable invalid response without fabricating consensus", async () => {
-    const ai = new FakeAi((_model, input) => input.response_format.json_schema === "claim-extraction.v1" ? extraction() : "not json");
+    const ai = new FakeAi((_model, input) => isExtraction(input) ? extraction() : "not json");
     const result = await analyzeText({ text, ai, search: fakeSearch() });
 
     expect(result.status).toBe("partial");
@@ -129,7 +133,7 @@ describe("text analysis engine", () => {
     const failures = [new Error("service unavailable"), new Error("quota exhausted 429"), new DOMException("aborted", "AbortError")];
     let proposalCall = 0;
     const ai = new FakeAi((_model, input) => {
-      if (input.response_format.json_schema === "claim-extraction.v1") return extraction();
+      if (isExtraction(input)) return extraction();
       throw failures[proposalCall++];
     });
     const result = await analyzeText({ text, ai, search: fakeSearch() });

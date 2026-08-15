@@ -71,7 +71,7 @@ class FakeAi implements WorkersAiBinding {
   constructor(private readonly failModels: ReadonlySet<string> = new Set(), private readonly failExtraction = false) {}
 
   async run(model: string, input: any): Promise<unknown> {
-    if (input.response_format.json_schema === "claim-extraction.v1") {
+    if (isExtraction(input)) {
       if (this.failExtraction) throw new Error("Workers AI service unavailable");
       return JSON.stringify(extraction);
     }
@@ -82,6 +82,10 @@ class FakeAi implements WorkersAiBinding {
 
 function createOpenRouter(transport: OpenRouterTransport): OpenRouterClient {
   return new OpenRouterClient({ env: { OPENROUTER_API_KEY: "test-openrouter-key" }, transport });
+}
+
+function isExtraction(input: { messages?: Array<{ role: string; content: string }> }): boolean {
+  return (input.messages?.[0]?.content ?? "").includes("Extrae") || (input.messages?.[0]?.content ?? "").startsWith("La siguiente respuesta no cumple");
 }
 
 describe("OpenRouter model fallback", () => {
@@ -98,7 +102,7 @@ describe("OpenRouter model fallback", () => {
     const { transport, calls } = createTransport();
     const ai: WorkersAiBinding = {
       async run(model, input: any): Promise<unknown> {
-        if (input.response_format.json_schema === "claim-extraction.v1") return JSON.stringify(extraction);
+        if (isExtraction(input)) return JSON.stringify(extraction);
         if (model === failedModel) throw failure;
         return proposal;
       },

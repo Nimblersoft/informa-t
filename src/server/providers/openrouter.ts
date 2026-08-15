@@ -33,7 +33,7 @@ export class OpenRouterClient implements OpenRouterModelProvider {
   constructor(options: OpenRouterClientOptions) {
     this.apiKey = options.env.OPENROUTER_API_KEY?.trim() || undefined;
     this.isConfigured = this.apiKey !== undefined;
-    this.transport = options.transport ?? fetch;
+    this.transport = options.transport ?? fetch.bind(globalThis);
     this.endpoint = options.endpoint ?? OPENROUTER_CHAT_COMPLETIONS_URL;
   }
 

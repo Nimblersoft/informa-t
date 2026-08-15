@@ -3,6 +3,9 @@
   "name": "informa-t",
   "main": "src/worker.ts",
   "compatibility_date": "2026-08-15",
+  "ai": {
+    "binding": "AI"
+  },
   "assets": {
     "binding": "ASSETS",
     "run_worker_first": ["/api/*"]

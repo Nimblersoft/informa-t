@@ -1,23 +1,53 @@
 // Spec: docs/specs/text-analysis-engine.md
 
 import {
-  CLAIM_EXTRACTION_SCHEMA_VERSION,
-  PROPOSAL_SCHEMA_VERSION,
   type EvidenceExcerpt,
   type ExtractedClaim,
 } from "../../shared/contracts";
+
+const CLAIM_SCHEMA_SPEC = `Devuelve EXACTAMENTE un objeto JSON con esta forma (sin campos adicionales, sin markdown):
+{
+  "schemaVersion": "claim-extraction.v1",
+  "claims": [
+    {
+      "verbatimText": "<fragmento literal del texto original>",
+      "normalizedText": "<versión normalizada del fragmento>",
+      "location": { "start": <índice inicial>, "end": <índice final> },
+      "entities": ["<entidades mencionadas>"],
+      "dates": ["<fechas mencionadas>"],
+      "verifiable": true,
+      "electorallyRelevant": true,
+      "sourceAvailability": "disponible" | "insuficiente" | "no consultada",
+      "excluded": false,
+      "exclusionReason": "opinión" | "predicción" | "retórica" | "ambigüedad"
+    }
+  ]
+}
+Reglas: máximo 3 aseveraciones atómicas y verificables. "excluded" es true solo para opinión, predicción, retórica o ambigüedad, y entonces "exclusionReason" es obligatorio; en caso contrario omite "exclusionReason". "location" son índices de caracteres dentro del texto original. Nunca emitas veredictos editoriales ni afirmes verdad o falsedad.`;
+
+const PROPOSAL_SCHEMA_SPEC = `Devuelve EXACTAMENTE un objeto JSON con esta forma (sin campos adicionales, sin markdown):
+{
+  "schemaVersion": "proposal.v1",
+  "reviewFocus": "Contrastar evidencia" | "Evidencia limitada" | "Revisar contexto",
+  "supportingEvidenceIds": ["<id de evidencia que apoya el contraste>"],
+  "contraryEvidenceIds": ["<id de evidencia contraria>"],
+  "rationale": "<explicación factual breve de cómo la evidencia se relaciona con la aseveración>",
+  "uncertainty": "<incertidumbre principal en términos de datos disponibles>",
+  "limitations": ["<limitaciones aplicables>"],
+  "indices": { "polarization": 0.0, "emotionalLoad": 0.0, "publicDataSupport": 0.0 }
+}
+Reglas: es una propuesta NO vinculante para revisión humana. Los tres índices son números entre 0 y 1. Usa solo IDs de evidencia presentes en la entrada. Nunca emitas veredictos editoriales ni afirmes verdad o falsedad.`;
 
 export function createClaimExtractionInput(text: string): Record<string, unknown> {
   return {
     messages: [
       {
         role: "system",
-        content:
-          "Extrae hasta tres aseveraciones atómicas. No emitas veredictos editoriales. Incluye únicamente JSON compatible con claim-extraction.v1.",
+        content: `Extrae hasta tres aseveraciones atómicas verificables del texto. ${CLAIM_SCHEMA_SPEC}`,
       },
       { role: "user", content: text },
     ],
-    response_format: { type: "json_schema", json_schema: CLAIM_EXTRACTION_SCHEMA_VERSION },
+    response_format: { type: "json_object" },
   };
 }
 
@@ -26,10 +56,10 @@ export function createClaimRepairInput(invalidResponse: string): Record<string, 
     messages: [
       {
         role: "user",
-        content: `Repara esta respuesta para que cumpla exactamente ${CLAIM_EXTRACTION_SCHEMA_VERSION}; devuelve solo JSON: ${invalidResponse}`,
+        content: `La siguiente respuesta no cumple el esquema claim-extraction.v1. Reinténtala cumpliéndolo exactamente. ${CLAIM_SCHEMA_SPEC}\n\nRespuesta inválida:\n${invalidResponse}`,
       },
     ],
-    response_format: { type: "json_schema", json_schema: CLAIM_EXTRACTION_SCHEMA_VERSION },
+    response_format: { type: "json_object" },
   };
 }
 
@@ -38,12 +68,11 @@ export function createProposalInput(claim: ExtractedClaim, evidence: EvidenceExc
     messages: [
       {
         role: "system",
-        content:
-          "Produce una propuesta no vinculante para revisión humana. No emitas veredictos editoriales ni afirmes verdad o falsedad. Incluye únicamente JSON compatible con proposal.v1.",
+        content: `Produce una propuesta no vinculante para revisión humana. ${PROPOSAL_SCHEMA_SPEC}`,
       },
       { role: "user", content: JSON.stringify({ claim, evidence }) },
     ],
-    response_format: { type: "json_schema", json_schema: PROPOSAL_SCHEMA_VERSION },
+    response_format: { type: "json_object" },
   };
 }
 
@@ -52,9 +81,9 @@ export function createProposalRepairInput(invalidResponse: string): Record<strin
     messages: [
       {
         role: "user",
-        content: `Repara esta respuesta para que cumpla exactamente ${PROPOSAL_SCHEMA_VERSION}; devuelve solo JSON: ${invalidResponse}`,
+        content: `La siguiente respuesta no cumple el esquema proposal.v1. Reinténtala cumpliéndolo exactamente. ${PROPOSAL_SCHEMA_SPEC}\n\nRespuesta inválida:\n${invalidResponse}`,
       },
     ],
-    response_format: { type: "json_schema", json_schema: PROPOSAL_SCHEMA_VERSION },
+    response_format: { type: "json_object" },
   };
 }
