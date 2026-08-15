@@ -1,0 +1,21 @@
+{
+  "id": "a1",
+  "label": "Datos sintéticos de desarrollo",
+  "proposals": [
+    {
+      "placeholder": true,
+      "attributed": false,
+      "message": "Propuesta sintética pendiente de análisis editorial"
+    },
+    {
+      "placeholder": true,
+      "attributed": false,
+      "message": "Propuesta sintética pendiente de análisis editorial"
+    },
+    {
+      "placeholder": true,
+      "attributed": false,
+      "message": "Propuesta sintética pendiente de análisis editorial"
+    }
+  ]
+}
