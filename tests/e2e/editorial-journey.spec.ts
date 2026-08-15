@@ -7,7 +7,7 @@ test.describe("Editorial review panel — Case A1 E2E Journeys", () => {
     // Install controlled browser clock to verify interactive readiness deterministically
     await page.clock.install();
 
-    await page.goto("/");
+    await page.goto("/demo");
 
     // Verify interactive shell is ready within 2000ms under controlled clock
     const shell = page.locator('[data-testid="editorial-shell"]');
@@ -37,7 +37,7 @@ test.describe("Editorial review panel — Case A1 E2E Journeys", () => {
   test("2. Excerpt selection updates active context without interleaving primary and related evidence", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/demo");
     await expect(page.locator('[data-testid="editorial-shell"]')).toHaveAttribute(
       "data-ready",
       "true",
@@ -70,7 +70,7 @@ test.describe("Editorial review panel — Case A1 E2E Journeys", () => {
   });
 
   test("3. Accessible tab switching and keyboard navigation (ARIA)", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/demo");
     await expect(page.locator('[data-testid="editorial-shell"]')).toHaveAttribute(
       "data-ready",
       "true",
@@ -129,7 +129,7 @@ test.describe("Editorial review panel — Case A1 E2E Journeys", () => {
   });
 
   test("4. Evidencia tab displays complete index contract without percent signs", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/demo");
     await expect(page.locator('[data-testid="editorial-shell"]')).toHaveAttribute(
       "data-ready",
       "true",
@@ -164,7 +164,7 @@ test.describe("Editorial review panel — Case A1 E2E Journeys", () => {
   test("5. Modelos tab displays exactly three anonymous proposals without attribution", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/demo");
     await expect(page.locator('[data-testid="editorial-shell"]')).toHaveAttribute(
       "data-ready",
       "true",
@@ -193,7 +193,7 @@ test.describe("Editorial review panel — Case A1 E2E Journeys", () => {
   });
 
   test("6. Result/Evidence to Logs event navigation connects the audit journey", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/demo");
     await expect(page.locator('[data-testid="editorial-shell"]')).toHaveAttribute(
       "data-ready",
       "true",
@@ -226,7 +226,7 @@ test.describe("Editorial review panel — Case A1 E2E Journeys", () => {
   test("7. Logs tab filters by stage, toggles details, shows side-by-side comparison and valid citations", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/demo");
     await expect(page.locator('[data-testid="editorial-shell"]')).toHaveAttribute(
       "data-ready",
       "true",
@@ -274,7 +274,7 @@ test.describe("Editorial review panel — Case A1 E2E Journeys", () => {
   test("8. Prohibitions check: No percent signs, no four verdicts, no active editorial controls", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/demo");
     await expect(page.locator('[data-testid="editorial-shell"]')).toHaveAttribute(
       "data-ready",
       "true",

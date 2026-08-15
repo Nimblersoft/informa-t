@@ -5,7 +5,7 @@ test.describe("Accessibility (a11y) & Keyboard-Only Operations", () => {
   test("1. Automated WCAG 2.1 AA audit with axe-core detects zero serious or critical violations", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/demo");
     const shell = page.locator('[data-testid="editorial-shell"]');
     await expect(shell).toHaveAttribute("data-ready", "true");
 
@@ -56,7 +56,7 @@ test.describe("Accessibility (a11y) & Keyboard-Only Operations", () => {
   test("2. Full keyboard-only navigation: tabs, excerpts, fields, select, and downloads with focus-visible", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/demo");
     await expect(page.locator('[data-testid="editorial-shell"]')).toHaveAttribute(
       "data-ready",
       "true",

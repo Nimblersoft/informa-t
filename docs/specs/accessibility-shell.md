@@ -133,3 +133,21 @@ Verification of accessibility and responsive requirements is implemented via aut
    - Viewport tests at 1440×900 and 390×844 asserting `scrollWidth <= clientWidth` on `document.documentElement` and `document.body`.
    - Mobile vertical stacking order verification: asserts that the primary evidence region, analysis tabs, and editorial decision section appear in correct vertical sequence without visual or DOM overlap.
    - Screenshot artifact captures for visual record.
+
+## Live Analysis Routes (`/`, `/demo`, `/compact`)
+
+The live analysis interface is the default route at `/`. It accepts a public-news URL or pasted text and reuses the SSE analysis client for progress, extracted atomic claims, linkable primary evidence, non-binding model availability/comparison, trace identifiers, and degradation or failure messages. The static Case A1 editorial review shell is available at `/demo`; `/compact` is the small-window presentation of the same live analysis flow.
+
+All three routes must:
+
+- Preserve the human editorial boundary and never select, infer, or publish a true/false decision from model output.
+- Keep every control keyboard operable with visible focus and maintain `scrollWidth <= clientWidth` at 390×844.
+- Never inspect browser tabs or history, collect browsing data, or profile people.
+
+The route contract is explicit:
+
+- `/` renders the URL/text input-led live analysis experience by default.
+- `/demo` renders the read-only A1 shell and its audit workflow.
+- `/compact` renders the compact live analysis experience and links to `/demo` for the full A1 review.
+
+Route verification is covered by `tests/compact-analysis.test.tsx`, `tests/e2e/routes.spec.ts`, and `tests/e2e/compact.spec.ts`, including direct route loading, text and URL request shapes, serious/critical axe checks, and narrow-viewport overflow.

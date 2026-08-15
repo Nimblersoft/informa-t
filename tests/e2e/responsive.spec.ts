@@ -5,7 +5,7 @@ test.describe("Responsive Viewports & Overflow Verification", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto("/");
+    await page.goto("/demo");
 
     const shell = page.locator('[data-testid="editorial-shell"]');
     await expect(shell).toHaveAttribute("data-ready", "true");
@@ -70,7 +70,7 @@ test.describe("Responsive Viewports & Overflow Verification", () => {
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/");
+    await page.goto("/demo");
 
     const shell = page.locator('[data-testid="editorial-shell"]');
     await expect(shell).toHaveAttribute("data-ready", "true");

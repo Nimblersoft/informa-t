@@ -4,7 +4,7 @@ test.describe("Human Editorial Decision Boundary & Export Journeys", () => {
   test("1. Initial state: Editorial boundary starts empty, exports disabled, no automated pre-population", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/demo");
     const shell = page.locator('[data-testid="editorial-shell"]');
     await expect(shell).toHaveAttribute("data-ready", "true");
 
@@ -36,7 +36,7 @@ test.describe("Human Editorial Decision Boundary & Export Journeys", () => {
   test("2. Export gating: strictly requires author, category, and non-whitespace justification", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/demo");
     await expect(page.locator('[data-testid="editorial-shell"]')).toHaveAttribute("data-ready", "true");
 
     const authorInput = page.locator('[data-testid="editorial-author-input"]');
@@ -75,7 +75,7 @@ test.describe("Human Editorial Decision Boundary & Export Journeys", () => {
   test("3. State machine and event lifecycle: select, change, and withdraw create distinct events", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/demo");
     await expect(page.locator('[data-testid="editorial-shell"]')).toHaveAttribute("data-ready", "true");
 
     const authorInput = page.locator('[data-testid="editorial-author-input"]');
@@ -131,7 +131,7 @@ test.describe("Human Editorial Decision Boundary & Export Journeys", () => {
   test("4. ClaimReview JSON-LD export download and structure verification", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/demo");
     await expect(page.locator('[data-testid="editorial-shell"]')).toHaveAttribute("data-ready", "true");
 
     const authorInput = page.locator('[data-testid="editorial-author-input"]');
@@ -198,7 +198,7 @@ test.describe("Human Editorial Decision Boundary & Export Journeys", () => {
   test("5. Editorial trace JSON export download and audit events verification", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/demo");
     await expect(page.locator('[data-testid="editorial-shell"]')).toHaveAttribute("data-ready", "true");
 
     const authorInput = page.locator('[data-testid="editorial-author-input"]');
