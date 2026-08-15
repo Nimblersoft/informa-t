@@ -1,4 +1,4 @@
-// Spec: docs/specs/text-analysis-engine.md
+// Spec: docs/specs/model-fallback.md
 
 import {
   isClaimExtractionV1,
@@ -12,17 +12,24 @@ import {
   type TraceEvent,
 } from "../../shared/contracts";
 import { hashCanonicalJson, redactTrace } from "../../shared/trace";
-import { CLAIM_EXTRACTION_MODEL, PIPELINE_TIMEOUT_MS, PROPOSAL_MODELS, type ProposalModel } from "../config/models";
+import { CLAIM_EXTRACTION_MODEL, getOpenRouterModel, PIPELINE_TIMEOUT_MS, PROPOSAL_MODELS, type ProposalModel } from "../config/models";
 import { createClaimExtractionInput, createClaimRepairInput, createProposalInput, createProposalRepairInput } from "../prompts/text-analysis";
 import type { AiSearchProvider } from "../providers/ai-search";
-import { runJsonWithSingleRepair, type WorkersAiBinding } from "../providers/workers-ai";
+import { runJsonWithProviderFallback, type ModelProvenance, type WorkersAiBinding } from "../providers/workers-ai";
+import type { OpenRouterModelProvider } from "../providers/openrouter";
 
 export interface ProposalAttempt {
   model: ProposalModel;
+  provenance: ModelProvenance;
   status: "valid" | "failed";
   proposal?: ProposalV1;
   limitation?: string;
   errorCode?: "timeout" | "quota" | "outage" | "invalid_response";
+  fallback?: {
+    attempted: boolean;
+    reason: "timeout" | "quota" | "outage";
+    outcome: "success" | "failed";
+  };
 }
 
 export interface ProposalConsensus {
@@ -32,6 +39,7 @@ export interface ProposalConsensus {
 
 export interface AnalyzedClaim {
   claim: ExtractedClaim;
+  provenance: ModelProvenance;
   evidence: EvidenceExcerpt[];
   proposals: [ProposalAttempt, ProposalAttempt, ProposalAttempt];
   consensus: ProposalConsensus | null;
@@ -50,6 +58,7 @@ export interface AnalyzeTextOptions {
   text: string;
   ai: WorkersAiBinding;
   search: Pick<AiSearchProvider, "searchEvidence">;
+  openRouter?: OpenRouterModelProvider;
   timeoutMs?: number;
   now?: () => number;
 }
@@ -75,9 +84,7 @@ export async function analyzeText(options: AnalyzeTextOptions): Promise<TextAnal
   const limitations: string[] = [];
 
   try {
-    const extraction = await runJsonWithSingleRepair<ClaimExtractionV1>({
-      ai: options.ai,
-      model: CLAIM_EXTRACTION_MODEL,
+    const extraction = await runModel<ClaimExtractionV1>(options, CLAIM_EXTRACTION_MODEL, {
       input: createClaimExtractionInput(options.text),
       repairInput: createClaimRepairInput,
       guard: isClaimExtractionV1,
@@ -87,12 +94,39 @@ export async function analyzeText(options: AnalyzeTextOptions): Promise<TextAnal
     if (!extraction.value) {
       const limitation = extraction.error?.limitation ?? "No se pudieron extraer aseveraciones del texto.";
       limitations.push(limitation);
-      traceEvents.push(await createTrace("Análisis", "Extracción de aseveraciones", limitation, "Fallido", { model: CLAIM_EXTRACTION_MODEL, error: extraction.error?.code }));
+      traceEvents.push(await createTrace("Análisis", "Extracción de aseveraciones", limitation, "Fallido", {
+        provider: extraction.provenance.provider,
+        model: extraction.provenance.modelId,
+        error: extraction.error?.code,
+      }));
+      if (extraction.fallback?.attempted) {
+        traceEvents.push(await createTrace("Análisis", "Respaldo de proveedor", "El respaldo OpenRouter no produjo aseveraciones válidas.", "Fallido", {
+          fromProvider: "workers-ai",
+          toProvider: "openrouter",
+          reason: extraction.fallback.reason,
+          provider: extraction.provenance.provider,
+          model: extraction.provenance.modelId,
+        }));
+      }
       return buildResult("partial", [], limitations, traceEvents, now() - startedAt);
     }
 
-    traceEvents.push(await createTrace("Análisis", "Extracción de aseveraciones", "Se extrajeron aseveraciones para revisión editorial.", "Completado", { model: CLAIM_EXTRACTION_MODEL, claims: extraction.value.claims.length, repaired: extraction.repaired }));
-    const analyzedClaims = await Promise.all(extraction.value.claims.map((claim) => analyzeClaim(claim, options, controller.signal)));
+    traceEvents.push(await createTrace("Análisis", "Extracción de aseveraciones", "Se extrajeron aseveraciones para revisión editorial.", "Completado", {
+      provider: extraction.provenance.provider,
+      model: extraction.provenance.modelId,
+      claims: extraction.value.claims.length,
+      repaired: extraction.repaired,
+    }));
+    if (extraction.fallback?.attempted) {
+      traceEvents.push(await createTrace("Análisis", "Respaldo de proveedor", extraction.fallback.outcome === "success" ? "Se utilizó OpenRouter como respaldo para extraer aseveraciones." : "El respaldo OpenRouter no produjo aseveraciones válidas.", extraction.fallback.outcome === "success" ? "Completado" : "Fallido", {
+        fromProvider: "workers-ai",
+        toProvider: "openrouter",
+        reason: extraction.fallback.reason,
+        provider: extraction.provenance.provider,
+        model: extraction.provenance.modelId,
+      }));
+    }
+    const analyzedClaims = await Promise.all(extraction.value.claims.map((claim) => analyzeClaim(claim, extraction.provenance, options, controller.signal)));
     for (const item of analyzedClaims) {
       traceEvents.push(...item.traceEvents);
       limitations.push(...item.limitations);
@@ -103,12 +137,23 @@ export async function analyzeText(options: AnalyzeTextOptions): Promise<TextAnal
   }
 }
 
-async function analyzeClaim(claim: ExtractedClaim, options: AnalyzeTextOptions, signal: AbortSignal): Promise<{ analyzed: AnalyzedClaim; limitations: string[]; traceEvents: TraceEvent[] }> {
+async function analyzeClaim(claim: ExtractedClaim, extractionProvenance: ModelProvenance, options: AnalyzeTextOptions, signal: AbortSignal): Promise<{ analyzed: AnalyzedClaim; limitations: string[]; traceEvents: TraceEvent[] }> {
   const traceEvents: TraceEvent[] = [];
   const limitations: string[] = [];
   if (claim.excluded) {
     return {
-      analyzed: { claim, evidence: [], proposals: PROPOSAL_MODELS.map((model) => ({ model, status: "failed", limitation: "La aseveración fue excluida de la propuesta." })) as AnalyzedClaim["proposals"], consensus: null },
+      analyzed: {
+        claim,
+        provenance: extractionProvenance,
+        evidence: [],
+        proposals: PROPOSAL_MODELS.map((model) => ({
+          model,
+          provenance: { provider: "workers-ai", modelId: model },
+          status: "failed",
+          limitation: "La aseveración fue excluida de la propuesta.",
+        })) as AnalyzedClaim["proposals"],
+        consensus: null,
+      },
       limitations,
       traceEvents,
     };
@@ -120,8 +165,13 @@ async function analyzeClaim(claim: ExtractedClaim, options: AnalyzeTextOptions, 
   limitations.push(...evidenceResult.limitations);
 
   const input = createProposalInput(updatedClaim, evidenceResult.excerpts);
-  const settled = await Promise.allSettled(PROPOSAL_MODELS.map((model) => runProposal(model, input, options.ai, signal)));
-  const proposals = settled.map((result, index) => result.status === "fulfilled" ? result.value : ({ model: PROPOSAL_MODELS[index], status: "failed", limitation: "El modelo no está disponible temporalmente. No se generó una propuesta." })) as AnalyzedClaim["proposals"];
+  const settled = await Promise.allSettled(PROPOSAL_MODELS.map((model) => runProposal(model, input, options, signal)));
+  const proposals = settled.map((result, index) => result.status === "fulfilled" ? result.value : ({
+    model: PROPOSAL_MODELS[index],
+    provenance: { provider: "workers-ai", modelId: PROPOSAL_MODELS[index] },
+    status: "failed",
+    limitation: "El modelo no está disponible temporalmente. No se generó una propuesta.",
+  })) as AnalyzedClaim["proposals"];
 
   for (const proposal of proposals) {
     if (proposal.status === "failed" && proposal.limitation) {
@@ -129,34 +179,71 @@ async function analyzeClaim(claim: ExtractedClaim, options: AnalyzeTextOptions, 
     }
     traceEvents.push(await createTrace("Análisis", "Propuesta de modelo", proposal.status === "valid" ? "Propuesta no vinculante disponible para revisión humana." : proposal.limitation ?? "Propuesta no disponible.", proposal.status === "valid" ? "Completado" : "Fallido", {
       model: proposal.model,
+      provider: proposal.provenance.provider,
+      modelId: proposal.provenance.modelId,
       status: proposal.status,
       ...(proposal.proposal ? { proposal: proposal.proposal } : {}),
       ...(proposal.errorCode ? { errorCode: proposal.errorCode } : {}),
     }));
+    if (proposal.fallback?.attempted) {
+      traceEvents.push(await createTrace(
+        "Análisis",
+        "Respaldo de proveedor",
+        proposal.fallback.outcome === "success"
+          ? "Se utilizó OpenRouter como respaldo para esta propuesta."
+          : "El respaldo OpenRouter no produjo una propuesta válida.",
+        proposal.fallback.outcome === "success" ? "Completado" : "Fallido",
+        {
+          fromProvider: "workers-ai",
+          toProvider: "openrouter",
+          reason: proposal.fallback.reason,
+          provider: proposal.provenance.provider,
+          model: proposal.provenance.modelId,
+        },
+      ));
+    }
   }
 
   const consensus = getProposalConsensus(proposals);
   traceEvents.push(await createTrace("Consenso", "Síntesis de propuestas", consensus ? "La síntesis compara propuestas no vinculantes; no es una decisión editorial." : "No hay suficientes propuestas válidas para una síntesis.", consensus ? "Completado" : "Sin consenso", { validProposals: proposals.filter((proposal) => proposal.status === "valid").length, consensus }));
-  return { analyzed: { claim: updatedClaim, evidence: evidenceResult.excerpts, proposals, consensus }, limitations, traceEvents };
+  return { analyzed: { claim: updatedClaim, provenance: extractionProvenance, evidence: evidenceResult.excerpts, proposals, consensus }, limitations, traceEvents };
 }
 
-async function runProposal(model: ProposalModel, input: Record<string, unknown>, ai: WorkersAiBinding, signal: AbortSignal): Promise<ProposalAttempt> {
-  const result = await runJsonWithSingleRepair<ProposalV1>({
-    ai,
-    model,
+async function runProposal(model: ProposalModel, input: Record<string, unknown>, options: AnalyzeTextOptions, signal: AbortSignal): Promise<ProposalAttempt> {
+  const result = await runModel<ProposalV1>(options, model, {
     input,
     repairInput: createProposalRepairInput,
     guard: isProposalV1,
     signal,
   });
   return result.value
-    ? { model, status: "valid", proposal: result.value }
+    ? { model, provenance: result.provenance, status: "valid", proposal: result.value, fallback: result.fallback }
     : {
         model,
+        provenance: result.provenance,
         status: "failed",
         limitation: result.error?.limitation ?? "No se generó una propuesta.",
         errorCode: result.error?.code,
+        fallback: result.fallback,
       };
+}
+
+async function runModel<T>(options: AnalyzeTextOptions, model: typeof CLAIM_EXTRACTION_MODEL | ProposalModel, request: {
+  input: Record<string, unknown>;
+  repairInput: (invalidResponse: string) => Record<string, unknown>;
+  guard: (value: unknown) => value is T;
+  signal: AbortSignal;
+}) {
+  return runJsonWithProviderFallback<T>({
+    primary: options.ai,
+    primaryModel: model,
+    fallback: options.openRouter && options.openRouter.isConfigured !== false ? { ai: options.openRouter, model: getOpenRouterModel(model) } : undefined,
+    input: request.input,
+    repairInput: request.repairInput,
+    guard: request.guard,
+    signal: request.signal,
+    fallbackUnavailableLimitation: "No hay una clave de OpenRouter configurada; el análisis continúa solo con Workers AI.",
+  });
 }
 
 function getProposalConsensus(proposals: readonly ProposalAttempt[]): ProposalConsensus | null {
