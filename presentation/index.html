@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>informa-t | Pitch MediaHack II</title>
   
-  <!-- Google Fonts: Outfit & Inter & Fira Code -->
+  <!-- Google Fonts: Outfit, Inter & Fira Code -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
   
   <!-- Reveal.js CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/reveal.min.css">
@@ -17,10 +17,10 @@
   <style>
     :root {
       --bg-deep: #050a18;
-      --bg-surface: rgba(15, 22, 41, 0.75);
-      --bg-surface-elevated: rgba(26, 34, 64, 0.85);
-      --border-color: rgba(37, 47, 85, 0.8);
-      --border-glow: rgba(0, 240, 255, 0.35);
+      --bg-surface: rgba(15, 23, 42, 0.85);
+      --bg-surface-elevated: rgba(30, 41, 59, 0.9);
+      --border-color: rgba(51, 65, 85, 0.9);
+      --border-glow: rgba(0, 240, 255, 0.45);
       
       --accent-cyan: #00f0ff;
       --accent-violet: #a855f7;
@@ -28,15 +28,21 @@
       --accent-amber: #fbbf24;
       --accent-rose: #f43f5e;
       
-      --text-primary: #f0f4ff;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
+      /* WCAG AAA High Contrast Text */
+      --text-primary: #ffffff;
+      --text-secondary: #e2e8f0;
+      --text-muted: #94a3b8;
     }
 
     body, .reveal {
       background-color: var(--bg-deep) !important;
       color: var(--text-primary);
-      font-family: 'Inter', system-ui, sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 20px;
+    }
+
+    .reveal .slides {
+      text-align: left;
     }
 
     .reveal h1, .reveal h2, .reveal h3, .reveal h4 {
@@ -44,11 +50,12 @@
       text-transform: none;
       letter-spacing: -0.02em;
       color: var(--text-primary);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
     }
 
-    .reveal h1 { font-weight: 900; }
-    .reveal h2 { font-weight: 800; }
-    .reveal h3 { font-weight: 700; }
+    .reveal h1 { font-size: 3.4rem; font-weight: 900; line-height: 1.1; }
+    .reveal h2 { font-size: 2.5rem; font-weight: 800; line-height: 1.15; }
+    .reveal h3 { font-size: 1.8rem; font-weight: 700; line-height: 1.2; }
 
     /* Gradient Typography */
     .text-gradient-cyan {
@@ -69,87 +76,97 @@
       -webkit-text-fill-color: transparent;
     }
 
-    /* Glassmorphic Cards */
+    /* Glassmorphic Cards & Bento Boxes */
     .glass-panel {
       background: var(--bg-surface);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1.5px solid var(--border-color);
+      border-radius: 18px;
+      padding: 22px 26px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .glass-panel:hover {
       border-color: var(--border-glow);
-      box-shadow: 0 12px 40px 0 rgba(0, 240, 255, 0.15), inset 0 0 0 1px rgba(0, 240, 255, 0.2);
-      transform: translateY(-2px);
+      box-shadow: 0 12px 35px rgba(0, 240, 255, 0.2);
     }
 
     .glass-panel.highlight-border {
-      border: 1px solid rgba(0, 240, 255, 0.5);
-      box-shadow: 0 0 25px rgba(0, 240, 255, 0.2);
+      border: 2px solid rgba(0, 240, 255, 0.8);
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.3);
     }
 
     .glass-panel.ethical-card {
-      border-left: 4px solid var(--accent-emerald);
+      border-left: 6px solid var(--accent-emerald);
     }
 
     /* Badges & Chips */
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
+      gap: 8px;
+      padding: 6px 16px;
       border-radius: 9999px;
-      font-size: 0.75rem;
-      font-weight: 600;
+      font-size: 0.95rem;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
     }
 
     .badge-cyan {
-      background: rgba(0, 240, 255, 0.12);
+      background: rgba(0, 240, 255, 0.15);
       color: var(--accent-cyan);
-      border: 1px solid rgba(0, 240, 255, 0.3);
+      border: 1.5px solid rgba(0, 240, 255, 0.5);
     }
 
     .badge-violet {
-      background: rgba(168, 85, 247, 0.12);
-      color: var(--accent-violet);
-      border: 1px solid rgba(168, 85, 247, 0.3);
+      background: rgba(168, 85, 247, 0.15);
+      color: #c084fc;
+      border: 1.5px solid rgba(168, 85, 247, 0.5);
     }
 
     .badge-emerald {
-      background: rgba(52, 211, 153, 0.12);
+      background: rgba(52, 211, 153, 0.15);
       color: var(--accent-emerald);
-      border: 1px solid rgba(52, 211, 153, 0.3);
+      border: 1.5px solid rgba(52, 211, 153, 0.5);
     }
 
     .badge-amber {
-      background: rgba(251, 191, 36, 0.12);
+      background: rgba(251, 191, 36, 0.15);
       color: var(--accent-amber);
-      border: 1px solid rgba(251, 191, 36, 0.3);
+      border: 1.5px solid rgba(251, 191, 36, 0.5);
     }
 
     /* Grid Layouts */
     .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 22px;
     }
 
     .grid-3 {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      gap: 16px;
+      gap: 20px;
     }
 
     .grid-4 {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
+      gap: 16px;
+    }
+
+    /* High-Impact Image Containers */
+    .slide-img-frame {
+      border-radius: 16px;
+      border: 1.5px solid var(--border-color);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      display: block;
     }
 
     /* Animated Diagram Styles */
@@ -158,104 +175,132 @@
       align-items: center;
       justify-content: space-between;
       width: 100%;
-      margin: 20px 0;
-      position: relative;
+      margin: 18px 0;
+      gap: 12px;
     }
 
     .node-step {
       flex: 1;
-      padding: 16px 12px;
-      border-radius: 12px;
+      padding: 18px 14px;
+      border-radius: 14px;
       background: var(--bg-surface-elevated);
-      border: 1px solid var(--border-color);
+      border: 1.5px solid var(--border-color);
       text-align: center;
-      font-size: 0.85rem;
-      position: relative;
+      font-size: 1.05rem;
       transition: all 0.3s ease;
     }
 
     .node-step.active-node {
       border-color: var(--accent-cyan);
-      box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.4);
     }
 
     .flow-arrow {
       color: var(--accent-cyan);
-      font-size: 1.4rem;
-      padding: 0 8px;
+      font-size: 1.8rem;
+      padding: 0 4px;
       animation: pulse-arrow 1.5s infinite alternate;
     }
 
     @keyframes pulse-arrow {
       from { transform: translateX(0); opacity: 0.6; }
-      to { transform: translateX(4px); opacity: 1; text-shadow: 0 0 8px var(--accent-cyan); }
+      to { transform: translateX(5px); opacity: 1; text-shadow: 0 0 10px var(--accent-cyan); }
     }
 
-    /* Pulse effects */
-    .pulse-glow {
-      animation: pulse-glow-anim 2s infinite ease-in-out;
+    /* Animated Cloudflare Stack Topology */
+    .cf-node-card {
+      background: var(--bg-surface-elevated);
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    @keyframes pulse-glow-anim {
-      0%, 100% { box-shadow: 0 0 15px rgba(0, 240, 255, 0.2); }
-      50% { box-shadow: 0 0 35px rgba(0, 240, 255, 0.5); }
+    .cf-node-card:hover {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.35);
+      transform: translateY(-2px);
+    }
+
+    .cf-pulse-stream {
+      animation: cf-stream-anim 1.2s linear infinite;
+    }
+
+    @keyframes cf-stream-anim {
+      from { stroke-dashoffset: 24; }
+      to { stroke-dashoffset: 0; }
+    }
+
+    .cf-badge-binding {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: rgba(0, 240, 255, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(0, 240, 255, 0.35);
     }
 
     /* Table styles */
     .compare-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.82rem;
+      font-size: 1rem;
       text-align: left;
-      margin-top: 10px;
+      margin-top: 8px;
     }
 
     .compare-table th {
-      background: rgba(37, 47, 85, 0.6);
+      background: rgba(30, 41, 59, 0.95);
       color: var(--accent-cyan);
-      padding: 10px 14px;
-      font-weight: 700;
+      padding: 14px 16px;
+      font-weight: 800;
       border-bottom: 2px solid var(--accent-cyan);
+      font-size: 1.05rem;
     }
 
     .compare-table td {
-      padding: 10px 14px;
+      padding: 14px 16px;
       border-bottom: 1px solid var(--border-color);
-      background: rgba(15, 22, 41, 0.4);
+      background: rgba(15, 23, 42, 0.7);
+      color: var(--text-secondary);
+      line-height: 1.4;
     }
 
     .compare-table tr:hover td {
-      background: rgba(26, 34, 64, 0.6);
+      background: rgba(30, 41, 59, 0.85);
+      color: var(--text-primary);
     }
 
-    .check-icon { color: var(--accent-emerald); font-weight: bold; }
-    .cross-icon { color: var(--accent-rose); font-weight: bold; }
+    .check-icon { color: var(--accent-emerald); font-weight: 900; font-size: 1.2rem; margin-right: 6px; }
+    .cross-icon { color: var(--accent-rose); font-weight: 900; font-size: 1.2rem; margin-right: 6px; }
 
-    /* Custom Footer / Progress bar */
+    /* Persistent Footer */
     .deck-footer {
       position: fixed;
-      bottom: 12px;
-      left: 24px;
-      right: 24px;
+      bottom: 16px;
+      left: 32px;
+      right: 32px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.75rem;
+      font-size: 0.9rem;
+      font-weight: 600;
       color: var(--text-muted);
       z-index: 100;
       pointer-events: none;
-      font-family: 'Inter', sans-serif;
     }
 
     .status-live-dot {
       display: inline-block;
-      width: 8px;
-      height: 8px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: var(--accent-emerald);
-      box-shadow: 0 0 8px var(--accent-emerald);
+      box-shadow: 0 0 10px var(--accent-emerald);
       animation: live-blink 1.2s infinite ease-in-out;
-      margin-right: 6px;
+      margin-right: 8px;
     }
 
     @keyframes live-blink {
@@ -263,19 +308,14 @@
       50% { opacity: 0.3; transform: scale(0.8); }
     }
 
-    /* Speaker Notes styling */
-    .reveal .notes {
-      font-size: 1rem;
-      line-height: 1.6;
-    }
-
     code {
       font-family: 'Fira Code', monospace;
       color: var(--accent-cyan);
-      background: rgba(0, 240, 255, 0.1);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 0.9em;
+      background: rgba(0, 240, 255, 0.15);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.95em;
+      font-weight: 600;
     }
   </style>
 </head>
@@ -284,38 +324,44 @@
     <div class="slides">
 
       <!-- SLIDE 1: PORTADA IMPACTANTE (0:00 - 0:40) -->
-      <section data-background-gradient="radial-gradient(circle at center, #0f1c3f 0%, #050a18 100%)">
-        <div style="margin-bottom: 20px;">
-          <span class="badge badge-cyan"><span class="status-live-dot"></span>MediaHack II · Quito 2026</span>
-          <span class="badge badge-violet">Ecuadorian Civic Tech</span>
-        </div>
-        
-        <h1 style="font-size: 3.2rem; margin: 0 0 10px 0;">
-          <span class="text-gradient-cyan">informa-t</span>
-        </h1>
-        <h3 style="font-size: 1.4rem; font-weight: 500; color: #cbd5e1; max-width: 850px; margin: 0 auto 30px auto; line-height: 1.4;">
-          Asistente editorial con IA auditable para salas de redacción frente a la desinformación electoral en Ecuador
-        </h3>
+      <section data-background-gradient="radial-gradient(circle at 60% 40%, #0f2048 0%, #050a18 100%)">
+        <div style="display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 30px; align-items: center;">
+          <div>
+            <div style="margin-bottom: 16px;">
+              <span class="badge badge-cyan"><span class="status-live-dot"></span>MediaHack II · Quito 2026</span>
+              <span class="badge badge-violet">Civic Tech Ecuador</span>
+            </div>
+            
+            <h1 style="font-size: 3.6rem; margin: 0 0 12px 0;">
+              <span class="text-gradient-cyan">informa-t</span>
+            </h1>
+            
+            <h3 style="font-size: 1.65rem; font-weight: 600; color: var(--text-secondary); margin: 0 0 24px 0; line-height: 1.35;">
+              Asistente editorial con IA auditable para salas de redacción contra la desinformación electoral en Ecuador.
+            </h3>
 
-        <div class="glass-panel" style="max-width: 780px; margin: 0 auto; display: flex; justify-content: space-around; padding: 18px 24px;">
-          <div>
-            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Problema Real</div>
-            <div style="font-size: 1.1rem; font-weight: 700; color: var(--accent-rose);">Desinformación con IA</div>
+            <div class="glass-panel" style="display: flex; justify-content: space-between; padding: 16px 20px;">
+              <div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Problema</div>
+                <div style="font-size: 1.15rem; font-weight: 800; color: var(--accent-rose);">Desinformación con IA</div>
+              </div>
+              <div style="border-right: 1px solid var(--border-color);"></div>
+              <div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Ética</div>
+                <div style="font-size: 1.15rem; font-weight: 800; color: var(--accent-emerald);">Human-in-the-Loop</div>
+              </div>
+              <div style="border-right: 1px solid var(--border-color);"></div>
+              <div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Fuentes</div>
+                <div style="font-size: 1.15rem; font-weight: 800; color: var(--accent-cyan);">CNE · INEC · BCE</div>
+              </div>
+            </div>
           </div>
-          <div style="border-right: 1px solid var(--border-color);"></div>
-          <div>
-            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Control & Ética</div>
-            <div style="font-size: 1.1rem; font-weight: 700; color: var(--accent-emerald);">Human-in-the-Loop</div>
-          </div>
-          <div style="border-right: 1px solid var(--border-color);"></div>
-          <div>
-            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Evidencia Oficial</div>
-            <div style="font-size: 1.1rem; font-weight: 700; color: var(--accent-cyan);">CNE · INEC · BCE · RO</div>
-          </div>
-        </div>
 
-        <div style="margin-top: 30px; font-size: 0.85rem; color: var(--text-muted);">
-          Elecciones 29 de Noviembre 2026 · Hacia la fase de Incubación y Pilotaje
+          <!-- Impactful Hero Visual -->
+          <div>
+            <img src="assets/hero-cockpit.jpg" alt="Cockpit de verificación electoral informa-t" class="slide-img-frame" style="max-height: 380px;">
+          </div>
         </div>
 
         <aside class="notes">
@@ -326,115 +372,118 @@
 
       <!-- SLIDE 2: EL PROBLEMA EN ECUADOR (30% RÚBRICA) (0:40 - 1:25) -->
       <section>
-        <div style="text-align: left; margin-bottom: 20px;">
+        <div style="margin-bottom: 20px;">
           <span class="badge badge-amber">Problema Identificado · 30% Rúbrica</span>
-          <h2 style="font-size: 2.1rem; margin: 8px 0 0 0;">La Asimetría en las Salas de Redacción</h2>
-          <p style="font-size: 0.95rem; color: var(--text-secondary); margin: 4px 0 0 0;">
+          <h2 style="margin: 8px 0 0 0;">La Asimetría en las Salas de Redacción</h2>
+          <p style="font-size: 1.25rem; color: var(--text-secondary); margin: 4px 0 0 0;">
             El contenido viral se genera en segundos; contrastarlo manualmente toma horas.
           </p>
         </div>
 
-        <div class="grid-3" style="margin-bottom: 20px;">
+        <div class="grid-3" style="margin-bottom: 24px;">
           <div class="glass-panel">
-            <div style="font-size: 2.2rem; font-weight: 800; color: var(--accent-rose);">90%</div>
-            <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-top: 4px;">Contenido Viral Alterado</div>
-            <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 6px;">
-              En comicios pasados, 9 de cada 10 mensajes virales verificados por Ecuador Chequea y Lupa Media contenían datos falsos o engañosos.
+            <div style="font-size: 2.8rem; font-weight: 900; color: var(--accent-rose); line-height: 1;">90%</div>
+            <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-top: 8px;">Contenido Viral Alterado</div>
+            <div style="font-size: 1rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.45;">
+              <strong>Ecuador Chequea y Lupa Media</strong> documentaron que 9 de cada 10 contenidos virales auditados tenían elementos falsos o engañosos.
             </div>
           </div>
 
           <div class="glass-panel">
-            <div style="font-size: 2.2rem; font-weight: 800; color: var(--accent-amber);">4 a 6 Horas</div>
-            <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-top: 4px;">Tiempo de Verificación Manual</div>
-            <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 6px;">
-              Buscar en PDF escaneados del CNE, boletines del INEC o decretos del Registro Oficial agota los recursos de salas de redacción locales.
+            <div style="font-size: 2.8rem; font-weight: 900; color: var(--accent-amber); line-height: 1;">4 a 6 Horas</div>
+            <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-top: 8px;">Búsqueda Manual Agotadora</div>
+            <div style="font-size: 1rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.45;">
+              Buscar en PDF escaneados del CNE, boletines del INEC o decretos del Registro Oficial colapsa a los periodistas locales.
             </div>
           </div>
 
           <div class="glass-panel">
-            <div style="font-size: 2.2rem; font-weight: 800; color: var(--accent-cyan);">2%</div>
-            <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-top: 4px;">Cobertura Real sin IA</div>
-            <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 6px;">
-              Los medios solo alcanzan a desmentir una fracción mínima de la desinformación antes de que contamine la opinión ciudadana.
+            <div style="font-size: 2.8rem; font-weight: 900; color: var(--accent-cyan); line-height: 1;">2%</div>
+            <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-top: 8px;">Cobertura Real sin IA</div>
+            <div style="font-size: 1rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.45;">
+              Las redacciones solo alcanzan a desmentir una mínima fracción antes de que contamine la decisión del electorado.
             </div>
           </div>
         </div>
 
-        <!-- DIAGRAMA ANIMADO 1: CUELLO DE BOTELLA -->
-        <div class="glass-panel" style="background: rgba(10, 16, 32, 0.9); padding: 14px 20px;">
-          <div style="font-size: 0.8rem; font-weight: 700; color: var(--accent-cyan); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">
+        <!-- DIAGRAMA ANIMADO: CUELLO DE BOTELLA -->
+        <div class="glass-panel" style="background: rgba(15, 23, 42, 0.95); padding: 18px 24px;">
+          <div style="font-size: 0.95rem; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
             Flujo Tradicional vs. Cuello de Botella Periodístico
           </div>
           <div class="diagram-flow">
-            <div class="node-step" style="border-left: 3px solid var(--accent-rose);">
-              <strong>Viralización</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);">TikTok, X, WhatsApp (Segundos)</span>
+            <div class="node-step" style="border-left: 4px solid var(--accent-rose);">
+              <strong style="color: #fda4af;">Viralización en Segundos</strong><br>
+              <span style="font-size: 0.95rem; color: var(--text-secondary);">TikTok, WhatsApp, X</span>
             </div>
             <div class="flow-arrow">➔</div>
-            <div class="node-step" style="border-left: 3px solid var(--accent-amber);">
-              <strong>Búsqueda Dispersa</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);">PDFs CNE, INEC, Leyes (Horas)</span>
+            <div class="node-step" style="border-left: 4px solid var(--accent-amber);">
+              <strong style="color: #fde68a;">Búsqueda Lenta en PDFs</strong><br>
+              <span style="font-size: 0.95rem; color: var(--text-secondary);">CNE, INEC, Leyes (Horas)</span>
             </div>
             <div class="flow-arrow">➔</div>
-            <div class="node-step" style="border-left: 3px solid var(--accent-rose);">
-              <strong>Llegada Tardía</strong><br><span style="font-size: 0.75rem; color: var(--text-muted);">Desmentido cuando el daño ya está hecho</span>
+            <div class="node-step" style="border-left: 4px solid var(--accent-rose);">
+              <strong style="color: #fda4af;">Llegada Tardía</strong><br>
+              <span style="font-size: 0.95rem; color: var(--text-secondary);">Voto ya desinformado</span>
             </div>
           </div>
         </div>
 
         <aside class="notes">
-          [P1: 0:40 - 1:25] "Vean, en el periodismo ecuatoriano enfrentamos un dolor de cabeza enorme: mientras un troll center o un deepfake se viraliza en minutos por TikTok o WhatsApp, a un periodista de CORAPE, Primera Plana o Tinta Digital le toma de 4 a 6 horas buscar el plan de trabajo en el CNE, las cifras de empleo del INEC o el Registro Oficial. El resultado: llegamos tarde y la ciudadanía vota desinformada."
+          [P1: 0:40 - 1:25] "Vean colegas, en el periodismo ecuatoriano enfrentamos un dolor de cabeza enorme: mientras un troll center o un deepfake se viraliza en minutos por TikTok o WhatsApp, a un periodista de CORAPE, Primera Plana o Tinta Digital le toma de 4 a 6 horas buscar el plan de trabajo en el CNE o las cifras del INEC. El resultado: llegamos tarde y la ciudadanía vota desinformada."
         </aside>
       </section>
 
       <!-- SLIDE 3: LA SOLUCIÓN INFORMA-T (25% RÚBRICA) (1:25 - 2:10) -->
       <section>
-        <div style="text-align: left; margin-bottom: 18px;">
+        <div style="margin-bottom: 18px;">
           <span class="badge badge-cyan">Solución Innovadora · 25% Rúbrica</span>
-          <h2 style="font-size: 2.1rem; margin: 8px 0 0 0;">informa-t: El Copiloto Editorial Auditable</h2>
-          <p style="font-size: 0.95rem; color: var(--text-secondary); margin: 4px 0 0 0;">
-            No reemplaza el criterio humano: automatiza la extracción, contraste y trazabilidad.
+          <h2 style="margin: 8px 0 0 0;">informa-t: El Copiloto Editorial Auditable</h2>
+          <p style="font-size: 1.25rem; color: var(--text-secondary); margin: 4px 0 0 0;">
+            No reemplaza el criterio humano: automatiza la extracción, contraste y trazabilidad en &lt; 45 segundos.
           </p>
         </div>
 
-        <div class="grid-2" style="margin-bottom: 16px;">
-          <div class="glass-panel" style="text-align: left;">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-              <span style="font-size: 1.4rem;">🎯</span>
-              <strong style="font-size: 1rem; color: var(--accent-cyan);">Contraste con Fuentes Primarias</strong>
+        <div class="grid-2" style="margin-bottom: 18px;">
+          <div class="glass-panel">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+              <span style="font-size: 1.8rem;">🎯</span>
+              <strong style="font-size: 1.3rem; color: var(--accent-cyan);">Contraste con Fuentes Primarias</strong>
             </div>
-            <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4; margin: 0;">
-              Indexación semántica RAG del corpus oficial ecuatoriano: planes de gobierno registrados en el CNE, indicadores del INEC, reportes del BCE y normativa del Registro Oficial. Cada afirmación cita página, tabla y párrafo exacto.
+            <p style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
+              <strong>RAG semántico sobre el corpus oficial de Ecuador:</strong> Planes de gobierno CNE, series de pobreza del INEC, cifras del BCE y Registro Oficial con citas exactas por página y párrafo.
             </p>
           </div>
 
-          <div class="glass-panel" style="text-align: left;">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-              <span style="font-size: 1.4rem;">⚖️</span>
-              <strong style="font-size: 1rem; color: var(--accent-violet);">Consenso Multi-Modelo & Desacuerdo</strong>
+          <div class="glass-panel">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+              <span style="font-size: 1.8rem;">⚖️</span>
+              <strong style="font-size: 1.3rem; color: var(--accent-violet);">Consenso Multi-Modelo (2/3)</strong>
             </div>
-            <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4; margin: 0;">
-              No confiamos en un solo modelo. Ejecutamos 3 LLMs en paralelo con regla estricta de 2/3. Si hay desacuerdo o falta de evidencia, el sistema lo expone con honestidad sin inventar certeza.
+            <p style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
+              <strong>3 LLMs independientes en paralelo:</strong> Regla de mayoría 2 de 3 con 3 índices objetivos (polarización, carga emocional, sustento en datos). Si hay discrepancia, se expone la duda.
             </p>
           </div>
         </div>
 
         <div class="grid-2">
-          <div class="glass-panel ethical-card" style="text-align: left;">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-              <span style="font-size: 1.4rem;">🛡️</span>
-              <strong style="font-size: 1rem; color: var(--accent-emerald);">Frontera Ética: Human-in-the-Loop</strong>
+          <div class="glass-panel ethical-card">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+              <span style="font-size: 1.8rem;">🛡️</span>
+              <strong style="font-size: 1.3rem; color: var(--accent-emerald);">Frontera Ética: Human-in-the-Loop</strong>
             </div>
-            <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4; margin: 0;">
-              Ninguna IA emite un veredicto definitivo ni publica de forma autónoma. El editor elige entre 6 categorías de Ecuador Chequea y escribe su justificación.
+            <p style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
+              <strong>Ninguna IA dicta un veredicto:</strong> El selector inicia bloqueado en blanco. El periodista es quien analiza la evidencia, selecciona la categoría y firma la verificación.
             </p>
           </div>
 
-          <div class="glass-panel" style="text-align: left;">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-              <span style="font-size: 1.4rem;">📜</span>
-              <strong style="font-size: 1rem; color: var(--accent-amber);">Exportación Estándar ClaimReview</strong>
+          <div class="glass-panel">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+              <span style="font-size: 1.8rem;">📜</span>
+              <strong style="font-size: 1.3rem; color: var(--accent-amber);">Exportación Estándar ClaimReview</strong>
             </div>
-            <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4; margin: 0;">
-              Genera JSON-LD compatible con Schema.org y Google Fact Check, junto con un log inmutable con hash criptográfico SHA-256 para auditoría cívica total.
+            <p style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
+              <strong>JSON-LD Schema.org + Traza SHA-256:</strong> Compatible con Google Fact Check y medios globales, respaldado por un log inmutable para auditoría cívica total.
             </p>
           </div>
         </div>
@@ -444,137 +493,271 @@
         </aside>
       </section>
 
-      <!-- SLIDE 4: ARQUITECTURA TÉCNICA DINÁMICA & PIPELINE (20% RÚBRICA) (2:10 - 3:00) -->
+      <!-- SLIDE 4: ARQUITECTURA EN VIVO & PIPELINE (20% RÚBRICA) (2:10 - 2:45) -->
       <section>
-        <div style="text-align: left; margin-bottom: 14px;">
+        <div style="margin-bottom: 16px;">
           <span class="badge badge-emerald">Viabilidad Técnica · 20% Rúbrica</span>
-          <h2 style="font-size: 2rem; margin: 6px 0 0 0;">Arquitectura en Vivo: Rigor & Cero Cajas Negras</h2>
-          <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 2px 0 0 0;">
-            Pipeline serverless desplegado en Cloudflare Workers + AI Search + Workers AI.
+          <h2 style="margin: 8px 0 0 0;">Pipeline en Vivo: Rigor & Cero Cajas Negras</h2>
+          <p style="font-size: 1.2rem; color: var(--text-secondary); margin: 2px 0 0 0;">
+            Procesamiento determinístico paso a paso desde el primer evento en tiempo real.
           </p>
         </div>
 
         <!-- DIAGRAMA INTERACTIVO DE ARQUITECTURA -->
-        <div class="glass-panel" style="padding: 16px; margin-bottom: 14px;">
-          <div class="diagram-flow" style="margin: 8px 0;">
-            <div class="node-step fragment" data-fragment-index="1" style="border-top: 3px solid var(--accent-cyan);">
-              <span style="font-size: 1.2rem;">📥</span><br>
+        <div class="glass-panel" style="padding: 18px 22px; margin-bottom: 20px;">
+          <div class="diagram-flow">
+            <div class="node-step fragment" data-fragment-index="1" style="border-top: 4px solid var(--accent-cyan);">
+              <span style="font-size: 1.5rem;">📥</span><br>
               <strong>1. Ingesta</strong><br>
-              <span style="font-size: 0.72rem; color: var(--text-muted);">Texto / URL pública (Browser Run)</span>
+              <span style="font-size: 0.9rem; color: var(--text-muted);">Texto / URL pública</span>
             </div>
             <div class="flow-arrow fragment" data-fragment-index="1">➔</div>
 
-            <div class="node-step fragment" data-fragment-index="2" style="border-top: 3px solid var(--accent-violet);">
-              <span style="font-size: 1.2rem;">🔍</span><br>
+            <div class="node-step fragment" data-fragment-index="2" style="border-top: 4px solid var(--accent-violet);">
+              <span style="font-size: 1.5rem;">🔍</span><br>
               <strong>2. Claims Atómicos</strong><br>
-              <span style="font-size: 0.72rem; color: var(--text-muted);">Filtro fáctico (1 a 3 aseveraciones)</span>
+              <span style="font-size: 0.9rem; color: var(--text-muted);">1 a 3 aseveraciones</span>
             </div>
             <div class="flow-arrow fragment" data-fragment-index="2">➔</div>
 
-            <div class="node-step fragment" data-fragment-index="3" style="border-top: 3px solid var(--accent-emerald);">
-              <span style="font-size: 1.2rem;">📚</span><br>
+            <div class="node-step fragment" data-fragment-index="3" style="border-top: 4px solid var(--accent-emerald);">
+              <span style="font-size: 1.5rem;">📚</span><br>
               <strong>3. RAG Oficial</strong><br>
-              <span style="font-size: 0.72rem; color: var(--text-muted);">Búsqueda híbrida (CNE, INEC, BCE)</span>
+              <span style="font-size: 0.9rem; color: var(--text-muted);">CNE, INEC, BCE</span>
             </div>
             <div class="flow-arrow fragment" data-fragment-index="3">➔</div>
 
-            <div class="node-step fragment" data-fragment-index="4" style="border-top: 3px solid var(--accent-amber);">
-              <span style="font-size: 1.2rem;">🧠</span><br>
+            <div class="node-step fragment" data-fragment-index="4" style="border-top: 4px solid var(--accent-amber);">
+              <span style="font-size: 1.5rem;">🧠</span><br>
               <strong>4. Multi-Modelo</strong><br>
-              <span style="font-size: 0.72rem; color: var(--text-muted);">GLM-4.7 + Gemma + Nemotron (2/3)</span>
+              <span style="font-size: 0.9rem; color: var(--text-muted);">GLM + Gemma + Nemotron</span>
             </div>
             <div class="flow-arrow fragment" data-fragment-index="4">➔</div>
 
-            <div class="node-step fragment highlight-border" data-fragment-index="5" style="border-top: 3px solid var(--accent-rose); background: rgba(244, 63, 94, 0.15);">
-              <span style="font-size: 1.2rem;">✍️</span><br>
-              <strong style="color: var(--accent-rose);">5. Decisión Humana</strong><br>
-              <span style="font-size: 0.72rem; color: #fecdd3;">Editor firma y justifica</span>
+            <div class="node-step fragment highlight-border" data-fragment-index="5" style="border-top: 4px solid var(--accent-rose); background: rgba(244, 63, 94, 0.2);">
+              <span style="font-size: 1.5rem;">✍️</span><br>
+              <strong style="color: #fecdd3;">5. Decisión Humana</strong><br>
+              <span style="font-size: 0.9rem; color: #fecdd3;">Editor firma y justifica</span>
             </div>
           </div>
         </div>
 
-        <div class="grid-3" style="text-align: left;">
-          <div class="glass-panel" style="padding: 12px 16px;">
-            <div style="font-size: 0.8rem; font-weight: 700; color: var(--accent-cyan);">Consenso Determinístico</div>
-            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px;">
-              Mayoría calificada 2 de 3. Sin empate forzado: si los modelos divergen, el sistema declara <code>Sin consenso</code> abiertamente.
+        <div class="grid-3">
+          <div class="glass-panel" style="padding: 16px 20px;">
+            <div style="font-size: 1.15rem; font-weight: 800; color: var(--accent-cyan);">Consenso 2/3</div>
+            <div style="font-size: 0.98rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.4;">
+              Mayoría calificada estricta. Si discrepan, declara <code>Sin consenso</code> sin inventar certeza.
             </div>
           </div>
-          <div class="glass-panel" style="padding: 12px 16px;">
-            <div style="font-size: 0.8rem; font-weight: 700; color: var(--accent-emerald);">Trazabilidad Criptográfica</div>
-            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px;">
-              Hash SHA-256 inmutable de cada solicitud, versión de prompt, fragmentos recuperados y respuestas completas.
+          <div class="glass-panel" style="padding: 16px 20px;">
+            <div style="font-size: 1.15rem; font-weight: 800; color: var(--accent-emerald);">Hash SHA-256</div>
+            <div style="font-size: 0.98rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.4;">
+              Traza inmutable: entradas, fragmentos RAG, prompts y respuestas reproducibles.
             </div>
           </div>
-          <div class="glass-panel" style="padding: 12px 16px;">
-            <div style="font-size: 0.8rem; font-weight: 700; color: var(--accent-amber);">Degradación Honesta</div>
-            <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px;">
-              Si falta información, el sistema reporta <code>Evidencia insuficiente</code>; nunca inventa ni asume falsedad.
+          <div class="glass-panel" style="padding: 16px 20px;">
+            <div style="font-size: 1.15rem; font-weight: 800; color: var(--accent-amber);">Degradación Honesta</div>
+            <div style="font-size: 0.98rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.4;">
+              Si faltan datos, emite <code>Evidencia insuficiente</code>; nunca asume falsedad por ausencia.
             </div>
           </div>
         </div>
 
         <aside class="notes">
-          [P2: 2:10 - 3:00] "A nivel de arquitectura técnica, no tenemos atajos. Nuestro pipeline corre en Cloudflare Workers sin servidores pesados. Cuando entra una declaración, GLM extrae el núcleo fáctico, consultamos el namespace informa-t-oficial con búsqueda vectorial y léxica, y luego 3 modelos independientes generan propuestas con 3 índices objetivos: polarización, carga emocional y sustento en datos públicos. Si divergen, se muestra la discordancia."
+          [P2: 2:10 - 2:45] "A nivel de pipeline, cuando entra una declaración, el modelo extrae el núcleo fáctico, consultamos el namespace informa-t-oficial con búsqueda vectorial y léxica, y luego 3 modelos independientes generan propuestas con 3 índices objetivos: polarización, carga emocional y sustento en datos públicos. Si divergen, se muestra la discordancia."
         </aside>
       </section>
 
-      <!-- SLIDE 5: MATRIZ DIFERENCIADORA (25% RÚBRICA) (3:00 - 3:45) -->
+      <!-- SLIDE 5: TOPOLOGÍA ANIMADA DEL STACK EN CLOUDFLARE (2:40 - 3:15) -->
       <section>
-        <div style="text-align: left; margin-bottom: 14px;">
-          <span class="badge badge-violet">Propuesta de Valor · 25% Rúbrica</span>
-          <h2 style="font-size: 2rem; margin: 6px 0 0 0;">¿Por qué informa-t frente a lo Existente?</h2>
-          <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 2px 0 0 0;">
-            Comparación directa con soluciones genéricas y herramientas de fact-checking actuales.
+        <div style="margin-bottom: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span class="badge badge-cyan">Topología Serverless · Cloudflare Edge AI Stack</span>
+            <span class="badge badge-emerald"><span class="status-live-dot"></span>Cero Servidores Ociosos · Latencia &lt; 50ms</span>
+          </div>
+          <h2 style="margin: 6px 0 0 0; font-size: 2.2rem;">Topología del Stack en Cloudflare</h2>
+          <p style="font-size: 1.05rem; color: var(--text-secondary); margin: 2px 0 0 0;">
+            Arquitectura Serverless unificada: ingestión, inferencia RAG, consenso multi-modelo y auditoría en el borde.
           </p>
         </div>
 
-        <div class="glass-panel" style="padding: 12px 18px;">
+        <!-- TOPOLOGÍA ANIMADA EN CSS / SVG / HTML -->
+        <div class="glass-panel" style="padding: 16px 20px; background: rgba(10, 16, 32, 0.95); position: relative; overflow: hidden;">
+          
+          <!-- NIVEL 1: INGRESS & CLIENTE -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 6px;">
+            <div class="cf-node-card" style="border-left: 4px solid var(--accent-cyan); text-align: left; padding: 10px 16px;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <strong style="font-size: 1.05rem; color: var(--text-primary);">💻 1. Periodista / Sala de Redacción</strong>
+                <span style="font-size: 0.8rem; color: var(--accent-cyan); font-family: 'Fira Code', monospace;">HTTPS / SSE Stream</span>
+              </div>
+              <div style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 2px;">
+                SPA React 19 accesible (WCAG 2.1 AA) · Entrada de texto o URL pública
+              </div>
+            </div>
+
+            <div class="cf-node-card" style="border-left: 4px solid var(--accent-emerald); text-align: left; padding: 10px 16px;">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <strong style="font-size: 1.05rem; color: var(--text-primary);">🛡️ Anycast Global Edge + Turnstile</strong>
+                <span class="badge badge-emerald" style="font-size: 0.75rem; padding: 2px 8px;">DDoS Shield</span>
+              </div>
+              <div style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 2px;">
+                Red global distribuida en 330+ ciudades · Protección anti-bot & rate limiting
+              </div>
+            </div>
+          </div>
+
+          <!-- LÍNEA ANIMADA DE FLUJO A WORKERS -->
+          <div style="height: 22px; position: relative; margin: 0 40px;">
+            <svg width="100%" height="22" style="overflow: visible;">
+              <line x1="25%" y1="0" x2="25%" y2="22" stroke="#00f0ff" stroke-width="2.5" stroke-dasharray="4 4" class="cf-pulse-stream" />
+              <line x1="75%" y1="0" x2="75%" y2="22" stroke="#34d399" stroke-width="2.5" stroke-dasharray="4 4" class="cf-pulse-stream" />
+              <line x1="25%" y1="22" x2="75%" y2="22" stroke="#818cf8" stroke-width="2" stroke-dasharray="4 4" class="cf-pulse-stream" />
+            </svg>
+          </div>
+
+          <!-- NIVEL 2: ORQUESTADOR CENTRAL WORKER -->
+          <div class="cf-node-card highlight-border" style="background: rgba(30, 41, 59, 0.95); padding: 12px 20px; margin-bottom: 6px; text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong style="font-size: 1.15rem; color: var(--accent-cyan);">⚡ 2. Cloudflare Worker (Orquestador Central)</strong>
+                <span style="font-size: 0.85rem; color: var(--text-muted); margin-left: 10px;">Runtime Serverless V8</span>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <span class="cf-badge-binding">Static Assets</span>
+                <span class="cf-badge-binding">Hono API Router</span>
+                <span class="cf-badge-binding">Pipeline Orchestrator</span>
+              </div>
+            </div>
+            <div style="font-size: 0.92rem; color: var(--text-secondary); margin-top: 4px;">
+              Coordina en memoria compartida (RPC nativo) la extracción de claims, la consulta al RAG y la inferencia paralela.
+            </div>
+          </div>
+
+          <!-- BUS DE DATOS ANIMADO CONECTANDO A LOS 4 SERVICIOS CLOUDFLARE -->
+          <div style="height: 24px; position: relative;">
+            <svg width="100%" height="24" style="overflow: visible;">
+              <line x1="50%" y1="0" x2="50%" y2="10" stroke="#00f0ff" stroke-width="2.5" />
+              <line x1="12%" y1="10" x2="88%" y2="10" stroke="#00f0ff" stroke-width="2.5" stroke-dasharray="6 6" class="cf-pulse-stream" />
+              <line x1="12%" y1="10" x2="12%" y2="24" stroke="#fbbf24" stroke-width="2" />
+              <line x1="37%" y1="10" x2="37%" y2="24" stroke="#34d399" stroke-width="2" />
+              <line x1="63%" y1="10" x2="63%" y2="24" stroke="#a855f7" stroke-width="2" />
+              <line x1="88%" y1="10" x2="88%" y2="24" stroke="#f43f5e" stroke-width="2" />
+            </svg>
+          </div>
+
+          <!-- NIVEL 3: LOS 4 SERVICIOS CLOUDFLARE NATIVOS (BINDINGS) -->
+          <div class="grid-4" style="text-align: left; gap: 10px; margin-bottom: 6px;">
+            
+            <!-- Binding 1: Browser Run -->
+            <div class="cf-node-card" style="border-top: 3px solid var(--accent-amber); padding: 10px 12px;">
+              <div style="font-size: 0.95rem; font-weight: 800; color: var(--accent-amber);">🌐 Browser Run</div>
+              <div style="font-size: 0.72rem; color: var(--accent-amber); font-family: 'Fira Code', monospace;">env.BROWSER</div>
+              <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px; line-height: 1.3;">
+                Extracción web remota de artículos, imágenes y audio sin riesgos de seguridad.
+              </div>
+            </div>
+
+            <!-- Binding 2: AI Search -->
+            <div class="cf-node-card" style="border-top: 3px solid var(--accent-emerald); padding: 10px 12px;">
+              <div style="font-size: 0.95rem; font-weight: 800; color: var(--accent-emerald);">🔍 AI Search (RAG)</div>
+              <div style="font-size: 0.72rem; color: var(--accent-emerald); font-family: 'Fira Code', monospace;">informa-t-oficial</div>
+              <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px; line-height: 1.3;">
+                Búsqueda híbrida (vectorial + BM25) sobre planes CNE 2026, INEC y BCE.
+              </div>
+            </div>
+
+            <!-- Binding 3: Workers AI -->
+            <div class="cf-node-card" style="border-top: 3px solid var(--accent-violet); padding: 10px 12px;">
+              <div style="font-size: 0.95rem; font-weight: 800; color: #c084fc;">🧠 Workers AI GPUs</div>
+              <div style="font-size: 0.72rem; color: #c084fc; font-family: 'Fira Code', monospace;">env.AI (3 LLMs)</div>
+              <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px; line-height: 1.3;">
+                Inferencia en paralelo: <strong>GLM-4.7</strong>, <strong>Gemma-4</strong> y <strong>Nemotron</strong>.
+              </div>
+            </div>
+
+            <!-- Binding 4: Workers KV -->
+            <div class="cf-node-card" style="border-top: 3px solid var(--accent-rose); padding: 10px 12px;">
+              <div style="font-size: 0.95rem; font-weight: 800; color: var(--accent-rose);">💾 Workers KV</div>
+              <div style="font-size: 0.72rem; color: var(--accent-rose); font-family: 'Fira Code', monospace;">env.KV_CACHE</div>
+              <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px; line-height: 1.3;">
+                Caché criptográfica de trazas SHA-256 inmutables por 24h.
+              </div>
+            </div>
+
+          </div>
+
+          <!-- NIVEL 4: SALIDA ESTÁNDAR & CONTROL EDITORIAL -->
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.8); border: 1px dashed var(--border-color); border-radius: 12px; padding: 8px 16px; margin-top: 6px;">
+            <div style="font-size: 0.88rem; color: #cbd5e1;">
+              <strong>Frontera de Salida:</strong> Decisión Humana (Human-in-the-Loop) ➔ Exportación en estándar <code>Schema.org ClaimReview JSON-LD</code> + Audit Trail SHA-256.
+            </div>
+            <span class="badge badge-cyan" style="font-size: 0.75rem; padding: 3px 10px;">Interoperable Global</span>
+          </div>
+
+        </div>
+
+        <aside class="notes">
+          [P2: 2:40 - 3:15] "Colegas del jurado, esta es nuestra topología serverless en Cloudflare: Cuando el periodista realiza una consulta, pasa por la red Anycast con protección Turnstile. El Worker orquesta en memoria compartida la extracción remota con Browser Run, el RAG híbrido en Cloudflare AI Search sobre el corpus oficial de Ecuador, y la inferencia multi-modelo en Workers AI con 3 LLMs en paralelo. Todo respaldado por trazas inmutables en Workers KV y exportación directa en Schema.org ClaimReview."
+        </aside>
+      </section>
+
+      <!-- SLIDE 6: MATRIZ DIFERENCIADORA (25% RÚBRICA) (3:15 - 3:50) -->
+      <section>
+        <div style="margin-bottom: 16px;">
+          <span class="badge badge-violet">Propuesta de Valor · 25% Rúbrica</span>
+          <h2 style="margin: 8px 0 0 0;">¿Por qué informa-t frente a lo Existente?</h2>
+          <p style="font-size: 1.2rem; color: var(--text-secondary); margin: 2px 0 0 0;">
+            Comparación directa con modelos comerciales y herramientas de fact-checking actuales.
+          </p>
+        </div>
+
+        <div class="glass-panel" style="padding: 14px 20px;">
           <table class="compare-table">
             <thead>
               <tr>
                 <th>Capacidad Evaluada</th>
-                <th style="color: var(--accent-cyan); font-size: 0.9rem;">informa-t (MVP)</th>
+                <th style="color: var(--accent-cyan); font-size: 1.15rem; font-weight: 800;">informa-t (MVP)</th>
                 <th>Chatbots Genéricos (ChatGPT/Perplexity)</th>
-                <th>Bots de Chequeo (Chequibot/WhatsApp)</th>
+                <th>Bots de WhatsApp (Chequibot)</th>
                 <th>Chequeo Manual</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><strong>Fuentes Oficiales Curadas (Ecuador)</strong></td>
+                <td><strong>Corpus Oficial Curado (Ecuador)</strong></td>
                 <td><span class="check-icon">✔</span> CNE, INEC, BCE, Reg. Oficial</td>
                 <td><span class="cross-icon">✖</span> Web abierta sin filtro</td>
-                <td><span class="check-icon">✔</span> Base cerrada de chequeos previos</td>
+                <td><span class="check-icon">✔</span> Solo notas ya publicadas</td>
                 <td><span class="check-icon">✔</span> Búsqueda dispersa</td>
               </tr>
               <tr>
                 <td><strong>Trazabilidad & Citas Exactas</strong></td>
-                <td><span class="check-icon">✔</span> Párrafo, tabla y hash SHA-256</td>
-                <td><span class="cross-icon">✖</span> Citas generales o alucinadas</td>
-                <td><span class="cross-icon">✖</span> Resumen de nota de prensa</td>
+                <td><span class="check-icon">✔</span> Página, párrafo y hash SHA-256</td>
+                <td><span class="cross-icon">✖</span> Alucinaciones frecuentes</td>
+                <td><span class="cross-icon">✖</span> Sin citas a fuentes primarias</td>
                 <td><span class="check-icon">✔</span> Manual</td>
               </tr>
               <tr>
-                <td><strong>Multi-Modelo & Consenso 2/3</strong></td>
+                <td><strong>Consenso Multi-Modelo (2/3)</strong></td>
                 <td><span class="check-icon">✔</span> 3 LLMs en paralelo con desacuerdo</td>
-                <td><span class="cross-icon">✖</span> Modelo único / sesgo oculto</td>
-                <td><span class="cross-icon">✖</span> Sin arbitraje multi-modelo</td>
+                <td><span class="cross-icon">✖</span> Modelo único con sesgo opaco</td>
+                <td><span class="cross-icon">✖</span> No tiene arbitraje multi-IA</td>
                 <td><span class="cross-icon">✖</span> No aplica</td>
               </tr>
               <tr>
-                <td><strong>Límite Ético: Human-in-the-Loop</strong></td>
-                <td><span class="check-icon">✔</span> Veredicto solo por periodista</td>
-                <td><span class="cross-icon">✖</span> Emite veredicto automático</td>
+                <td><strong>Frontera Ética Human-in-the-Loop</strong></td>
+                <td><span class="check-icon">✔</span> Veredicto exclusivo del periodista</td>
+                <td><span class="cross-icon">✖</span> Emite veredictos automáticos</td>
                 <td><span class="cross-icon">✖</span> Respuesta automatizada</td>
                 <td><span class="check-icon">✔</span> 100% Humano</td>
               </tr>
               <tr>
                 <td><strong>Exportación Estándar</strong></td>
                 <td><span class="check-icon">✔</span> Schema.org ClaimReview JSON-LD</td>
-                <td><span class="cross-icon">✖</span> Texto no estructurado</td>
-                <td><span class="cross-icon">✖</span> Mensajería instantánea</td>
-                <td><span class="cross-icon">✖</span> Manual en CMS</td>
+                <td><span class="cross-icon">✖</span> Solo texto plano</td>
+                <td><span class="cross-icon">✖</span> Mensaje de chat</td>
+                <td><span class="cross-icon">✖</span> Carga manual en CMS</td>
               </tr>
               <tr>
                 <td><strong>Tiempo de Respuesta</strong></td>
@@ -588,116 +771,123 @@
         </div>
 
         <aside class="notes">
-          [P1: 3:00 - 3:45] "Miren la diferencia: un chatbot genérico como ChatGPT alucina datos y te da un veredicto falso como si fuera verdad absoluta. Un bot ciudadano de WhatsApp solo busca si el medio ya verificó la noticia antes. Pero si la mentira acaba de salir en un mitin o debate, solo informa-t permite al periodista cruzar en segundos la afirmación viva contra el plan oficial de gobierno, con auditoría total y salida lista en ClaimReview."
+          [P1: 3:15 - 3:50] "Miren la diferencia: un chatbot genérico como ChatGPT alucina datos y te da un veredicto falso como si fuera verdad absoluta. Un bot ciudadano de WhatsApp solo busca si el medio ya verificó la noticia antes. Pero si un candidato miente hoy a las 7 AM en una entrevista, solo informa-t permite contrastar la afirmación viva contra el plan oficial registrado en el CNE al instante."
         </aside>
       </section>
 
-      <!-- SLIDE 6: GOBERNANZA ÉTICA & LOPDP (PASA/NO PASA) (3:45 - 4:20) -->
+      <!-- SLIDE 7: GOBERNANZA ÉTICA & LOPDP (PASA/NO PASA) (3:50 - 4:20) -->
       <section>
-        <div style="text-align: left; margin-bottom: 16px;">
+        <div style="margin-bottom: 16px;">
           <span class="badge badge-emerald">Marco de Gobernanza Ética · Requisito Esencial</span>
-          <h2 style="font-size: 2rem; margin: 6px 0 0 0;">Cumplimiento Ético Sin Concesiones</h2>
-          <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 2px 0 0 0;">
+          <h2 style="margin: 8px 0 0 0;">Cumplimiento Ético Sin Concesiones</h2>
+          <p style="font-size: 1.2rem; color: var(--text-secondary); margin: 2px 0 0 0;">
             Alineación total con UNESCO, KAS, Openlab y la Ley Orgánica de Protección de Datos Personales (LOPDP).
           </p>
         </div>
 
-        <div class="grid-4" style="text-align: left; margin-bottom: 16px;">
-          <div class="glass-panel ethical-card" style="padding: 14px;">
-            <div style="font-size: 1.2rem; margin-bottom: 4px;">👤</div>
-            <strong style="font-size: 0.85rem; color: var(--accent-emerald);">Supervisión Humana</strong>
-            <p style="font-size: 0.73rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.3;">
-              La IA jamás publica ni califica por su cuenta. El selector inicia vacío y requiere firma y justificación editorial.
-            </p>
+        <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; align-items: center; margin-bottom: 16px;">
+          <div class="grid-2">
+            <div class="glass-panel ethical-card" style="padding: 16px;">
+              <div style="font-size: 1.5rem; margin-bottom: 4px;">👤</div>
+              <strong style="font-size: 1.15rem; color: var(--accent-emerald);">Supervisión Humana</strong>
+              <p style="font-size: 0.95rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.35;">
+                La IA jamás publica. El selector inicia vacío y requiere firma y justificación editorial.
+              </p>
+            </div>
+
+            <div class="glass-panel ethical-card" style="padding: 16px;">
+              <div style="font-size: 1.5rem; margin-bottom: 4px;">⚖️</div>
+              <strong style="font-size: 1.15rem; color: var(--accent-cyan);">Neutralidad Simétrica</strong>
+              <p style="font-size: 0.95rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.35;">
+                Mismo corpus oficial, mismo prompt y misma rúbrica para todas las candidaturas.
+              </p>
+            </div>
+
+            <div class="glass-panel ethical-card" style="padding: 16px;">
+              <div style="font-size: 1.5rem; margin-bottom: 4px;">🔒</div>
+              <strong style="font-size: 1.15rem; color: #c084fc;">Privacidad & LOPDP</strong>
+              <p style="font-size: 0.95rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.35;">
+                Cero perfilamiento ideológico. Sin cookies de rastreo ni almacenamiento de datos personales.
+              </p>
+            </div>
+
+            <div class="glass-panel ethical-card" style="padding: 16px;">
+              <div style="font-size: 1.5rem; margin-bottom: 4px;">📖</div>
+              <strong style="font-size: 1.15rem; color: var(--accent-amber);">Código & Datos Libres</strong>
+              <p style="font-size: 0.95rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.35;">
+                Licencia abierta (MIT) y documentación CC para facilitar la auditoría cívica y adopción.
+              </p>
+            </div>
           </div>
 
-          <div class="glass-panel ethical-card" style="padding: 14px;">
-            <div style="font-size: 1.2rem; margin-bottom: 4px;">⚖️</div>
-            <strong style="font-size: 0.85rem; color: var(--accent-cyan);">Neutralidad Simétrica</strong>
-            <p style="font-size: 0.73rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.3;">
-              Mismo corpus, mismo prompt y misma rúbrica para todas las candidaturas sin distinción ideológica ni privilegios.
-            </p>
-          </div>
-
-          <div class="glass-panel ethical-card" style="padding: 14px;">
-            <div style="font-size: 1.2rem; margin-bottom: 4px;">🔒</div>
-            <strong style="font-size: 0.85rem; color: var(--accent-violet);">Privacidad & LOPDP</strong>
-            <p style="font-size: 0.73rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.3;">
-              Cero perfilamiento político de ciudadanos. No se almacenan datos personales ni cookies de rastreo sin consentimiento.
-            </p>
-          </div>
-
-          <div class="glass-panel ethical-card" style="padding: 14px;">
-            <div style="font-size: 1.2rem; margin-bottom: 4px;">📖</div>
-            <strong style="font-size: 0.85rem; color: var(--accent-amber);">Código & Datos Abiertos</strong>
-            <p style="font-size: 0.73rem; color: var(--text-secondary); margin-top: 6px; line-height: 1.3;">
-              Licencia abierta (MIT/GPL) y documentación CC para garantizar la auditoría cívica y adopción comunitaria.
-            </p>
+          <!-- Ethical & Verification Image -->
+          <div>
+            <img src="assets/human-verification.jpg" alt="Decisión editorial y verificación criptográfica" class="slide-img-frame" style="max-height: 310px;">
           </div>
         </div>
 
-        <div class="glass-panel" style="background: rgba(16, 185, 129, 0.08); border-color: rgba(52, 211, 153, 0.3); padding: 10px 18px; text-align: left; display: flex; align-items: center; justify-content: space-between;">
-          <div style="font-size: 0.82rem; color: #a7f3d0;">
-            <strong>Ficha de Gobernanza Ética Registrada:</strong> Prohibición explícita de vigilancia, manipulación de audiencias o amplificación artificial.
+        <div class="glass-panel" style="background: rgba(16, 185, 129, 0.12); border-color: rgba(52, 211, 153, 0.4); padding: 12px 22px; display: flex; align-items: center; justify-content: space-between;">
+          <div style="font-size: 1.05rem; color: #a7f3d0; font-weight: 600;">
+            <strong>Ficha de Gobernanza Ética Registrada:</strong> Prohibición explícita de vigilancia, manipulación o sesgo partidista.
           </div>
           <span class="badge badge-emerald">Habilitado 100%</span>
         </div>
 
         <aside class="notes">
-          [P1: 3:45 - 4:20] "Y esto es vital para la UNESCO y la KAS: nuestra Ficha de Gobernanza Ética está cumplida al 100%. No hacemos vigilancia digital ni perfilamiento ideológico bajo la LOPDP ecuatoriana. El selector de veredicto viene bloqueado en blanco hasta que un periodista de carne y hueso revisa los datos y estampa su nombre."
+          [P1: 3:50 - 4:20] "Y esto es vital para la UNESCO y la KAS: nuestra Ficha de Gobernanza Ética está cumplida al 100%. No hacemos vigilancia digital ni perfilamiento ideológico bajo la LOPDP ecuatoriana. El selector de veredicto viene bloqueado en blanco hasta que un periodista de carne y hueso revisa los datos y estampa su nombre."
         </aside>
       </section>
 
-      <!-- SLIDE 7: HOJA DE RUTA A LA INCUBACIÓN (15% RÚBRICA) (4:20 - 4:45) -->
+      <!-- SLIDE 8: HOJA DE RUTA A LA INCUBACIÓN (15% RÚBRICA) (4:20 - 4:45) -->
       <section>
-        <div style="text-align: left; margin-bottom: 16px;">
+        <div style="margin-bottom: 16px;">
           <span class="badge badge-amber">Impacto & Continuidad · 15% Rúbrica</span>
-          <h2 style="font-size: 2rem; margin: 6px 0 0 0;">Ruta de Incubación: Septiembre - Octubre 2026</h2>
-          <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 2px 0 0 0;">
+          <h2 style="margin: 8px 0 0 0;">Ruta de Incubación: Septiembre - Octubre 2026</h2>
+          <p style="font-size: 1.2rem; color: var(--text-secondary); margin: 2px 0 0 0;">
             Plan de 8 semanas para pilotar con medios aliados antes de las elecciones del 29 de noviembre.
           </p>
         </div>
 
-        <div class="grid-2" style="margin-bottom: 16px;">
-          <div class="glass-panel" style="text-align: left; border-left: 4px solid var(--accent-cyan);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <strong style="font-size: 0.95rem; color: var(--accent-cyan);">Mes 1: Pilotaje en Caliente (Septiembre)</strong>
+        <div class="grid-2" style="margin-bottom: 20px;">
+          <div class="glass-panel" style="border-left: 5px solid var(--accent-cyan);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <strong style="font-size: 1.3rem; color: var(--accent-cyan);">Mes 1: Pilotaje en Caliente (Septiembre)</strong>
               <span class="badge badge-cyan">Semanas 1-4</span>
             </div>
-            <ul style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; margin: 0; padding-left: 18px;">
+            <ul style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.55; margin: 0; padding-left: 20px;">
               <li><strong>Testeo en salas de redacción aliadas:</strong> Despliegue con CORAPE, Primera Plana o Tinta Digital en sus coberturas de precampaña.</li>
-              <li><strong>Calibración editorial:</strong> Ajuste de prompts e índices heurísticos con retroalimentación directa de periodistas de campo.</li>
-              <li><strong>Evaluación de tiempos:</strong> Medir reducción efectiva de horas de verificación y satisfacción de usuario.</li>
+              <li><strong>Calibración editorial:</strong> Ajuste de prompts e índices con retroalimentación directa de periodistas de campo.</li>
+              <li><strong>Evaluación de tiempos:</strong> Medición cuantitativa del ahorro en horas de chequeo.</li>
             </ul>
           </div>
 
-          <div class="glass-panel" style="text-align: left; border-left: 4px solid var(--accent-violet);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <strong style="font-size: 0.95rem; color: var(--accent-violet);">Mes 2: Escalabilidad & Campaña (Octubre)</strong>
+          <div class="glass-panel" style="border-left: 5px solid var(--accent-violet);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <strong style="font-size: 1.3rem; color: #c084fc;">Mes 2: Escalabilidad & Campaña (Octubre)</strong>
               <span class="badge badge-violet">Semanas 5-8</span>
             </div>
-            <ul style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; margin: 0; padding-left: 18px;">
-              <li><strong>Expansión del corpus oficial:</strong> Ingesta de todos los planes de gobierno presidenciales y asambleístas 2026 registrados en el CNE y resoluciones del TCE.</li>
-              <li><strong>Cloudflare AI Gateway:</strong> Habilitar búsqueda web en vivo y caché persistente de alta concurrencia.</li>
-              <li><strong>Publicación Abierta:</strong> Liberación de documentación en Creative Commons y repositorio público para el ecosistema cívico ecuatoriano.</li>
+            <ul style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.55; margin: 0; padding-left: 20px;">
+              <li><strong>Expansión masiva del corpus oficial:</strong> Ingesta del 100% de los planes CNE 2026 y sentencias del TCE.</li>
+              <li><strong>Cloudflare AI Gateway:</strong> Búsqueda web en vivo y caché persistente de alta concurrencia.</li>
+              <li><strong>Liberación Abierta:</strong> Publicación de guías en CC y código en GitHub para la sociedad civil.</li>
             </ul>
           </div>
         </div>
 
-        <div class="glass-panel" style="background: rgba(15, 22, 41, 0.8); padding: 12px 20px; display: flex; justify-content: space-around; text-align: center;">
+        <div class="glass-panel" style="background: rgba(15, 23, 42, 0.9); padding: 16px 24px; display: flex; justify-content: space-around; text-align: center;">
           <div>
-            <div style="font-size: 1.1rem; font-weight: 800; color: var(--accent-cyan);">Noviembre 2026</div>
-            <div style="font-size: 0.75rem; color: var(--text-secondary);">Presentación de Resultados de Pilotaje</div>
+            <div style="font-size: 1.35rem; font-weight: 900; color: var(--accent-cyan);">Noviembre 2026</div>
+            <div style="font-size: 0.95rem; color: var(--text-secondary); font-weight: 600;">Resultados de Pilotaje</div>
           </div>
           <div style="border-right: 1px solid var(--border-color);"></div>
           <div>
-            <div style="font-size: 1.1rem; font-weight: 800; color: var(--accent-emerald);">29 Nov 2026</div>
-            <div style="font-size: 0.75rem; color: var(--text-secondary);">Elecciones con Periodismo Fortalecido</div>
+            <div style="font-size: 1.35rem; font-weight: 900; color: var(--accent-emerald);">29 Nov 2026</div>
+            <div style="font-size: 0.95rem; color: var(--text-secondary); font-weight: 600;">Periodismo Blindado en Comicios</div>
           </div>
           <div style="border-right: 1px solid var(--border-color);"></div>
           <div>
-            <div style="font-size: 1.1rem; font-weight: 800; color: var(--accent-amber);">$300 + Mentoría</div>
-            <div style="font-size: 0.75rem; color: var(--text-secondary);">Compromiso de Trabajo Completo</div>
+            <div style="font-size: 1.35rem; font-weight: 900; color: var(--accent-amber);">$300 + Mentoría</div>
+            <div style="font-size: 0.95rem; color: var(--text-secondary); font-weight: 600;">Compromiso Total del Equipo</div>
           </div>
         </div>
 
@@ -706,32 +896,37 @@
         </aside>
       </section>
 
-      <!-- SLIDE 8: CIERRE CONTUNDENTE & DEMO (10% COMUNICACIÓN) (4:45 - 5:00) -->
+      <!-- SLIDE 9: CIERRE CONTUNDENTE & DEMO (10% COMUNICACIÓN) (4:45 - 5:00) -->
       <section data-background-gradient="radial-gradient(circle at center, #1e1b4b 0%, #050a18 100%)">
-        <div style="margin-bottom: 20px;">
-          <span class="badge badge-emerald">Listo para Demostración en Vivo</span>
-        </div>
-
-        <h1 style="font-size: 3rem; margin: 0 0 14px 0;">
-          Democracia informada,<br>
-          <span class="text-gradient-cyan">periodismo fortalecido.</span>
-        </h1>
-        
-        <p style="font-size: 1.1rem; color: #cbd5e1; max-width: 750px; margin: 0 auto 30px auto; line-height: 1.4;">
-          Las elecciones no esperan. La desinformación tampoco.<br>
-          Pasemos juntos a la incubación de <strong>informa-t</strong>.
-        </p>
-
-        <div class="glass-panel pulse-glow" style="max-width: 650px; margin: 0 auto; display: flex; justify-content: center; align-items: center; gap: 20px; padding: 16px 28px;">
-          <div style="text-align: left;">
-            <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Despliegue Activo</div>
-            <div style="font-size: 1rem; font-weight: 700; color: var(--accent-cyan); font-family: 'Fira Code', monospace;">informa-t.nimblersoft.com</div>
+        <div style="text-align: center; max-width: 900px; margin: 0 auto;">
+          <div style="margin-bottom: 20px;">
+            <span class="badge badge-emerald">Listo para Demostración en Vivo</span>
           </div>
-          <span class="badge badge-cyan" style="font-size: 0.85rem; padding: 6px 14px;">Demo en Vivo ➔</span>
-        </div>
 
-        <div style="margin-top: 36px; font-size: 0.85rem; color: var(--text-secondary);">
-          <strong>Equipo informa-t</strong> · MediaHack II · Quito, Ecuador · Agosto 2026
+          <h1 style="font-size: 3.4rem; margin: 0 0 16px 0;">
+            Democracia informada,<br>
+            <span class="text-gradient-cyan">periodismo fortalecido.</span>
+          </h1>
+          
+          <p style="font-size: 1.35rem; color: var(--text-secondary); margin: 0 auto 32px auto; line-height: 1.45;">
+            Las elecciones no esperan. La desinformación tampoco.<br>
+            Pasemos juntos a la incubación de <strong>informa-t</strong>.
+          </p>
+
+          <a href="https://informa-t.nimblersoft.com" target="_blank" rel="noopener noreferrer" class="glass-panel highlight-border" style="max-width: 720px; margin: 0 auto; display: flex; justify-content: center; align-items: center; gap: 24px; padding: 18px 32px; border: 2px solid rgba(0, 240, 255, 0.7); box-shadow: 0 0 35px rgba(0, 240, 255, 0.25); text-decoration: none; cursor: pointer; color: inherit; transition: transform 0.2s ease, box-shadow 0.2s ease;">
+            <div style="text-align: left;">
+              <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Despliegue Activo en Vivo</div>
+              <div style="font-size: 1.35rem; font-weight: 800; color: var(--accent-cyan); font-family: 'Fira Code', monospace;">https://informa-t.nimblersoft.com</div>
+            </div>
+            <span class="badge badge-cyan" style="font-size: 1rem; padding: 10px 20px; display: inline-flex; align-items: center; gap: 8px;">
+              <span>Abrir Demo en Vivo</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            </span>
+          </a>
+
+          <div style="margin-top: 36px; font-size: 1.05rem; color: var(--text-muted);">
+            <strong>Equipo informa-t</strong> · MediaHack II · Quito, Ecuador · Agosto 2026
+          </div>
         </div>
 
         <aside class="notes">
@@ -741,11 +936,11 @@
 
     </div>
 
-    <!-- PERSISTENT FOOTER WITH TIMER / BRAND -->
+    <!-- PERSISTENT FOOTER WITH STATUS / BRAND -->
     <div class="deck-footer">
       <div><strong>informa-t</strong> · MediaHack II Ecuador</div>
-      <div><span class="status-live-dot"></span>Modo en Vivo · Workers AI</div>
-      <div>Usa flechas o barra espaciadora para navegar</div>
+      <div><span class="status-live-dot"></span>Modo en Vivo · Cloudflare Workers AI</div>
+      <div>Navega con flechas o barra espaciadora</div>
     </div>
   </div>
 
@@ -761,7 +956,12 @@
       controls: true,
       progress: true,
       center: true,
-      transition: 'slide', // none/fade/slide/convex/concave/zoom
+      width: 1280,
+      height: 720,
+      margin: 0.04,
+      minScale: 0.2,
+      maxScale: 2.0,
+      transition: 'slide',
       transitionSpeed: 'default',
       backgroundTransition: 'fade',
       plugins: [ RevealNotes, RevealHighlight ]
