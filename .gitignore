@@ -15,3 +15,6 @@ playwright-report/
 
 # Internal pitch materials
 docs/pitch/
+
+# Official corpus data (external/raw fixtures)
+corpus/

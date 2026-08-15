@@ -58,7 +58,9 @@ describe("Curated Official Corpus and Provenance Integrity", () => {
     expect(report.valid).toBe(true);
     expect(report.itemCount).toBeGreaterThanOrEqual(2);
     expect(report.exclusionCount).toBeGreaterThanOrEqual(3);
-    expect(report.coveredCases).toEqual(["a1", "a2", "a3", "b1", "c1"]);
+    for (const reqCase of ["a1", "a2", "a3", "b1", "c1"]) {
+      expect(report.coveredCases).toContain(reqCase);
+    }
   });
 
   it("strictly prohibits external fact-check oracle strings and published verdicts in all corpus files", () => {

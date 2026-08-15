@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>informa-t | Pitch MediaHack II</title>
-  
+
   <!-- Google Fonts: Outfit, Inter & Fira Code -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800;900&display=swap"
+    rel="stylesheet">
+
   <!-- Reveal.js CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/reveal.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/theme/black.min.css" id="theme">
-  
+
   <style>
     :root {
       --bg-deep: #050a18;
@@ -21,20 +24,21 @@
       --bg-surface-elevated: rgba(30, 41, 59, 0.9);
       --border-color: rgba(51, 65, 85, 0.9);
       --border-glow: rgba(0, 240, 255, 0.45);
-      
+
       --accent-cyan: #00f0ff;
       --accent-violet: #a855f7;
       --accent-emerald: #34d399;
       --accent-amber: #fbbf24;
       --accent-rose: #f43f5e;
-      
+
       /* WCAG AAA High Contrast Text */
       --text-primary: #ffffff;
       --text-secondary: #e2e8f0;
       --text-muted: #94a3b8;
     }
 
-    body, .reveal {
+    body,
+    .reveal {
       background-color: var(--bg-deep) !important;
       color: var(--text-primary);
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -45,7 +49,10 @@
       text-align: left;
     }
 
-    .reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+    .reveal h1,
+    .reveal h2,
+    .reveal h3,
+    .reveal h4 {
       font-family: 'Outfit', sans-serif;
       text-transform: none;
       letter-spacing: -0.02em;
@@ -53,9 +60,23 @@
       text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
     }
 
-    .reveal h1 { font-size: 3.4rem; font-weight: 900; line-height: 1.1; }
-    .reveal h2 { font-size: 2.5rem; font-weight: 800; line-height: 1.15; }
-    .reveal h3 { font-size: 1.8rem; font-weight: 700; line-height: 1.2; }
+    .reveal h1 {
+      font-size: 3.4rem;
+      font-weight: 900;
+      line-height: 1.1;
+    }
+
+    .reveal h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      line-height: 1.15;
+    }
+
+    .reveal h3 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
 
     /* Gradient Typography */
     .text-gradient-cyan {
@@ -203,8 +224,16 @@
     }
 
     @keyframes pulse-arrow {
-      from { transform: translateX(0); opacity: 0.6; }
-      to { transform: translateX(5px); opacity: 1; text-shadow: 0 0 10px var(--accent-cyan); }
+      from {
+        transform: translateX(0);
+        opacity: 0.6;
+      }
+
+      to {
+        transform: translateX(5px);
+        opacity: 1;
+        text-shadow: 0 0 10px var(--accent-cyan);
+      }
     }
 
     /* Animated Cloudflare Stack Topology */
@@ -227,8 +256,13 @@
     }
 
     @keyframes cf-stream-anim {
-      from { stroke-dashoffset: 24; }
-      to { stroke-dashoffset: 0; }
+      from {
+        stroke-dashoffset: 24;
+      }
+
+      to {
+        stroke-dashoffset: 0;
+      }
     }
 
     .cf-badge-binding {
@@ -273,8 +307,19 @@
       color: var(--text-primary);
     }
 
-    .check-icon { color: var(--accent-emerald); font-weight: 900; font-size: 1.2rem; margin-right: 6px; }
-    .cross-icon { color: var(--accent-rose); font-weight: 900; font-size: 1.2rem; margin-right: 6px; }
+    .check-icon {
+      color: var(--accent-emerald);
+      font-weight: 900;
+      font-size: 1.2rem;
+      margin-right: 6px;
+    }
+
+    .cross-icon {
+      color: var(--accent-rose);
+      font-weight: 900;
+      font-size: 1.2rem;
+      margin-right: 6px;
+    }
 
     /* Persistent Footer */
     .deck-footer {
@@ -304,8 +349,17 @@
     }
 
     @keyframes live-blink {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.3; transform: scale(0.8); }
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.3;
+        transform: scale(0.8);
+      }
     }
 
     code {
@@ -319,6 +373,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="reveal">
     <div class="slides">
@@ -331,28 +386,34 @@
               <span class="badge badge-cyan"><span class="status-live-dot"></span>MediaHack II · Quito 2026</span>
               <span class="badge badge-violet">Civic Tech Ecuador</span>
             </div>
-            
+
             <h1 style="font-size: 3.6rem; margin: 0 0 12px 0;">
               <span class="text-gradient-cyan">informa-t</span>
             </h1>
-            
-            <h3 style="font-size: 1.65rem; font-weight: 600; color: var(--text-secondary); margin: 0 0 24px 0; line-height: 1.35;">
-              Asistente editorial con IA auditable para salas de redacción contra la desinformación electoral en Ecuador.
+
+            <h3
+              style="font-size: 1.65rem; font-weight: 600; color: var(--text-secondary); margin: 0 0 24px 0; line-height: 1.35;">
+              Asistente editorial con IA auditable para salas de redacción contra la desinformación electoral en
+              Ecuador.
             </h3>
 
             <div class="glass-panel" style="display: flex; justify-content: space-between; padding: 16px 20px;">
               <div>
-                <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Problema</div>
-                <div style="font-size: 1.15rem; font-weight: 800; color: var(--accent-rose);">Desinformación con IA</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">
+                  Problema</div>
+                <div style="font-size: 1.15rem; font-weight: 800; color: var(--accent-rose);">Desinformación con IA
+                </div>
               </div>
               <div style="border-right: 1px solid var(--border-color);"></div>
               <div>
-                <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Ética</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">
+                  Ética</div>
                 <div style="font-size: 1.15rem; font-weight: 800; color: var(--accent-emerald);">Human-in-the-Loop</div>
               </div>
               <div style="border-right: 1px solid var(--border-color);"></div>
               <div>
-                <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Fuentes</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">
+                  Fuentes</div>
                 <div style="font-size: 1.15rem; font-weight: 800; color: var(--accent-cyan);">CNE · INEC · BCE</div>
               </div>
             </div>
@@ -360,20 +421,25 @@
 
           <!-- Impactful Hero Visual -->
           <div>
-            <img src="assets/hero-cockpit.jpg" alt="Cockpit de verificación electoral informa-t" class="slide-img-frame" style="max-height: 380px;">
+            <img src="assets/hero-cockpit.jpg" alt="Cockpit de verificación electoral informa-t" class="slide-img-frame"
+              style="max-height: 380px;">
           </div>
         </div>
 
         <aside class="notes">
-          [P1: 0:00 - 0:20] "¡Buenas tardes con todos los miembros del jurado y organizadores! Las elecciones presidenciales en Ecuador son el próximo 29 de noviembre, pero la campaña sucia y la desinformación ya empezaron."
-          [P1: 0:20 - 0:40] "Hoy presentamos informa-t: no es un bot que reemplaza periodistas, sino un copiloto de verificación asistida con IA que contrasta afirmaciones contra fuentes oficiales y deja la decisión final en manos humanas."
+          [P1: 0:00 - 0:20] "¡Buenas tardes con todos los miembros del jurado y organizadores! Las elecciones
+          presidenciales en Ecuador son el próximo 29 de noviembre, pero la campaña sucia y la desinformación ya
+          empezaron."
+          [P1: 0:20 - 0:40] "Hoy presentamos informa-t: no es un bot que reemplaza periodistas, sino un copiloto de
+          verificación asistida con IA que contrasta afirmaciones contra fuentes oficiales y deja la decisión final en
+          manos humanas."
         </aside>
       </section>
 
-      <!-- SLIDE 2: EL PROBLEMA EN ECUADOR (30% RÚBRICA) (0:40 - 1:25) -->
+      <!-- SLIDE 2: EL PROBLEMA EN ECUADOR (0:40 - 1:25) -->
       <section>
         <div style="margin-bottom: 20px;">
-          <span class="badge badge-amber">Problema Identificado · 30% Rúbrica</span>
+          <span class="badge badge-amber">Problema Identificado</span>
           <h2 style="margin: 8px 0 0 0;">La Asimetría en las Salas de Redacción</h2>
           <p style="font-size: 1.25rem; color: var(--text-secondary); margin: 4px 0 0 0;">
             El contenido viral se genera en segundos; contrastarlo manualmente toma horas.
@@ -383,32 +449,40 @@
         <div class="grid-3" style="margin-bottom: 24px;">
           <div class="glass-panel">
             <div style="font-size: 2.8rem; font-weight: 900; color: var(--accent-rose); line-height: 1;">90%</div>
-            <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-top: 8px;">Contenido Viral Alterado</div>
+            <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-top: 8px;">Contenido
+              Viral Alterado</div>
             <div style="font-size: 1rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.45;">
-              <strong>Ecuador Chequea y Lupa Media</strong> documentaron que 9 de cada 10 contenidos virales auditados tenían elementos falsos o engañosos.
+              <strong>Ecuador Chequea y Lupa Media</strong> documentaron que 9 de cada 10 contenidos virales auditados
+              tenían elementos falsos o engañosos.
             </div>
           </div>
 
           <div class="glass-panel">
-            <div style="font-size: 2.8rem; font-weight: 900; color: var(--accent-amber); line-height: 1;">4 a 6 Horas</div>
-            <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-top: 8px;">Búsqueda Manual Agotadora</div>
+            <div style="font-size: 2.8rem; font-weight: 900; color: var(--accent-amber); line-height: 1;">4 a 6 Horas
+            </div>
+            <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-top: 8px;">Búsqueda
+              Manual Agotadora</div>
             <div style="font-size: 1rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.45;">
-              Buscar en PDF escaneados del CNE, boletines del INEC o decretos del Registro Oficial colapsa a los periodistas locales.
+              Buscar en PDF escaneados del CNE, boletines del INEC o decretos del Registro Oficial colapsa a los
+              periodistas locales.
             </div>
           </div>
 
           <div class="glass-panel">
             <div style="font-size: 2.8rem; font-weight: 900; color: var(--accent-cyan); line-height: 1;">2%</div>
-            <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-top: 8px;">Cobertura Real sin IA</div>
+            <div style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-top: 8px;">Cobertura
+              Real sin IA</div>
             <div style="font-size: 1rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.45;">
-              Las redacciones solo alcanzan a desmentir una mínima fracción antes de que contamine la decisión del electorado.
+              Las redacciones solo alcanzan a desmentir una mínima fracción antes de que contamine la decisión del
+              electorado.
             </div>
           </div>
         </div>
 
         <!-- DIAGRAMA ANIMADO: CUELLO DE BOTELLA -->
         <div class="glass-panel" style="background: rgba(15, 23, 42, 0.95); padding: 18px 24px;">
-          <div style="font-size: 0.95rem; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
+          <div
+            style="font-size: 0.95rem; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
             Flujo Tradicional vs. Cuello de Botella Periodístico
           </div>
           <div class="diagram-flow">
@@ -430,14 +504,17 @@
         </div>
 
         <aside class="notes">
-          [P1: 0:40 - 1:25] "Vean colegas, en el periodismo ecuatoriano enfrentamos un dolor de cabeza enorme: mientras un troll center o un deepfake se viraliza en minutos por TikTok o WhatsApp, a un periodista de CORAPE, Primera Plana o Tinta Digital le toma de 4 a 6 horas buscar el plan de trabajo en el CNE o las cifras del INEC. El resultado: llegamos tarde y la ciudadanía vota desinformada."
+          [P1: 0:40 - 1:25] "Vean colegas, en el periodismo ecuatoriano enfrentamos un dolor de cabeza enorme: mientras
+          un troll center o un deepfake se viraliza en minutos por TikTok o WhatsApp, a un periodista de CORAPE, Primera
+          Plana o Tinta Digital le toma de 4 a 6 horas buscar el plan de trabajo en el CNE o las cifras del INEC. El
+          resultado: llegamos tarde y la ciudadanía vota desinformada."
         </aside>
       </section>
 
-      <!-- SLIDE 3: LA SOLUCIÓN INFORMA-T (25% RÚBRICA) (1:25 - 2:10) -->
+      <!-- SLIDE 3: LA SOLUCIÓN INFORMA-T (1:25 - 2:10) -->
       <section>
         <div style="margin-bottom: 18px;">
-          <span class="badge badge-cyan">Solución Innovadora · 25% Rúbrica</span>
+          <span class="badge badge-cyan">Solución Innovadora</span>
           <h2 style="margin: 8px 0 0 0;">informa-t: El Copiloto Editorial Auditable</h2>
           <p style="font-size: 1.25rem; color: var(--text-secondary); margin: 4px 0 0 0;">
             No reemplaza el criterio humano: automatiza la extracción, contraste y trazabilidad en &lt; 45 segundos.
@@ -451,7 +528,8 @@
               <strong style="font-size: 1.3rem; color: var(--accent-cyan);">Contraste con Fuentes Primarias</strong>
             </div>
             <p style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
-              <strong>RAG semántico sobre el corpus oficial de Ecuador:</strong> Planes de gobierno CNE, series de pobreza del INEC, cifras del BCE y Registro Oficial con citas exactas por página y párrafo.
+              <strong>RAG semántico sobre el corpus oficial de Ecuador:</strong> Planes de gobierno CNE, series de
+              pobreza del INEC, cifras del BCE y Registro Oficial con citas exactas por página y párrafo.
             </p>
           </div>
 
@@ -461,7 +539,8 @@
               <strong style="font-size: 1.3rem; color: var(--accent-violet);">Consenso Multi-Modelo (2/3)</strong>
             </div>
             <p style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
-              <strong>3 LLMs independientes en paralelo:</strong> Regla de mayoría 2 de 3 con 3 índices objetivos (polarización, carga emocional, sustento en datos). Si hay discrepancia, se expone la duda.
+              <strong>3 LLMs independientes en paralelo:</strong> Regla de mayoría 2 de 3 con 3 índices objetivos
+              (polarización, carga emocional, sustento en datos). Si hay discrepancia, se expone la duda.
             </p>
           </div>
         </div>
@@ -470,10 +549,12 @@
           <div class="glass-panel ethical-card">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
               <span style="font-size: 1.8rem;">🛡️</span>
-              <strong style="font-size: 1.3rem; color: var(--accent-emerald);">Frontera Ética: Human-in-the-Loop</strong>
+              <strong style="font-size: 1.3rem; color: var(--accent-emerald);">Frontera Ética:
+                Human-in-the-Loop</strong>
             </div>
             <p style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
-              <strong>Ninguna IA dicta un veredicto:</strong> El selector inicia bloqueado en blanco. El periodista es quien analiza la evidencia, selecciona la categoría y firma la verificación.
+              <strong>Ninguna IA dicta un veredicto:</strong> El selector inicia bloqueado en blanco. El periodista es
+              quien analiza la evidencia, selecciona la categoría y firma la verificación.
             </p>
           </div>
 
@@ -483,20 +564,24 @@
               <strong style="font-size: 1.3rem; color: var(--accent-amber);">Exportación Estándar ClaimReview</strong>
             </div>
             <p style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
-              <strong>JSON-LD Schema.org + Traza SHA-256:</strong> Compatible con Google Fact Check y medios globales, respaldado por un log inmutable para auditoría cívica total.
+              <strong>JSON-LD Schema.org + Traza SHA-256:</strong> Compatible con Google Fact Check y medios globales,
+              respaldado por un log inmutable para auditoría cívica total.
             </p>
           </div>
         </div>
 
         <aside class="notes">
-          [P2: 1:25 - 2:10] "Aquí es donde entra informa-t. Diseñamos un flujo en vivo que reduce esas 4 horas a menos de 45 segundos: pega un texto o URL, el sistema extrae hasta 3 aseveraciones atómicas, consulta un índice RAG de fuentes oficiales curadas del CNE e INEC, y corre 3 modelos en paralelo. Pero respetando la regla de oro: la IA jamás dicta sentencia. El periodista revisa la evidencia y es quien firma la verificación."
+          [P2: 1:25 - 2:10] "Aquí es donde entra informa-t. Diseñamos un flujo en vivo que reduce esas 4 horas a menos
+          de 45 segundos: pega un texto o URL, el sistema extrae hasta 3 aseveraciones atómicas, consulta un índice RAG
+          de fuentes oficiales curadas del CNE e INEC, y corre 3 modelos en paralelo. Pero respetando la regla de oro:
+          la IA jamás dicta sentencia. El periodista revisa la evidencia y es quien firma la verificación."
         </aside>
       </section>
 
-      <!-- SLIDE 4: ARQUITECTURA EN VIVO & PIPELINE (20% RÚBRICA) (2:10 - 2:45) -->
+      <!-- SLIDE 4: ARQUITECTURA EN VIVO & PIPELINE (2:10 - 2:45) -->
       <section>
         <div style="margin-bottom: 16px;">
-          <span class="badge badge-emerald">Viabilidad Técnica · 20% Rúbrica</span>
+          <span class="badge badge-emerald">Viabilidad Técnica</span>
           <h2 style="margin: 8px 0 0 0;">Pipeline en Vivo: Rigor & Cero Cajas Negras</h2>
           <p style="font-size: 1.2rem; color: var(--text-secondary); margin: 2px 0 0 0;">
             Procesamiento determinístico paso a paso desde el primer evento en tiempo real.
@@ -520,7 +605,8 @@
             </div>
             <div class="flow-arrow fragment" data-fragment-index="2">➔</div>
 
-            <div class="node-step fragment" data-fragment-index="3" style="border-top: 4px solid var(--accent-emerald);">
+            <div class="node-step fragment" data-fragment-index="3"
+              style="border-top: 4px solid var(--accent-emerald);">
               <span style="font-size: 1.5rem;">📚</span><br>
               <strong>3. RAG Oficial</strong><br>
               <span style="font-size: 0.9rem; color: var(--text-muted);">CNE, INEC, BCE</span>
@@ -534,7 +620,8 @@
             </div>
             <div class="flow-arrow fragment" data-fragment-index="4">➔</div>
 
-            <div class="node-step fragment highlight-border" data-fragment-index="5" style="border-top: 4px solid var(--accent-rose); background: rgba(244, 63, 94, 0.2);">
+            <div class="node-step fragment highlight-border" data-fragment-index="5"
+              style="border-top: 4px solid var(--accent-rose); background: rgba(244, 63, 94, 0.2);">
               <span style="font-size: 1.5rem;">✍️</span><br>
               <strong style="color: #fecdd3;">5. Decisión Humana</strong><br>
               <span style="font-size: 0.9rem; color: #fecdd3;">Editor firma y justifica</span>
@@ -564,7 +651,10 @@
         </div>
 
         <aside class="notes">
-          [P2: 2:10 - 2:45] "A nivel de pipeline, cuando entra una declaración, el modelo extrae el núcleo fáctico, consultamos el namespace informa-t-oficial con búsqueda vectorial y léxica, y luego 3 modelos independientes generan propuestas con 3 índices objetivos: polarización, carga emocional y sustento en datos públicos. Si divergen, se muestra la discordancia."
+          [P2: 2:10 - 2:45] "A nivel de pipeline, cuando entra una declaración, el modelo extrae el núcleo fáctico,
+          consultamos el namespace informa-t-oficial con búsqueda vectorial y léxica, y luego 3 modelos independientes
+          generan propuestas con 3 índices objetivos: polarización, carga emocional y sustento en datos públicos. Si
+          divergen, se muestra la discordancia."
         </aside>
       </section>
 
@@ -573,7 +663,8 @@
         <div style="margin-bottom: 12px;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <span class="badge badge-cyan">Topología Serverless · Cloudflare Edge AI Stack</span>
-            <span class="badge badge-emerald"><span class="status-live-dot"></span>Cero Servidores Ociosos · Latencia &lt; 50ms</span>
+            <span class="badge badge-emerald"><span class="status-live-dot"></span>Cero Servidores Ociosos · Latencia
+              &lt; 50ms</span>
           </div>
           <h2 style="margin: 6px 0 0 0; font-size: 2.2rem;">Topología del Stack en Cloudflare</h2>
           <p style="font-size: 1.05rem; color: var(--text-secondary); margin: 2px 0 0 0;">
@@ -582,23 +673,29 @@
         </div>
 
         <!-- TOPOLOGÍA ANIMADA EN CSS / SVG / HTML -->
-        <div class="glass-panel" style="padding: 16px 20px; background: rgba(10, 16, 32, 0.95); position: relative; overflow: hidden;">
-          
+        <div class="glass-panel"
+          style="padding: 16px 20px; background: rgba(10, 16, 32, 0.95); position: relative; overflow: hidden;">
+
           <!-- NIVEL 1: INGRESS & CLIENTE -->
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 6px;">
-            <div class="cf-node-card" style="border-left: 4px solid var(--accent-cyan); text-align: left; padding: 10px 16px;">
+            <div class="cf-node-card"
+              style="border-left: 4px solid var(--accent-cyan); text-align: left; padding: 10px 16px;">
               <div style="display: flex; align-items: center; justify-content: space-between;">
-                <strong style="font-size: 1.05rem; color: var(--text-primary);">💻 1. Periodista / Sala de Redacción</strong>
-                <span style="font-size: 0.8rem; color: var(--accent-cyan); font-family: 'Fira Code', monospace;">HTTPS / SSE Stream</span>
+                <strong style="font-size: 1.05rem; color: var(--text-primary);">💻 1. Periodista / Sala de
+                  Redacción</strong>
+                <span style="font-size: 0.8rem; color: var(--accent-cyan); font-family: 'Fira Code', monospace;">HTTPS /
+                  SSE Stream</span>
               </div>
               <div style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 2px;">
                 SPA React 19 accesible (WCAG 2.1 AA) · Entrada de texto o URL pública
               </div>
             </div>
 
-            <div class="cf-node-card" style="border-left: 4px solid var(--accent-emerald); text-align: left; padding: 10px 16px;">
+            <div class="cf-node-card"
+              style="border-left: 4px solid var(--accent-emerald); text-align: left; padding: 10px 16px;">
               <div style="display: flex; align-items: center; justify-content: space-between;">
-                <strong style="font-size: 1.05rem; color: var(--text-primary);">🛡️ Anycast Global Edge + Turnstile</strong>
+                <strong style="font-size: 1.05rem; color: var(--text-primary);">🛡️ Anycast Global Edge +
+                  Turnstile</strong>
                 <span class="badge badge-emerald" style="font-size: 0.75rem; padding: 2px 8px;">DDoS Shield</span>
               </div>
               <div style="font-size: 0.88rem; color: var(--text-secondary); margin-top: 2px;">
@@ -610,18 +707,24 @@
           <!-- LÍNEA ANIMADA DE FLUJO A WORKERS -->
           <div style="height: 22px; position: relative; margin: 0 40px;">
             <svg width="100%" height="22" style="overflow: visible;">
-              <line x1="25%" y1="0" x2="25%" y2="22" stroke="#00f0ff" stroke-width="2.5" stroke-dasharray="4 4" class="cf-pulse-stream" />
-              <line x1="75%" y1="0" x2="75%" y2="22" stroke="#34d399" stroke-width="2.5" stroke-dasharray="4 4" class="cf-pulse-stream" />
-              <line x1="25%" y1="22" x2="75%" y2="22" stroke="#818cf8" stroke-width="2" stroke-dasharray="4 4" class="cf-pulse-stream" />
+              <line x1="25%" y1="0" x2="25%" y2="22" stroke="#00f0ff" stroke-width="2.5" stroke-dasharray="4 4"
+                class="cf-pulse-stream" />
+              <line x1="75%" y1="0" x2="75%" y2="22" stroke="#34d399" stroke-width="2.5" stroke-dasharray="4 4"
+                class="cf-pulse-stream" />
+              <line x1="25%" y1="22" x2="75%" y2="22" stroke="#818cf8" stroke-width="2" stroke-dasharray="4 4"
+                class="cf-pulse-stream" />
             </svg>
           </div>
 
           <!-- NIVEL 2: ORQUESTADOR CENTRAL WORKER -->
-          <div class="cf-node-card highlight-border" style="background: rgba(30, 41, 59, 0.95); padding: 12px 20px; margin-bottom: 6px; text-align: left;">
+          <div class="cf-node-card highlight-border"
+            style="background: rgba(30, 41, 59, 0.95); padding: 12px 20px; margin-bottom: 6px; text-align: left;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
               <div>
-                <strong style="font-size: 1.15rem; color: var(--accent-cyan);">⚡ 2. Cloudflare Worker (Orquestador Central)</strong>
-                <span style="font-size: 0.85rem; color: var(--text-muted); margin-left: 10px;">Runtime Serverless V8</span>
+                <strong style="font-size: 1.15rem; color: var(--accent-cyan);">⚡ 2. Cloudflare Worker (Orquestador
+                  Central)</strong>
+                <span style="font-size: 0.85rem; color: var(--text-muted); margin-left: 10px;">Runtime Serverless
+                  V8</span>
               </div>
               <div style="display: flex; gap: 8px;">
                 <span class="cf-badge-binding">Static Assets</span>
@@ -630,7 +733,8 @@
               </div>
             </div>
             <div style="font-size: 0.92rem; color: var(--text-secondary); margin-top: 4px;">
-              Coordina en memoria compartida (RPC nativo) la extracción de claims, la consulta al RAG y la inferencia paralela.
+              Coordina en memoria compartida (RPC nativo) la extracción de claims, la consulta al RAG y la inferencia
+              paralela.
             </div>
           </div>
 
@@ -638,7 +742,8 @@
           <div style="height: 24px; position: relative;">
             <svg width="100%" height="24" style="overflow: visible;">
               <line x1="50%" y1="0" x2="50%" y2="10" stroke="#00f0ff" stroke-width="2.5" />
-              <line x1="12%" y1="10" x2="88%" y2="10" stroke="#00f0ff" stroke-width="2.5" stroke-dasharray="6 6" class="cf-pulse-stream" />
+              <line x1="12%" y1="10" x2="88%" y2="10" stroke="#00f0ff" stroke-width="2.5" stroke-dasharray="6 6"
+                class="cf-pulse-stream" />
               <line x1="12%" y1="10" x2="12%" y2="24" stroke="#fbbf24" stroke-width="2" />
               <line x1="37%" y1="10" x2="37%" y2="24" stroke="#34d399" stroke-width="2" />
               <line x1="63%" y1="10" x2="63%" y2="24" stroke="#a855f7" stroke-width="2" />
@@ -648,11 +753,12 @@
 
           <!-- NIVEL 3: LOS 4 SERVICIOS CLOUDFLARE NATIVOS (BINDINGS) -->
           <div class="grid-4" style="text-align: left; gap: 10px; margin-bottom: 6px;">
-            
+
             <!-- Binding 1: Browser Run -->
             <div class="cf-node-card" style="border-top: 3px solid var(--accent-amber); padding: 10px 12px;">
               <div style="font-size: 0.95rem; font-weight: 800; color: var(--accent-amber);">🌐 Browser Run</div>
-              <div style="font-size: 0.72rem; color: var(--accent-amber); font-family: 'Fira Code', monospace;">env.BROWSER</div>
+              <div style="font-size: 0.72rem; color: var(--accent-amber); font-family: 'Fira Code', monospace;">
+                env.BROWSER</div>
               <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px; line-height: 1.3;">
                 Extracción web remota de artículos, imágenes y audio sin riesgos de seguridad.
               </div>
@@ -661,7 +767,8 @@
             <!-- Binding 2: AI Search -->
             <div class="cf-node-card" style="border-top: 3px solid var(--accent-emerald); padding: 10px 12px;">
               <div style="font-size: 0.95rem; font-weight: 800; color: var(--accent-emerald);">🔍 AI Search (RAG)</div>
-              <div style="font-size: 0.72rem; color: var(--accent-emerald); font-family: 'Fira Code', monospace;">informa-t-oficial</div>
+              <div style="font-size: 0.72rem; color: var(--accent-emerald); font-family: 'Fira Code', monospace;">
+                informa-t-oficial</div>
               <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px; line-height: 1.3;">
                 Búsqueda híbrida (vectorial + BM25) sobre planes CNE 2026, INEC y BCE.
               </div>
@@ -670,7 +777,8 @@
             <!-- Binding 3: Workers AI -->
             <div class="cf-node-card" style="border-top: 3px solid var(--accent-violet); padding: 10px 12px;">
               <div style="font-size: 0.95rem; font-weight: 800; color: #c084fc;">🧠 Workers AI GPUs</div>
-              <div style="font-size: 0.72rem; color: #c084fc; font-family: 'Fira Code', monospace;">env.AI (3 LLMs)</div>
+              <div style="font-size: 0.72rem; color: #c084fc; font-family: 'Fira Code', monospace;">env.AI (3 LLMs)
+              </div>
               <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px; line-height: 1.3;">
                 Inferencia en paralelo: <strong>GLM-4.7</strong>, <strong>Gemma-4</strong> y <strong>Nemotron</strong>.
               </div>
@@ -679,7 +787,8 @@
             <!-- Binding 4: Workers KV -->
             <div class="cf-node-card" style="border-top: 3px solid var(--accent-rose); padding: 10px 12px;">
               <div style="font-size: 0.95rem; font-weight: 800; color: var(--accent-rose);">💾 Workers KV</div>
-              <div style="font-size: 0.72rem; color: var(--accent-rose); font-family: 'Fira Code', monospace;">env.KV_CACHE</div>
+              <div style="font-size: 0.72rem; color: var(--accent-rose); font-family: 'Fira Code', monospace;">
+                env.KV_CACHE</div>
               <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 4px; line-height: 1.3;">
                 Caché criptográfica de trazas SHA-256 inmutables por 24h.
               </div>
@@ -688,9 +797,11 @@
           </div>
 
           <!-- NIVEL 4: SALIDA ESTÁNDAR & CONTROL EDITORIAL -->
-          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.8); border: 1px dashed var(--border-color); border-radius: 12px; padding: 8px 16px; margin-top: 6px;">
+          <div
+            style="display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.8); border: 1px dashed var(--border-color); border-radius: 12px; padding: 8px 16px; margin-top: 6px;">
             <div style="font-size: 0.88rem; color: #cbd5e1;">
-              <strong>Frontera de Salida:</strong> Decisión Humana (Human-in-the-Loop) ➔ Exportación en estándar <code>Schema.org ClaimReview JSON-LD</code> + Audit Trail SHA-256.
+              <strong>Frontera de Salida:</strong> Decisión Humana (Human-in-the-Loop) ➔ Exportación en estándar
+              <code>Schema.org ClaimReview JSON-LD</code> + Audit Trail SHA-256.
             </div>
             <span class="badge badge-cyan" style="font-size: 0.75rem; padding: 3px 10px;">Interoperable Global</span>
           </div>
@@ -698,14 +809,18 @@
         </div>
 
         <aside class="notes">
-          [P2: 2:40 - 3:15] "Colegas del jurado, esta es nuestra topología serverless en Cloudflare: Cuando el periodista realiza una consulta, pasa por la red Anycast con protección Turnstile. El Worker orquesta en memoria compartida la extracción remota con Browser Run, el RAG híbrido en Cloudflare AI Search sobre el corpus oficial de Ecuador, y la inferencia multi-modelo en Workers AI con 3 LLMs en paralelo. Todo respaldado por trazas inmutables en Workers KV y exportación directa en Schema.org ClaimReview."
+          [P2: 2:40 - 3:15] "Colegas del jurado, esta es nuestra topología serverless en Cloudflare: Cuando el
+          periodista realiza una consulta, pasa por la red Anycast con protección Turnstile. El Worker orquesta en
+          memoria compartida la extracción remota con Browser Run, el RAG híbrido en Cloudflare AI Search sobre el
+          corpus oficial de Ecuador, y la inferencia multi-modelo en Workers AI con 3 LLMs en paralelo. Todo respaldado
+          por trazas inmutables en Workers KV y exportación directa en Schema.org ClaimReview."
         </aside>
       </section>
 
-      <!-- SLIDE 6: MATRIZ DIFERENCIADORA (25% RÚBRICA) (3:15 - 3:50) -->
+      <!-- SLIDE 6: MATRIZ DIFERENCIADORA (3:15 - 3:50) -->
       <section>
         <div style="margin-bottom: 16px;">
-          <span class="badge badge-violet">Propuesta de Valor · 25% Rúbrica</span>
+          <span class="badge badge-violet">Propuesta de Valor</span>
           <h2 style="margin: 8px 0 0 0;">¿Por qué informa-t frente a lo Existente?</h2>
           <p style="font-size: 1.2rem; color: var(--text-secondary); margin: 2px 0 0 0;">
             Comparación directa con modelos comerciales y herramientas de fact-checking actuales.
@@ -718,8 +833,8 @@
               <tr>
                 <th>Capacidad Evaluada</th>
                 <th style="color: var(--accent-cyan); font-size: 1.15rem; font-weight: 800;">informa-t (MVP)</th>
-                <th>Chatbots Genéricos (ChatGPT/Perplexity)</th>
-                <th>Bots de WhatsApp (Chequibot)</th>
+                <th>Chatbots Genéricos (ChatGPT/Perplexity/Grok/Gemini)</th>
+                <th>Bots de WhatsApp</th>
                 <th>Chequeo Manual</th>
               </tr>
             </thead>
@@ -771,7 +886,10 @@
         </div>
 
         <aside class="notes">
-          [P1: 3:15 - 3:50] "Miren la diferencia: un chatbot genérico como ChatGPT alucina datos y te da un veredicto falso como si fuera verdad absoluta. Un bot ciudadano de WhatsApp solo busca si el medio ya verificó la noticia antes. Pero si un candidato miente hoy a las 7 AM en una entrevista, solo informa-t permite contrastar la afirmación viva contra el plan oficial registrado en el CNE al instante."
+          [P1: 3:15 - 3:50] "Miren la diferencia: un chatbot genérico como ChatGPT alucina datos y te da un veredicto
+          falso como si fuera verdad absoluta. Un bot ciudadano de WhatsApp solo busca si el medio ya verificó la
+          noticia antes. Pero si un candidato miente hoy a las 7 AM en una entrevista, solo informa-t permite contrastar
+          la afirmación viva contra el plan oficial registrado en el CNE al instante."
         </aside>
       </section>
 
@@ -785,7 +903,8 @@
           </p>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; align-items: center; margin-bottom: 16px;">
+        <div
+          style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; align-items: center; margin-bottom: 16px;">
           <div class="grid-2">
             <div class="glass-panel ethical-card" style="padding: 16px;">
               <div style="font-size: 1.5rem; margin-bottom: 4px;">👤</div>
@@ -822,26 +941,32 @@
 
           <!-- Ethical & Verification Image -->
           <div>
-            <img src="assets/human-verification.jpg" alt="Decisión editorial y verificación criptográfica" class="slide-img-frame" style="max-height: 310px;">
+            <img src="assets/human-verification.jpg" alt="Decisión editorial y verificación criptográfica"
+              class="slide-img-frame" style="max-height: 310px;">
           </div>
         </div>
 
-        <div class="glass-panel" style="background: rgba(16, 185, 129, 0.12); border-color: rgba(52, 211, 153, 0.4); padding: 12px 22px; display: flex; align-items: center; justify-content: space-between;">
+        <div class="glass-panel"
+          style="background: rgba(16, 185, 129, 0.12); border-color: rgba(52, 211, 153, 0.4); padding: 12px 22px; display: flex; align-items: center; justify-content: space-between;">
           <div style="font-size: 1.05rem; color: #a7f3d0; font-weight: 600;">
-            <strong>Ficha de Gobernanza Ética Registrada:</strong> Prohibición explícita de vigilancia, manipulación o sesgo partidista.
+            <strong>Ficha de Gobernanza Ética Registrada:</strong> Prohibición explícita de vigilancia, manipulación o
+            sesgo partidista.
           </div>
           <span class="badge badge-emerald">Habilitado 100%</span>
         </div>
 
         <aside class="notes">
-          [P1: 3:50 - 4:20] "Y esto es vital para la UNESCO y la KAS: nuestra Ficha de Gobernanza Ética está cumplida al 100%. No hacemos vigilancia digital ni perfilamiento ideológico bajo la LOPDP ecuatoriana. El selector de veredicto viene bloqueado en blanco hasta que un periodista de carne y hueso revisa los datos y estampa su nombre."
+          [P1: 3:50 - 4:20] "Y esto es vital para la UNESCO y la KAS: nuestra Ficha de Gobernanza Ética está cumplida al
+          100%. No hacemos vigilancia digital ni perfilamiento ideológico bajo la LOPDP ecuatoriana. El selector de
+          veredicto viene bloqueado en blanco hasta que un periodista de carne y hueso revisa los datos y estampa su
+          nombre."
         </aside>
       </section>
 
-      <!-- SLIDE 8: HOJA DE RUTA A LA INCUBACIÓN (15% RÚBRICA) (4:20 - 4:45) -->
+      <!-- SLIDE 8: HOJA DE RUTA A LA INCUBACIÓN (4:20 - 4:45) -->
       <section>
         <div style="margin-bottom: 16px;">
-          <span class="badge badge-amber">Impacto & Continuidad · 15% Rúbrica</span>
+          <span class="badge badge-amber">Impacto & Continuidad</span>
           <h2 style="margin: 8px 0 0 0;">Ruta de Incubación: Septiembre - Octubre 2026</h2>
           <p style="font-size: 1.2rem; color: var(--text-secondary); margin: 2px 0 0 0;">
             Plan de 8 semanas para pilotar con medios aliados antes de las elecciones del 29 de noviembre.
@@ -851,12 +976,16 @@
         <div class="grid-2" style="margin-bottom: 20px;">
           <div class="glass-panel" style="border-left: 5px solid var(--accent-cyan);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-              <strong style="font-size: 1.3rem; color: var(--accent-cyan);">Mes 1: Pilotaje en Caliente (Septiembre)</strong>
+              <strong style="font-size: 1.3rem; color: var(--accent-cyan);">Mes 1: Pilotaje en Caliente
+                (Septiembre)</strong>
               <span class="badge badge-cyan">Semanas 1-4</span>
             </div>
-            <ul style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.55; margin: 0; padding-left: 20px;">
-              <li><strong>Testeo en salas de redacción aliadas:</strong> Despliegue con CORAPE, Primera Plana o Tinta Digital en sus coberturas de precampaña.</li>
-              <li><strong>Calibración editorial:</strong> Ajuste de prompts e índices con retroalimentación directa de periodistas de campo.</li>
+            <ul
+              style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.55; margin: 0; padding-left: 20px;">
+              <li><strong>Testeo en salas de redacción aliadas:</strong> Despliegue con CORAPE, Primera Plana o Tinta
+                Digital en sus coberturas de precampaña.</li>
+              <li><strong>Calibración editorial:</strong> Ajuste de prompts e índices con retroalimentación directa de
+                periodistas de campo.</li>
               <li><strong>Evaluación de tiempos:</strong> Medición cuantitativa del ahorro en horas de chequeo.</li>
             </ul>
           </div>
@@ -866,37 +995,48 @@
               <strong style="font-size: 1.3rem; color: #c084fc;">Mes 2: Escalabilidad & Campaña (Octubre)</strong>
               <span class="badge badge-violet">Semanas 5-8</span>
             </div>
-            <ul style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.55; margin: 0; padding-left: 20px;">
-              <li><strong>Expansión masiva del corpus oficial:</strong> Ingesta del 100% de los planes CNE 2026 y sentencias del TCE.</li>
-              <li><strong>Cloudflare AI Gateway:</strong> Búsqueda web en vivo y caché persistente de alta concurrencia.</li>
-              <li><strong>Liberación Abierta:</strong> Publicación de guías en CC y código en GitHub para la sociedad civil.</li>
+            <ul
+              style="font-size: 1.05rem; color: var(--text-secondary); line-height: 1.55; margin: 0; padding-left: 20px;">
+              <li><strong>Expansión masiva del corpus oficial:</strong> Ingesta del 100% de los planes CNE 2026 y
+                sentencias del TCE.</li>
+              <li><strong>Cloudflare AI Gateway:</strong> Búsqueda web en vivo y caché persistente de alta concurrencia.
+              </li>
+              <li><strong>Liberación Abierta:</strong> Publicación de guías en CC y código en GitHub para la sociedad
+                civil.</li>
             </ul>
           </div>
         </div>
 
-        <div class="glass-panel" style="background: rgba(15, 23, 42, 0.9); padding: 16px 24px; display: flex; justify-content: space-around; text-align: center;">
+        <div class="glass-panel"
+          style="background: rgba(15, 23, 42, 0.9); padding: 16px 24px; display: flex; justify-content: space-around; text-align: center;">
           <div>
             <div style="font-size: 1.35rem; font-weight: 900; color: var(--accent-cyan);">Noviembre 2026</div>
-            <div style="font-size: 0.95rem; color: var(--text-secondary); font-weight: 600;">Resultados de Pilotaje</div>
+            <div style="font-size: 0.95rem; color: var(--text-secondary); font-weight: 600;">Resultados de Pilotaje
+            </div>
           </div>
           <div style="border-right: 1px solid var(--border-color);"></div>
           <div>
             <div style="font-size: 1.35rem; font-weight: 900; color: var(--accent-emerald);">29 Nov 2026</div>
-            <div style="font-size: 0.95rem; color: var(--text-secondary); font-weight: 600;">Periodismo Blindado en Comicios</div>
+            <div style="font-size: 0.95rem; color: var(--text-secondary); font-weight: 600;">Periodismo Blindado en
+              Comicios</div>
           </div>
           <div style="border-right: 1px solid var(--border-color);"></div>
           <div>
-            <div style="font-size: 1.35rem; font-weight: 900; color: var(--accent-amber);">$300 + Mentoría</div>
-            <div style="font-size: 0.95rem; color: var(--text-secondary); font-weight: 600;">Compromiso Total del Equipo</div>
+            <div style="font-size: 1.35rem; font-weight: 900; color: var(--accent-amber);">Mentoría & Alianzas</div>
+            <div style="font-size: 0.95rem; color: var(--text-secondary); font-weight: 600;">Compromiso Total del Equipo
+            </div>
           </div>
         </div>
 
         <aside class="notes">
-          [P2: 4:20 - 4:45] "Si pasamos a la fase de incubación, nos comprometemos a dedicar septiembre y octubre junto a la organización piloto asignada —sea CORAPE o una redacción aliada—. Indexaremos todos los planes oficiales del CNE para las elecciones del 29 de noviembre, afinaremos el RAG con los periodistas y entregaremos un informe de impacto y el código abierto para que todo el Ecuador se beneficie."
+          [P2: 4:20 - 4:45] "Si pasamos a la fase de incubación, nos comprometemos a dedicar septiembre y octubre junto
+          a la organización piloto asignada —sea CORAPE o una redacción aliada—. Indexaremos todos los planes oficiales
+          del CNE para las elecciones del 29 de noviembre, afinaremos el RAG con los periodistas y entregaremos un
+          informe de impacto y el código abierto para que todo el Ecuador se beneficie."
         </aside>
       </section>
 
-      <!-- SLIDE 9: CIERRE CONTUNDENTE & DEMO (10% COMUNICACIÓN) (4:45 - 5:00) -->
+      <!-- SLIDE 9: CIERRE CONTUNDENTE & DEMO (4:45 - 5:00) -->
       <section data-background-gradient="radial-gradient(circle at center, #1e1b4b 0%, #050a18 100%)">
         <div style="text-align: center; max-width: 900px; margin: 0 auto;">
           <div style="margin-bottom: 20px;">
@@ -907,20 +1047,32 @@
             Democracia informada,<br>
             <span class="text-gradient-cyan">periodismo fortalecido.</span>
           </h1>
-          
+
           <p style="font-size: 1.35rem; color: var(--text-secondary); margin: 0 auto 32px auto; line-height: 1.45;">
             Las elecciones no esperan. La desinformación tampoco.<br>
             Pasemos juntos a la incubación de <strong>informa-t</strong>.
           </p>
 
-          <a href="https://informa-t.nimblersoft.com" target="_blank" rel="noopener noreferrer" class="glass-panel highlight-border" style="max-width: 720px; margin: 0 auto; display: flex; justify-content: center; align-items: center; gap: 24px; padding: 18px 32px; border: 2px solid rgba(0, 240, 255, 0.7); box-shadow: 0 0 35px rgba(0, 240, 255, 0.25); text-decoration: none; cursor: pointer; color: inherit; transition: transform 0.2s ease, box-shadow 0.2s ease;">
+          <a href="https://informa-t.nimblersoft.com" target="_blank" rel="noopener noreferrer"
+            class="glass-panel highlight-border"
+            style="max-width: 720px; margin: 0 auto; display: flex; justify-content: center; align-items: center; gap: 24px; padding: 18px 32px; border: 2px solid rgba(0, 240, 255, 0.7); box-shadow: 0 0 35px rgba(0, 240, 255, 0.25); text-decoration: none; cursor: pointer; color: inherit; transition: transform 0.2s ease, box-shadow 0.2s ease;">
             <div style="text-align: left;">
-              <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Despliegue Activo en Vivo</div>
-              <div style="font-size: 1.35rem; font-weight: 800; color: var(--accent-cyan); font-family: 'Fira Code', monospace;">https://informa-t.nimblersoft.com</div>
+              <div
+                style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">
+                Despliegue Activo en Vivo</div>
+              <div
+                style="font-size: 1.35rem; font-weight: 800; color: var(--accent-cyan); font-family: 'Fira Code', monospace;">
+                https://informa-t.nimblersoft.com</div>
             </div>
-            <span class="badge badge-cyan" style="font-size: 1rem; padding: 10px 20px; display: inline-flex; align-items: center; gap: 8px;">
+            <span class="badge badge-cyan"
+              style="font-size: 1rem; padding: 10px 20px; display: inline-flex; align-items: center; gap: 8px;">
               <span>Abrir Demo en Vivo</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
             </span>
           </a>
 
@@ -930,7 +1082,9 @@
         </div>
 
         <aside class="notes">
-          [P1: 4:45 - 5:00] "Colegas del jurado: la tecnología ya está lista, el código es auditable y la necesidad democrática es urgente. Con su apoyo en la incubación, blindaremos las redacciones ecuatorianas antes del 29 de noviembre. ¡Muchísimas gracias y estamos listos para la demostración en vivo y sus preguntas!"
+          [P1: 4:45 - 5:00] "Colegas del jurado: la tecnología ya está lista, el código es auditable y la necesidad
+          democrática es urgente. Con su apoyo en la incubación, blindaremos las redacciones ecuatorianas antes del 29
+          de noviembre. ¡Muchísimas gracias y estamos listos para la demostración en vivo y sus preguntas!"
         </aside>
       </section>
 
@@ -948,7 +1102,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/reveal.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/notes/notes.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/highlight/highlight.min.js"></script>
-  
+
   <script>
     Reveal.initialize({
       hash: true,
@@ -964,8 +1118,9 @@
       transition: 'slide',
       transitionSpeed: 'default',
       backgroundTransition: 'fade',
-      plugins: [ RevealNotes, RevealHighlight ]
+      plugins: [RevealNotes, RevealHighlight]
     });
   </script>
 </body>
+
 </html>

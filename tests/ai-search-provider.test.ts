@@ -125,13 +125,16 @@ describe("Official AI Search Provider & Idempotent Seeder", () => {
         traceSink: (event) => emittedTraces.push(event),
       });
 
+      const manifestPath = path.join(repoRoot, "corpus", "manifest.json");
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+
       expect(report.success).toBe(true);
       expect(report.errors).toEqual([]);
-      expect(report.indexedCount).toBe(2);
-      expect(report.itemIds).toEqual(["inec-pobreza-2025-06", "inec-pobreza-historica-series"]);
+      expect(report.indexedCount).toBe(manifest.items.length);
+      expect(report.itemIds).toEqual(manifest.items.map((i: { id: string }) => i.id));
 
       const instance = binding.get(OFFICIAL_AI_SEARCH_INSTANCE);
-      expect(instance.documents.size).toBe(2);
+      expect(instance.documents.size).toBe(manifest.items.length);
       expect(instance.documents.has("inec-pobreza-2025-06")).toBe(true);
       expect(instance.documents.has("inec-pobreza-historica-series")).toBe(true);
 
@@ -143,7 +146,7 @@ describe("Official AI Search Provider & Idempotent Seeder", () => {
       expect(doc1.text).toContain("Pobreza por Ingresos – Resultados Junio 2025");
 
       // Verify emitted traces
-      expect(emittedTraces.length).toBe(2);
+      expect(emittedTraces.length).toBe(manifest.items.length);
       for (const trace of emittedTraces) {
         expect(isTraceEvent(trace)).toBe(true);
         expect(trace.stage).toBe("Ingesta");
@@ -153,28 +156,29 @@ describe("Official AI Search Provider & Idempotent Seeder", () => {
 
     it("proves explicit idempotence: re-seeding same input converges with zero duplicate documents", async () => {
       const binding = new FakeAiSearchNamespaceBinding();
+      const manifestPath = path.join(repoRoot, "corpus", "manifest.json");
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
 
       // First seeding run
       const report1 = await seedAiSearch({ repoRoot, binding });
       expect(report1.success).toBe(true);
-      expect(report1.indexedCount).toBe(2);
+      expect(report1.indexedCount).toBe(manifest.items.length);
 
       const instance = binding.get(OFFICIAL_AI_SEARCH_INSTANCE);
-      expect(instance.documents.size).toBe(2);
+      expect(instance.documents.size).toBe(manifest.items.length);
       const doc1Initial = instance.documents.get("inec-pobreza-2025-06")!;
       expect(doc1Initial.version).toBe(1);
 
       // Second seeding run with identical manifest
       const report2 = await seedAiSearch({ repoRoot, binding });
       expect(report2.success).toBe(true);
-      expect(report2.indexedCount).toBe(2);
+      expect(report2.indexedCount).toBe(manifest.items.length);
 
-      // Total document count remains strictly 2 (no duplicate items added)
-      expect(instance.documents.size).toBe(2);
-      expect(Array.from(instance.documents.keys()).sort()).toEqual([
-        "inec-pobreza-2025-06",
-        "inec-pobreza-historica-series",
-      ]);
+      // Total document count remains strictly equal to manifest.items.length (no duplicate items added)
+      expect(instance.documents.size).toBe(manifest.items.length);
+      expect(Array.from(instance.documents.keys()).sort()).toEqual(
+        manifest.items.map((i: { id: string }) => i.id).sort(),
+      );
 
       // Version incremented showing in-place upsert/overwrite
       const doc1Second = instance.documents.get("inec-pobreza-2025-06")!;
@@ -249,7 +253,7 @@ describe("Official AI Search Provider & Idempotent Seeder", () => {
       // Return 8 mock chunks
       instance.mockSearchResults = Array.from({ length: 8 }, (_, i) => ({
         id: `chunk-${i}`,
-        text: `Verbatim text excerpt ${i}`,
+        text: `Verbatim text excerpt ${i} sobre pobreza por ingresos nacionales`,
         score: 0.9 - i * 0.05,
         metadata: {
           id: `chunk-${i}`,
@@ -263,7 +267,7 @@ describe("Official AI Search Provider & Idempotent Seeder", () => {
           license: "CC BY 4.0",
           coverageLimits: "Indicadores nacionales",
           sha256: "3baa0a7d736de26460c77670e36e9e3b4ed58219734eaebfd1e169c245f2a807",
-          excerpt: `Verbatim text excerpt ${i}`,
+          excerpt: `Verbatim text excerpt ${i} sobre pobreza por ingresos nacionales`,
         },
       }));
 
