@@ -24,6 +24,54 @@ The canonical hash is the SHA-256 hexadecimal digest of UTF-8 encoded canonical 
 
 Traces retain only structured provenance. They must not contain chain-of-thought, private reasoning, secrets, credentials, authentication headers or tokens, or unnecessary personal data. Redaction removes sensitive fields at every nesting level, including `chainOfThought`, `chain_of_thought`, `secret`, `token`, and `authorization`, while preserving safe provenance fields.
 
-## A1 development case route
+## A1 development case route and DemoCase contract
 
-`GET /api/demo/cases/a1` returns a schema-validated synthetic development payload. It labels the case exactly `Datos sintéticos de desarrollo`, contains exactly three non-attributed proposal placeholders, and makes no external calls. Unknown case IDs return HTTP 404. All API-visible text is Latin American Spanish.
+`GET /api/demo/cases/a1` returns a schema-validated synthetic development payload representing the full case view. It labels the case exactly `Datos sintéticos de desarrollo`, makes no external calls, and unknown case IDs return HTTP 404. All API-visible text is Latin American Spanish.
+
+The `DemoCase` contract is strictly validated by `parseDemoCase` to contain only the following required fields and exact structure:
+
+1. **`id`**: Non-empty string identifier (e.g., `"a1"`).
+2. **`label`**: Exact non-empty string label (e.g., `"Datos sintéticos de desarrollo"`).
+3. **`proposals`**: Tuple of exactly three synthetic proposal placeholders (`[SyntheticProposal, SyntheticProposal, SyntheticProposal]`), each with:
+   - `placeholder: true`
+   - `attributed: false` (strictly anonymous, no provider or model attribution)
+   - `message: string`
+4. **`excerpts`**: Array of non-empty `ExcerptItem` objects representing primary evidence:
+   - `id`: string
+   - `title`: string
+   - `quote`: string
+   - `speaker`: string
+   - `timestamp`: string
+   - `sourceType`: string
+   - `logEventId`: string
+5. **`relatedContext`**: Array of `RelatedContextItem` objects representing contextual background:
+   - `id`: string
+   - `title`: string
+   - `description`: string
+   - `reference`: string
+6. **`indices`**: Array of `IndexMetric` objects representing heuristic analytical signals:
+   - `id`: string
+   - `name`: string
+   - `value`: integer between 0 and 100 inclusive
+   - `max`: integer exactly 100
+   - `rubric`: string
+   - `justification`: string
+   - `heuristicLabel`: string
+   - `logEventId`: string
+7. **`traceEvents`**: Array of `TraceEvent` objects representing auditable pipeline events:
+   - `id`: string
+   - `stage`: strictly one of `"Ingesta"`, `"Extracción"`, `"Análisis"`, `"Consenso"`
+   - `timestamp`: string
+   - `title`: string
+   - `description`: string
+   - `canonicalHash`: string
+   - `status`: string
+   - `details`: string
+8. **`citations`**: Array of `SourceCitation` objects representing open primary source links:
+   - `id`: string
+   - `title`: string
+   - `url`: string
+   - `publisher`: string
+   - `type`: string
+
+Strict key validation (`hasOnlyKeys`) rejects any payload or nested structure containing extra, missing, or unrecognized properties.

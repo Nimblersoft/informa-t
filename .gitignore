@@ -9,3 +9,7 @@ dist/
 .DS_Store
 .playwright-mcp/
 .wrangler/
+test-results/
+playwright-report/
+
+# Test output and reports

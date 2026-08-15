@@ -17,5 +17,155 @@
       "attributed": false,
       "message": "Propuesta sintética pendiente de análisis editorial"
     }
+  ],
+  "excerpts": [
+    {
+      "id": "ext-1",
+      "title": "Aumento del padrón electoral sin auditoría",
+      "quote": "El padrón electoral aumentó un 40 en los últimos dos meses sin auditoría técnica independiente.",
+      "speaker": "Intervención en debate público",
+      "timestamp": "Registro primario 00:14:22",
+      "sourceType": "Audio / Transcripción verificada",
+      "logEventId": "evt-analisis"
+    },
+    {
+      "id": "ext-2",
+      "title": "Actas de escrutinio y verificación criptográfica",
+      "quote": "Las actas de escrutinio preliminar no cuentan con código de verificación criptográfica según el protocolo electoral.",
+      "speaker": "Conferencia de prensa",
+      "timestamp": "Registro primario 00:32:05",
+      "sourceType": "Declaración en video / Registro de medios",
+      "logEventId": "evt-extraccion"
+    },
+    {
+      "id": "ext-3",
+      "title": "Interrupciones en el sistema de transmisión",
+      "quote": "El sistema de transmisión de resultados sufrió 14 interrupciones durante el simulacro nacional.",
+      "speaker": "Declaración pública",
+      "timestamp": "Registro primario 01:05:40",
+      "sourceType": "Registro de transmisión en directo",
+      "logEventId": "evt-consenso"
+    }
+  ],
+  "relatedContext": [
+    {
+      "id": "ctx-1",
+      "title": "Cronograma de auditorías electorales 2026",
+      "description": "El calendario del Órgano Electoral Plurinacional establece tres fases de auditoría técnica al padrón biométrico previas a la jornada de votación.",
+      "reference": "Resolución Administrativa TSE-RSP-042/2026"
+    },
+    {
+      "id": "ctx-2",
+      "title": "Protocolo de verificación de actas y firma digital",
+      "description": "La normativa técnica vigente dispone el uso de códigos QR y firmas digitales certificadas para cada acta computada en los centros de cómputo departamentales.",
+      "reference": "Manual de Procedimientos de Cómputo Electoral v3.2"
+    }
+  ],
+  "indices": [
+    {
+      "id": "idx-consistencia",
+      "name": "Consistencia factual",
+      "value": 78,
+      "max": 100,
+      "rubric": "Rúbrica de evaluación: 0 = afirmaciones sin correlación documental, 100 = concordancia plena con fuentes oficiales primarias.",
+      "justification": "La afirmación presenta discrepancias con las cifras oficiales de crecimiento del padrón, aunque coincide parcialmente con estimaciones preliminares no auditadas emitidas en semanas previas.",
+      "heuristicLabel": "Señal heurística preliminar (no constituye veredicto ni decisión editorial)",
+      "logEventId": "evt-analisis"
+    },
+    {
+      "id": "idx-fuentes",
+      "name": "Verificabilidad de fuentes",
+      "value": 64,
+      "max": 100,
+      "rubric": "Rúbrica de evaluación: 0 = fuentes anónimas o inaccesibles, 100 = fuentes primarias públicas con trazabilidad auditable.",
+      "justification": "Se contrastó con registros oficiales del padrón electoral; sin embargo, no se dispone de acceso al archivo de actas físicas departamentales para validación cruzada inmediata.",
+      "heuristicLabel": "Señal heurística preliminar (no constituye veredicto ni decisión editorial)",
+      "logEventId": "evt-analisis"
+    },
+    {
+      "id": "idx-densidad",
+      "name": "Densidad de afirmaciones",
+      "value": 82,
+      "max": 100,
+      "rubric": "Rúbrica de evaluación: 0 = enunciados vagos o genéricos, 100 = enunciados empíricamente contrastables con datos específicos.",
+      "justification": "El extracto contiene tres aseveraciones empíricas delimitadas temporalmente (plazo de dos meses, tasa de aumento y condición de auditoría) contrastables contra bitácoras.",
+      "heuristicLabel": "Señal heurística preliminar (no constituye veredicto ni decisión editorial)",
+      "logEventId": "evt-extraccion"
+    },
+    {
+      "id": "idx-claridad",
+      "name": "Claridad contextual",
+      "value": 71,
+      "max": 100,
+      "rubric": "Rúbrica de evaluación: 0 = declaración descontextualizada o sesgada, 100 = contexto procedimental y normativo completo.",
+      "justification": "El extracto omite referenciar las etapas de depuración registral y saneamiento de duplicidades establecidas en el reglamento electoral.",
+      "heuristicLabel": "Señal heurística preliminar (no constituye veredicto ni decisión editorial)",
+      "logEventId": "evt-analisis"
+    }
+  ],
+  "traceEvents": [
+    {
+      "id": "evt-ingesta",
+      "stage": "Ingesta",
+      "timestamp": "2026-08-15 04:00:12 UTC",
+      "title": "Recepción y validación de estructura del caso A1",
+      "description": "Ingesta del conjunto de datos sintéticos de desarrollo. Verificación de integridad de esquema y encabezados de procedencia.",
+      "canonicalHash": "8a4f9b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef0123456789abcd",
+      "status": "Completado",
+      "details": "Validación de tipos de datos JSON canónicos, sin credenciales ni datos personales retenidos."
+    },
+    {
+      "id": "evt-extraccion",
+      "stage": "Extracción",
+      "timestamp": "2026-08-15 04:00:15 UTC",
+      "title": "Segmentación de extractos y detección de aserciones",
+      "description": "Identificación de extractos primarios de discurso público y estructuración de contexto relacionado no intercalado.",
+      "canonicalHash": "f1e2d3c4b5a697887766554433221100ffeeddccbbaa99887766554433221100",
+      "status": "Completado",
+      "details": "Extracción léxica de afirmaciones cuantitativas e hitos temporales con marcas de tiempo verificables."
+    },
+    {
+      "id": "evt-analisis",
+      "stage": "Análisis",
+      "timestamp": "2026-08-15 04:00:18 UTC",
+      "title": "Evaluación heurística de consistencia y verificabilidad",
+      "description": "Cálculo de índices de consistencia factual, verificabilidad de fuentes y claridad contextual sobre escala 0 a 100.",
+      "canonicalHash": "9876543210abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+      "status": "Completado",
+      "details": "Señales heurísticas calculadas sin veredictos automatizados. Trazabilidad completa preservada."
+    },
+    {
+      "id": "evt-consenso",
+      "stage": "Consenso",
+      "timestamp": "2026-08-15 04:00:21 UTC",
+      "title": "Agregación paralela de propuestas no vinculantes",
+      "description": "Recepción de 3 propuestas anónimas no atribuidas. Agregación sintética y verificación de divergencias.",
+      "canonicalHash": "abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789",
+      "status": "Completado",
+      "details": "Generación de matriz comparativa lado a lado para asistencia editorial."
+    }
+  ],
+  "citations": [
+    {
+      "id": "src-1",
+      "title": "Órgano Electoral Plurinacional — Padrón Electoral Biométrico Consolidado 2026",
+      "url": "https://oep.org.bo/padron-electoral-2026",
+      "publisher": "Órgano Electoral Plurinacional",
+      "type": "Documento oficial primario"
+    },
+    {
+      "id": "src-2",
+      "title": "Reglamento para la Difusión de Encuestas y Estudios de Opinión Electoral",
+      "url": "https://oep.org.bo/normativa/reglamento-estudios-opinion-2026.pdf",
+      "publisher": "Tribunal Supremo Electoral",
+      "type": "Normativa legal"
+    },
+    {
+      "id": "src-3",
+      "title": "Informe Técnico de Auditoría del Sistema de Transmisión de Resultados Electorales Preliminares",
+      "url": "https://oep.org.bo/auditorias/informe-trep-simulacro.pdf",
+      "publisher": "Comisión Técnica de Auditoría Externa",
+      "type": "Informe técnico de auditoría"
+    }
   ]
 }
