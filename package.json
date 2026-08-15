@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "typecheck": "tsc --noEmit --jsx react-jsx --lib ES2022,DOM,DOM.Iterable",
+    "corpus:validate": "node --experimental-strip-types scripts/validate-corpus.ts",
     "test": "vitest run && playwright test",
     "test:unit": "vitest run",
     "test:e2e": "playwright test"

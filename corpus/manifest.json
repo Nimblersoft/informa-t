@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "1.0.0",
+  "updatedAt": "2026-08-15T09:15:00.000Z",
+  "description": "Curated official primary evidence corpus and explicit coverage exclusions for electoral and governmental claim verification in informa-t.",
+  "coveredCases": ["a1", "a2", "a3", "b1", "c1"],
+  "items": [
+    {
+      "id": "inec-pobreza-2025-06",
+      "caseIds": ["a1"],
+      "institution": "Instituto Nacional de Estadística y Censos (INEC)",
+      "collection": "Pobreza por Ingresos — ENEMDU",
+      "title": "Pobreza por Ingresos – Resultados Junio 2025",
+      "version": "Junio 2025",
+      "sourceUrl": "https://www.ecuadorencifras.gob.ec/pobreza-por-ingresos-resultados-2025/",
+      "retrievalDate": "2026-08-15",
+      "retrievalMethod": "HTTP GET / Web Fetch",
+      "filePath": "corpus/items/inec-pobreza-2025-06/artifact.md",
+      "metadataPath": "corpus/items/inec-pobreza-2025-06/metadata.json",
+      "sha256": "3baa0a7d736de26460c77670e36e9e3b4ed58219734eaebfd1e169c245f2a807",
+      "citationLocation": "Resultados principales Junio 2025 / Sección Pobreza Nacional",
+      "license": "CC BY 4.0",
+      "coverageLimits": "Cubre los indicadores agregados de pobreza y pobreza extrema por ingresos a nivel nacional para la ronda ENEMDU de junio de 2025; no incluye microdatos individuales sin anonimizar ni series históricas previas a 2018 en este archivo.",
+      "excerpt": "El Instituto Nacional de Estadística y Censos (INEC) presenta los resultados de la medición de la pobreza por ingresos y desigualdad correspondientes a la ronda de junio de 2025 de la Encuesta Nacional de Empleo, Desempleo y Subempleo (ENEMDU)."
+    },
+    {
+      "id": "inec-pobreza-historica-series",
+      "caseIds": ["b1"],
+      "institution": "Instituto Nacional de Estadística y Censos (INEC)",
+      "collection": "Pobreza por Ingresos — Series Históricas ENEMDU",
+      "title": "Pobreza por Ingresos — Series Históricas y Resultados ENEMDU (2017 - 2025)",
+      "version": "Series Históricas 2017-2025",
+      "sourceUrl": "https://www.ecuadorencifras.gob.ec/pobreza-por-ingresos/",
+      "retrievalDate": "2026-08-15",
+      "retrievalMethod": "HTTP GET / Web Fetch",
+      "filePath": "corpus/items/inec-pobreza-historica-series/artifact.md",
+      "metadataPath": "corpus/items/inec-pobreza-historica-series/metadata.json",
+      "sha256": "c917873a40b98948b284cbb76ada688d1d02f1e0bccf6a6c1cec476b1b86a9d6",
+      "citationLocation": "Sección Histórica / Resultados Diciembre 2017 y Diciembre 2025",
+      "license": "CC BY 4.0",
+      "coverageLimits": "Cubre los enlaces y reportes oficiales de la serie de pobreza por ingresos para las rondas de diciembre 2017 y diciembre 2025; incluye advertencia sobre cambios metodológicos 2020-2021 que condicionan la comparabilidad histórica.",
+      "excerpt": "Desde 2020 hasta mayo de 2021 se implementó en la ENEMDU cambios metodológicos asociados al tamaño y distribución de la muestra, nivel de representatividad de los estimadores y construcción de factores de ponderación, afectando la comparabilidad histórica de las estadísticas oficiales."
+    }
+  ],
+  "exclusions": [
+    {
+      "caseId": "a2",
+      "claimText": "En 2025, nueve de cada diez muertes violentas corresponden a personas con antecedentes penales",
+      "reason": "El portal oficial de estadísticas de seguridad ciudadana del Ministerio del Interior opera como una aplicación web interactiva (SPA) protegida por mitigación perimetral (Incapsula/WAF) y sus tabulados agregados de homicidios intencionales clasifican los registros por provincia, cantón, arma y mes, pero no recogen ni publican la variable de antecedentes penales de las víctimas. Conforme al principio de degradación honesta y PRD F-04, la ausencia de este atributo en las fuentes públicas oficiales disponibles constituye insuficiencia de cobertura institucional, sin inferir falsedad ni certeza.",
+      "institution": "Ministerio del Interior",
+      "collection": "Estadísticas de Seguridad Ciudadana — Homicidios Intencionales",
+      "sourceUrl": "https://cifras.ministeriodelinterior.gob.ec/#/app/estadisticas-seguridad-homicidios",
+      "retrievalDate": "2026-08-15",
+      "retrievalMethod": "HTTP GET / Web Fetch / Dashboard Inspection",
+      "coverageLimits": "Cubre estadísticas agregadas de homicidios intencionales a nivel nacional, provincial y cantonal; no incluye registros individualizados ni atributos penales de víctimas.",
+      "citationLocation": "Visualizador Cifras de Seguridad — Módulo Homicidios Intencionales"
+    },
+    {
+      "caseId": "a3",
+      "claimText": "Las ventas en septiembre subieron 14% y en octubre 8,4%, pese al paro",
+      "reason": "El servidor institucional de noticias y comunicados del Servicio de Rentas Internas (SRI) presenta intermitencia y bloqueo por latencia en solicitudes HTTP directas desde entornos automatizados. Asimismo, las estadísticas tributarias oficiales de ventas se consolidan mensualmente a mes vencido, por lo que las cifras de octubre no se encontraban disponibles ni consolidadas en la serie oficial al momento de emitirse la aseveración. Se registra la exclusión por inaccesibilidad técnica de la URL institucional y desfase temporal de corte en las series de ventas públicas.",
+      "institution": "Servicio de Rentas Internas (SRI)",
+      "collection": "Información Institucional y Estadísticas Generales de Recaudación",
+      "sourceUrl": "https://www.sri.gob.ec/detalle-noticias?idnoticia=1220&marquesina=1",
+      "retrievalDate": "2026-08-15",
+      "retrievalMethod": "HTTP GET / Web Fetch",
+      "coverageLimits": "Cubre comunicados de prensa institucionales y reportes mensuales de ventas con desfase de declaración; no garantiza disponibilidad continua para clientes HTTP sin navegador completo ni publicación de meses en curso.",
+      "citationLocation": "Detalle de Noticias SRI — idnoticia=1220"
+    },
+    {
+      "caseId": "c1",
+      "claimText": "El Banco del Pacífico fue el más rentable en 2024 con USD 173 millones de utilidad",
+      "reason": "El portal de estadísticas y balances de la Superintendencia de Bancos utiliza una jerarquía de certificados TLS no reconocida en los almacenes de confianza estándar (error SSL local issuer certificate) y sirve sus reportes financieros mediante un portal dinámico de descargas en Excel/PDF. Al no ser posible verificar la integridad criptográfica de la conexión de forma segura en este entorno sin eludir controles de validación de certificados, se registra una exclusión de cobertura formal.",
+      "institution": "Superintendencia de Bancos",
+      "collection": "Portal de Estudios Estadísticos — Balances Generales",
+      "sourceUrl": "https://www.superbancos.gob.ec/estadisticas/portalestudios/balances-generales/",
+      "retrievalDate": "2026-08-15",
+      "retrievalMethod": "HTTPS GET (TLS error: untrusted CA certificate)",
+      "coverageLimits": "Cubre balances generales consolidados de bancos públicos y privados del Ecuador; requiere certificado intermedio institucional para verificación de canal seguro.",
+      "citationLocation": "Portal de Estudios — Balances Generales del Sistema Financiero"
+    }
+  ]
+}

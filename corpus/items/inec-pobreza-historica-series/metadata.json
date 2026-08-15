@@ -1,0 +1,18 @@
+{
+  "id": "inec-pobreza-historica-series",
+  "caseIds": ["b1"],
+  "institution": "Instituto Nacional de Estadística y Censos (INEC)",
+  "collection": "Pobreza por Ingresos — Series Históricas ENEMDU",
+  "title": "Pobreza por Ingresos — Series Históricas y Resultados ENEMDU (2017 - 2025)",
+  "version": "Series Históricas 2017-2025",
+  "sourceUrl": "https://www.ecuadorencifras.gob.ec/pobreza-por-ingresos/",
+  "retrievalDate": "2026-08-15",
+  "retrievalMethod": "HTTP GET / Web Fetch",
+  "filePath": "corpus/items/inec-pobreza-historica-series/artifact.md",
+  "metadataPath": "corpus/items/inec-pobreza-historica-series/metadata.json",
+  "sha256": "c917873a40b98948b284cbb76ada688d1d02f1e0bccf6a6c1cec476b1b86a9d6",
+  "citationLocation": "Sección Histórica / Resultados Diciembre 2017 y Diciembre 2025",
+  "license": "CC BY 4.0",
+  "coverageLimits": "Cubre los enlaces y reportes oficiales de la serie de pobreza por ingresos para las rondas de diciembre 2017 y diciembre 2025; incluye advertencia sobre cambios metodológicos 2020-2021 que condicionan la comparabilidad histórica.",
+  "excerpt": "Desde 2020 hasta mayo de 2021 se implementó en la ENEMDU cambios metodológicos asociados al tamaño y distribución de la muestra, nivel de representatividad de los estimadores y construcción de factores de ponderación, afectando la comparabilidad histórica de las estadísticas oficiales."
+}
