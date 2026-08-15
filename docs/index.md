@@ -8,6 +8,7 @@ Indice de la wiki del proyecto. El contexto operativo para agentes esta en [AGEN
 | [`specs/`](specs/) | Contratos del producto y sus modulos | Que debe hacer el producto o el modulo? |
 | [`docs-organization-blueprint.md`](docs-organization-blueprint.md) | Reglas de archivado y esquemas documentales | Donde debe guardarse un documento? |
 | [`processes/ficha-gobernanza-etica-mvp.md`](processes/ficha-gobernanza-etica-mvp.md) | Ficha de Gobernanza Ética del MVP | Como se gobiernan sus limites, datos y decisiones? |
+| [`runbooks/demo-cutover.md`](runbooks/demo-cutover.md) | Operacion de la demo: smoke, contingencias y rollback | Como garantizo una demo recuperable? |
 
 ## Registros de Decisiones Arquitectónicas (ADR)
 
