@@ -7,6 +7,7 @@ Indice de la wiki del proyecto. El contexto operativo para agentes esta en [AGEN
 | [`adr/`](adr/) | Registros de decisiones arquitectonicas | Por que se tomo una decision? |
 | [`specs/`](specs/) | Contratos del producto y sus modulos | Que debe hacer el producto o el modulo? |
 | [`docs-organization-blueprint.md`](docs-organization-blueprint.md) | Reglas de archivado y esquemas documentales | Donde debe guardarse un documento? |
+| [`processes/ficha-gobernanza-etica-mvp.md`](processes/ficha-gobernanza-etica-mvp.md) | Ficha de Gobernanza Ética del MVP | Como se gobiernan sus limites, datos y decisiones? |
 
 ## Registros de Decisiones Arquitectónicas (ADR)
 
@@ -22,4 +23,3 @@ Indice de la wiki del proyecto. El contexto operativo para agentes esta en [AGEN
 ## Investigacion
 
 - [Corpus oficial y casos reales para el demo](research/corpus-oficial-y-casos-demo.md) - registro inicial de fuentes, taxonomia editorial y casos conocidos para evaluar el prototipo.
-

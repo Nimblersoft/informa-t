@@ -10,6 +10,12 @@
     "binding": "ASSETS",
     "run_worker_first": ["/api/*"]
   },
+  "routes": [
+    {
+      "pattern": "informa-t.nimblersoft.com",
+      "custom_domain": true
+    }
+  ],
   "ai_search_namespaces": [
     {
       "binding": "AI_SEARCH",
