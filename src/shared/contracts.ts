@@ -300,7 +300,43 @@ export interface EvidenceExcerpt {
 }
 
 export const CLAIM_EXTRACTION_SCHEMA_VERSION = "claim-extraction.v1" as const;
+export const CLAIM_EXTRACTION_V2_SCHEMA_VERSION = "claim-extraction.v2" as const;
 export const PROPOSAL_SCHEMA_VERSION = "proposal.v1" as const;
+
+export type AnalysisInput =
+  | { kind: "text"; text: string }
+  | { kind: "url"; url: string };
+
+export type AnalysisInputParseResult =
+  | { input: AnalysisInput; error?: never }
+  | { input?: never; error: string };
+
+export function parseAnalysisInput(value: unknown): AnalysisInputParseResult {
+  if (!isRecord(value)) return { error: "Proporciona exactamente uno de los campos \"text\" o \"url\"." };
+  const keys = Object.keys(value);
+  if (keys.length !== 1 || (!keys.includes("text") && !keys.includes("url"))) {
+    return { error: "Proporciona exactamente uno de los campos \"text\" o \"url\"." };
+  }
+
+  if (keys[0] === "text") {
+    return typeof value.text === "string" && value.text.length >= 20 && value.text.length <= 20_000
+      ? { input: { kind: "text", text: value.text } }
+      : { error: "El texto debe tener entre 20 y 20.000 caracteres para analizarlo." };
+  }
+
+  if (typeof value.url !== "string" || value.url.trim().length === 0 || value.url.length > 2_048) {
+    return { error: "La URL debe comenzar con http:// o https:// y ser válida." };
+  }
+  try {
+    const url = new URL(value.url);
+    if ((url.protocol !== "http:" && url.protocol !== "https:") || url.username || url.password || !url.hostname) {
+      return { error: "La URL debe comenzar con http:// o https:// y ser válida." };
+    }
+  } catch {
+    return { error: "La URL debe comenzar con http:// o https:// y ser válida." };
+  }
+  return { input: { kind: "url", url: value.url.trim() } };
+}
 
 export type ClaimExclusionReason = "opinión" | "predicción" | "retórica" | "ambigüedad";
 export type SourceAvailability = "disponible" | "insuficiente" | "no consultada";
@@ -321,10 +357,16 @@ export interface ExtractedClaim {
   sourceAvailability: SourceAvailability;
   excluded: boolean;
   exclusionReason?: ClaimExclusionReason;
+  rationale?: string;
 }
 
 export interface ClaimExtractionV1 {
   schemaVersion: typeof CLAIM_EXTRACTION_SCHEMA_VERSION;
+  claims: ExtractedClaim[];
+}
+
+export interface ClaimExtractionV2 {
+  schemaVersion: typeof CLAIM_EXTRACTION_V2_SCHEMA_VERSION;
   claims: ExtractedClaim[];
 }
 
@@ -353,6 +395,16 @@ export function isClaimExtractionV1(value: unknown): value is ClaimExtractionV1 
     Array.isArray(value.claims) &&
     value.claims.length <= 3 &&
     value.claims.every(isExtractedClaim)
+  );
+}
+
+export function isClaimExtractionV2(value: unknown): value is ClaimExtractionV2 {
+  return (
+    isRecord(value) &&
+    hasOnlyKeys(value, ["schemaVersion", "claims"]) &&
+    value.schemaVersion === CLAIM_EXTRACTION_V2_SCHEMA_VERSION &&
+    Array.isArray(value.claims) &&
+    value.claims.every(isExtractedClaimV2)
   );
 }
 
@@ -436,6 +488,7 @@ function isExtractedClaim(value: unknown): value is ExtractedClaim {
       "sourceAvailability",
       "excluded",
       "exclusionReason",
+      "rationale",
     ]) ||
     !hasRequiredKeys(value, [
       "verbatimText",
@@ -464,6 +517,10 @@ function isExtractedClaim(value: unknown): value is ExtractedClaim {
   return value.excluded
     ? isClaimExclusionReason(value.exclusionReason)
     : value.exclusionReason === undefined;
+}
+
+function isExtractedClaimV2(value: unknown): value is ExtractedClaim {
+  return isExtractedClaim(value);
 }
 
 function isClaimLocation(value: unknown): value is ClaimLocation {

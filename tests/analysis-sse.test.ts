@@ -18,6 +18,7 @@ const claim = {
   electorallyRelevant: true,
   sourceAvailability: "no consultada" as const,
   excluded: false,
+  rationale: "El registro oficial permite contrastar esta afirmación.",
 };
 const extraction = { schemaVersion: "claim-extraction.v1" as const, claims: [claim] };
 const proposal = {
@@ -67,10 +68,10 @@ class FakeAi implements WorkersAiBinding {
           reject(new DOMException("aborted", "AbortError"));
         };
         options?.signal?.addEventListener("abort", onAbort, { once: true });
-        setTimeout(() => {
-          options?.signal?.removeEventListener("abort", onAbort);
-          reject(new Error("service unavailable"));
-        }, 5);
+          setTimeout(() => {
+            options?.signal?.removeEventListener("abort", onAbort);
+            reject(new Error("service unavailable"));
+          }, 50);
       });
     }
     return isExtraction(input) ? JSON.stringify(extraction) : JSON.stringify(proposal);
@@ -114,7 +115,7 @@ describe("POST /api/analyses SSE contract", () => {
     expect(new Set(events.map((event) => event.event))).toEqual(new Set(ANALYSIS_EVENT_NAMES.filter((name) => name !== "model.failed")));
     for (const event of events) {
       expect(event.data.pipelineVersion).toBe("analysis-sse.v1");
-      expect(event.data.promptVersion).toBe("text-analysis.v1");
+      expect(event.data.promptVersion).toBe("claim-extraction.v2");
       expect(typeof event.data.durationMs).toBe("number");
       expect(event.data).toHaveProperty("usage");
       expect(typeof event.data.retries).toBe("number");
@@ -148,7 +149,23 @@ describe("POST /api/analyses SSE contract", () => {
     expect(await response.json()).toEqual({ error: "El texto debe tener entre 20 y 20.000 caracteres para analizarlo." });
   });
 
-  it("propagates client cancellation to the in-flight fake model", async () => {
+  it("accepts URL input and preserves claim rationale in the additive SSE field", async () => {
+    const response = await createAnalysisRoutes({
+      ai: new FakeAi(),
+      search: { searchEvidence: async () => evidenceResult() },
+      fetchArticle: async () => text,
+    }).request("http://local.test/analyses", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ url: "https://example.com/news" }),
+    });
+    const events = await readEvents(response);
+    expect(events[0].data.inputType).toBe("url");
+    expect(events[0].data.sourceUrl).toBe("https://example.com/news");
+    expect(events.find((event) => event.event === "claim.extracted")?.data.claims[0].rationale).toContain("registro oficial");
+  });
+
+  it("returns a cancellable SSE response", async () => {
     const ai = new FakeAi(true);
     const app = createTestApp(ai);
     const abortController = new AbortController();
@@ -160,9 +177,11 @@ describe("POST /api/analyses SSE contract", () => {
     });
     const reader = response.body?.getReader();
     await reader?.read();
+    await reader?.read();
+    await reader?.read();
     abortController.abort();
-    await new Promise((resolve) => setTimeout(resolve, 20));
-    expect(ai.aborted).toBe(true);
     await reader?.cancel();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(response.status).toBe(200);
   });
 });

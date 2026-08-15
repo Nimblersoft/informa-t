@@ -7,8 +7,8 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 
 import { LiveAnalysisPanel } from "../src/client/components/LiveAnalysisPanel";
 
-const common = { pipelineVersion: "analysis-sse.v1", promptVersion: "text-analysis.v1", durationMs: 1, usage: null, retries: 0, degradations: [] } as const;
-const claim = { verbatimText: "El registro oficial cambió durante junio de 2025.", normalizedText: "El registro oficial cambió", location: { start: 0, end: 43 }, entities: ["registro"], dates: ["junio de 2025"], verifiable: true, electorallyRelevant: true, sourceAvailability: "no consultada" as const, excluded: false };
+const common = { pipelineVersion: "analysis-sse.v1", promptVersion: "claim-extraction.v2", durationMs: 1, usage: null, retries: 0, degradations: [] } as const;
+const claim = { verbatimText: "El registro oficial cambió durante junio de 2025.", normalizedText: "El registro oficial cambió", location: { start: 0, end: 43 }, entities: ["registro"], dates: ["junio de 2025"], verifiable: true, electorallyRelevant: true, sourceAvailability: "no consultada" as const, excluded: false, rationale: "El registro oficial permite contrastar la afirmación." };
 
 afterEach(() => cleanup());
 
@@ -36,6 +36,7 @@ describe("LiveAnalysisPanel", () => {
     fireEvent.click(screen.getByTestId("analysis-submit"));
     await waitFor(() => expect(screen.getByTestId("analysis-stage-models")).toBeTruthy());
     expect(screen.getByText("Fuente primaria")).toBeTruthy();
+    expect(screen.getByText("El registro oficial permite contrastar la afirmación.")).toBeTruthy();
     expect(screen.getByText((_, element) => element?.tagName === "SPAN" && element.textContent?.includes("Proveedor: openrouter") === true)).toBeTruthy();
     expect(screen.getByText(/Degradaciones: Una propuesta falló/)).toBeTruthy();
     expect(screen.queryByText("Cierto")).toBeNull();

@@ -7,7 +7,8 @@ import type {
 } from "../shared/analysis-events";
 
 export interface StreamAnalysisOptions {
-  text: string;
+  text?: string;
+  url?: string;
   signal?: AbortSignal;
   endpoint?: string;
   fetchImpl?: typeof fetch;
@@ -15,10 +16,12 @@ export interface StreamAnalysisOptions {
 }
 
 export async function streamAnalysis(options: StreamAnalysisOptions): Promise<void> {
+  if ((options.text === undefined) === (options.url === undefined)) throw new Error("Indica texto o URL, pero no ambos.");
+  const body = options.url !== undefined ? { url: options.url } : { text: options.text };
   const response = await (options.fetchImpl ?? fetch)(options.endpoint ?? "/api/analyses", {
     method: "POST",
     headers: { "content-type": "application/json", accept: "text/event-stream" },
-    body: JSON.stringify({ text: options.text }),
+    body: JSON.stringify(body),
     signal: options.signal,
   });
 

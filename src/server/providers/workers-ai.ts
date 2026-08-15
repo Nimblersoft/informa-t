@@ -24,8 +24,12 @@ export interface WorkersAiJsonResult<T> {
   provenance: ModelProvenance;
   fallback?: {
     attempted: boolean;
-    reason: "timeout" | "quota" | "outage";
+    reason: "timeout" | "quota" | "outage" | "invalid_response";
     outcome: "success" | "failed";
+    fromProvider: ModelProviderName;
+    toProvider: ModelProviderName;
+    fromModel: string;
+    toModel?: string;
   };
 }
 
@@ -37,11 +41,12 @@ export async function runJsonWithSingleRepair<T>(options: {
   guard: (value: unknown) => value is T;
   signal: AbortSignal;
   provider?: ModelProviderName;
+  timeoutMs?: number;
 }): Promise<WorkersAiJsonResult<T>> {
   const provenance = { provider: options.provider ?? "workers-ai", modelId: options.model } as const;
   let response: unknown;
   try {
-    response = await options.ai.run(options.model, options.input, { signal: options.signal });
+    response = await runInvocation(options.ai, options.model, options.input, options.signal, options.timeoutMs);
   } catch (error) {
     return { error: classifyModelError(error), repaired: false, provenance };
   }
@@ -53,9 +58,7 @@ export async function runJsonWithSingleRepair<T>(options: {
 
   let repairedResponse: unknown;
   try {
-    repairedResponse = await options.ai.run(options.model, options.repairInput(stringifyResponse(response)), {
-      signal: options.signal,
-    });
+    repairedResponse = await runInvocation(options.ai, options.model, options.repairInput(stringifyResponse(response)), options.signal, options.timeoutMs);
   } catch (error) {
     return { error: classifyModelError(error), repaired: true, provenance };
   }
@@ -84,7 +87,14 @@ export async function runJsonWithProviderFallback<T>(options: {
   guard: (value: unknown) => value is T;
   signal: AbortSignal;
   fallbackUnavailableLimitation: string;
+  primaryProvider?: ModelProviderName;
+  fallbackProvider?: ModelProviderName;
+  fallbackOnInvalidResponse?: boolean;
+  timeoutMs?: number;
+  fallbackLabel?: string;
 }): Promise<WorkersAiJsonResult<T>> {
+  const primaryProvider = options.primaryProvider ?? "workers-ai";
+  const fallbackProvider = options.fallbackProvider ?? "openrouter";
   const primary = await runJsonWithSingleRepair({
     ai: options.primary,
     model: options.primaryModel,
@@ -92,9 +102,11 @@ export async function runJsonWithProviderFallback<T>(options: {
     repairInput: options.repairInput,
     guard: options.guard,
     signal: options.signal,
+    provider: primaryProvider,
+    timeoutMs: options.timeoutMs,
   });
 
-  if (primary.value || primary.error?.code === "invalid_response") return primary;
+  if (primary.value || (primary.error?.code === "invalid_response" && !options.fallbackOnInvalidResponse)) return primary;
 
   if (!options.fallback) {
     return {
@@ -103,7 +115,14 @@ export async function runJsonWithProviderFallback<T>(options: {
         code: primary.error?.code ?? "outage",
         limitation: `${primary.error?.limitation ?? "No se generó una respuesta."} ${options.fallbackUnavailableLimitation}`,
       },
-      fallback: { attempted: false, reason: primary.error?.code ?? "outage", outcome: "failed" },
+      fallback: {
+        attempted: false,
+        reason: primary.error?.code ?? "outage",
+        outcome: "failed",
+        fromProvider: primaryProvider,
+        toProvider: fallbackProvider,
+        fromModel: options.primaryModel,
+      },
     };
   }
 
@@ -114,13 +133,22 @@ export async function runJsonWithProviderFallback<T>(options: {
     repairInput: options.repairInput,
     guard: options.guard,
     signal: options.signal,
-    provider: "openrouter",
+    provider: fallbackProvider,
+    timeoutMs: options.timeoutMs,
   });
 
   if (fallback.value) {
     return {
       ...fallback,
-      fallback: { attempted: true, reason: primary.error?.code ?? "outage", outcome: "success" },
+      fallback: {
+        attempted: true,
+        reason: primary.error?.code ?? "outage",
+        outcome: "success",
+        fromProvider: primaryProvider,
+        toProvider: fallbackProvider,
+        fromModel: options.primaryModel,
+        toModel: options.fallback.model,
+      },
     };
   }
 
@@ -128,10 +156,35 @@ export async function runJsonWithProviderFallback<T>(options: {
     ...fallback,
     error: {
       code: fallback.error?.code ?? "outage",
-      limitation: `${primary.error?.limitation ?? "El modelo principal no está disponible."} El respaldo OpenRouter también falló; no se generó una propuesta.`,
+      limitation: `${primary.error?.limitation ?? "El modelo principal no está disponible."} El respaldo ${options.fallbackLabel ?? "OpenRouter"} también falló; no se generó una propuesta.`,
     },
-    fallback: { attempted: true, reason: primary.error?.code ?? "outage", outcome: "failed" },
+    fallback: {
+      attempted: true,
+      reason: primary.error?.code ?? "outage",
+      outcome: "failed",
+      fromProvider: primaryProvider,
+      toProvider: fallbackProvider,
+      fromModel: options.primaryModel,
+      toModel: options.fallback.model,
+    },
   };
+}
+
+async function runInvocation(ai: ModelInvocationBinding, model: string, input: unknown, signal: AbortSignal, timeoutMs?: number): Promise<unknown> {
+  if (signal.aborted) throw new DOMException("La solicitud fue cancelada.", "AbortError");
+  const invocation = ai.run(model, input, { signal });
+  if (timeoutMs === undefined) return invocation;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      invocation,
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new DOMException("La invocación agotó el tiempo disponible.", "AbortError")), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
+  }
 }
 
 function parseJsonResponse(value: unknown): unknown | undefined {

@@ -18,7 +18,7 @@ interface LiveAnalysisPanelProps {
 }
 
 export const LiveAnalysisPanel: React.FC<LiveAnalysisPanelProps> = ({ onNavigateToLog }) => {
-  const [text, setText] = useState("");
+  const [input, setInput] = useState("");
   const [status, setStatus] = useState<"idle" | "running" | "completed" | "partial" | "failed">("idle");
   const [stage, setStage] = useState<Stage | null>(null);
   const [events, setEvents] = useState<AnalysisEvent[]>([]);
@@ -41,11 +41,12 @@ export const LiveAnalysisPanel: React.FC<LiveAnalysisPanelProps> = ({ onNavigate
     setStatus("running");
     controller.current = new AbortController();
     try {
-      await streamAnalysis({ text, signal: controller.current.signal, onEvent: handleEvent });
+      const isUrl = /^https?:\/\/\S+$/i.test(input.trim());
+      await streamAnalysis(isUrl ? { url: input.trim(), signal: controller.current.signal, onEvent: handleEvent } : { text: input, signal: controller.current.signal, onEvent: handleEvent });
     } catch (cause) {
-      if (controller.current.signal.aborted) return;
+      if (controller.current?.signal.aborted) return;
       setStatus("failed");
-      setError(cause instanceof Error ? cause.message : "No fue posible analizar el texto.");
+      setError(cause instanceof Error ? cause.message : "No fue posible iniciar el análisis.");
     }
   };
 
@@ -62,23 +63,22 @@ export const LiveAnalysisPanel: React.FC<LiveAnalysisPanelProps> = ({ onNavigate
     <section className="live-analysis-panel" data-testid="live-analysis-panel" aria-labelledby="live-analysis-title">
       <div className="panel-intro">
         <h2 id="live-analysis-title" className="panel-title">Análisis progresivo</h2>
-        <p className="panel-description">Pega una declaración o transcripción para revisar sus aseveraciones con fuentes oficiales.</p>
+      <p className="panel-description">Pega una declaración, transcripción o URL de noticia para revisar sus aseveraciones con fuentes oficiales.</p>
       </div>
-      <label className="form-label" htmlFor="analysis-text-input">Pegar declaración o transcripción</label>
+      <label className="form-label" htmlFor="analysis-text-input">Pegar texto o URL de noticia</label>
       <textarea
         id="analysis-text-input"
         data-testid="analysis-text-input"
         className="form-textarea analysis-input"
         rows={5}
-        minLength={20}
         maxLength={20_000}
-        value={text}
-        onChange={(event) => setText(event.target.value)}
-        placeholder="Escribe o pega al menos 20 caracteres..."
+        value={input}
+        onChange={(event) => setInput(event.target.value)}
+        placeholder="Texto de al menos 20 caracteres o https://..."
       />
       <div className="analysis-actions">
-        <button type="button" className="btn-primary" data-testid="analysis-submit" disabled={status === "running" || text.length < 20} onClick={() => void run()}>
-          Analizar texto
+        <button type="button" className="btn-primary" data-testid="analysis-submit" disabled={status === "running" || !isValidInput(input)} onClick={() => void run()}>
+          Analizar entrada
         </button>
         {status === "running" && <button type="button" className="btn-secondary" data-testid="analysis-cancel" onClick={cancel}>Cancelar</button>}
         {completion && <button type="button" className="btn-secondary" data-testid="analysis-download" onClick={() => downloadAnalysis(events, completion.data.analysisId)}>Descargar resultados parciales</button>}
@@ -92,7 +92,7 @@ export const LiveAnalysisPanel: React.FC<LiveAnalysisPanelProps> = ({ onNavigate
           </ol>
         </div>
       )}
-      {claims.length > 0 && <section className="analysis-results" aria-label="Aseveraciones extraídas"><h3>Aseveraciones extraídas</h3>{claims.map((claim, index) => <article key={`${claim.location.start}-${index}`} className="analysis-result-card"><p>{claim.verbatimText}</p><span>{claim.excluded ? "Excluida de propuestas" : "Lista para contraste"}</span></article>)}</section>}
+      {claims.length > 0 && <section className="analysis-results" aria-label="Aseveraciones extraídas"><h3>Aseveraciones extraídas</h3>{claims.map((claim, index) => <article key={`${claim.location.start}-${index}`} className="analysis-result-card"><p>{claim.verbatimText}</p>{claim.rationale && <p>{claim.rationale}</p>}<span>{claim.excluded ? "Excluida de propuestas" : "Lista para contraste"}</span></article>)}</section>}
       {evidence.length > 0 && <section className="analysis-results" aria-label="Evidencia recuperada"><h3>Evidencia recuperada</h3>{evidence.flatMap((event) => event.data.excerpts.map((excerpt) => <article key={excerpt.id} className="analysis-result-card"><a href={excerpt.sourceUrl} target="_blank" rel="noreferrer">{excerpt.title}</a><p>{excerpt.excerpt}</p><button type="button" className="btn-link-log" onClick={() => event.data.traceEventId && onNavigateToLog?.(event.data.traceEventId)}>Ver traza: {event.data.traceEventId ?? "no disponible"}</button></article>))}</section>}
       {proposals.length > 0 && <section className="analysis-results" aria-label="Propuestas no vinculantes"><h3>Propuestas no vinculantes</h3>{proposals.map((event, index) => <article key={`${event.id || event.type}-${index}`} className="analysis-result-card"><strong>{event.data.proposal.model}</strong><span>Proveedor: {event.data.proposal.provenance.provider} · {event.type === "model.failed" ? "No disponible" : "Disponible"}</span><p>{event.data.proposal.proposal?.reviewFocus ?? event.data.proposal.limitation}</p><button type="button" className="btn-link-log" onClick={() => onNavigateToLog?.(event.data.traceEventId)}>Ver traza: {event.data.traceEventId}</button></article>)}</section>}
       {consensus.length > 0 && <section className="analysis-results" aria-label="Comparación no vinculante"><h3>Comparación no vinculante</h3>{consensus.map((event) => <article key={event.id} className="analysis-result-card"><p>{event.data.consensus ? `Acuerdo reportado: ${event.data.consensus.agreement}` : "No se reportó acuerdo suficiente entre propuestas."}</p><span>{event.data.consensus?.reviewFocus ?? "La comparación queda pendiente de revisión humana."}</span><button type="button" className="btn-link-log" onClick={() => onNavigateToLog?.(event.data.traceEventId)}>Ver traza: {event.data.traceEventId}</button></article>)}</section>}
@@ -104,6 +104,19 @@ export const LiveAnalysisPanel: React.FC<LiveAnalysisPanelProps> = ({ onNavigate
 
 function latestClaims(events: readonly AnalysisEvent[]): ClaimExtractedData | undefined {
   return events.filter((event): event is Extract<AnalysisEvent, { type: "claim.extracted" }> => event.type === "claim.extracted").at(-1)?.data;
+}
+
+function isValidInput(value: string): boolean {
+  const input = value.trim();
+  if (/^https?:\/\/\S+$/i.test(input)) {
+    try {
+      const url = new URL(input);
+      return (url.protocol === "http:" || url.protocol === "https:") && !url.username && !url.password;
+    } catch {
+      return false;
+    }
+  }
+  return input.length >= 20 && input.length <= 20_000;
 }
 
 function traceId(event: AnalysisEvent): string | undefined {

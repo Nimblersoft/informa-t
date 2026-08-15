@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { isClaimExtractionV1, type ClaimExtractionV1, type ProposalV1 } from "../src/shared/contracts";
 import { PROPOSAL_MODELS } from "../src/server/config/models";
 import { analyzeText } from "../src/server/pipeline/analyze-text";
+import { EXTRACTION_INPUT_MAX_CHARS } from "../src/server/prompts/text-analysis";
 import type { AiSearchProviderResult } from "../src/server/providers/ai-search";
 import type { WorkersAiBinding } from "../src/server/providers/workers-ai";
 
@@ -117,6 +118,16 @@ describe("text analysis engine", () => {
 
     expect(result.status).toBe("completed");
     expect(extractionCalls).toBe(2);
+  });
+
+  it("truncates oversized extraction input and records a Spanish degradation", async () => {
+    const ai = new FakeAi((_model, input) => isExtraction(input) ? extraction() : proposal());
+    const oversizedText = "x".repeat(EXTRACTION_INPUT_MAX_CHARS + 1);
+    const result = await analyzeText({ text: oversizedText, ai, search: fakeSearch() });
+    const extractionInput = ai.inputs.find(({ input }) => isExtraction(input as never))?.input as { messages: Array<{ content: string }> };
+
+    expect(extractionInput.messages[1].content).toHaveLength(EXTRACTION_INPUT_MAX_CHARS);
+    expect(result.limitations).toContain("El artículo fue truncado para el análisis del prototipo.");
   });
 
   it("records a non-repairable invalid response without fabricating consensus", async () => {

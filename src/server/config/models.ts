@@ -1,6 +1,8 @@
 // Spec: docs/specs/model-fallback.md
 
 export const CLAIM_EXTRACTION_MODEL = "@cf/zai-org/glm-4.7-flash" as const;
+export const LUNA_EXTRACTION_MODEL = "openai/gpt-5.6-luna" as const;
+export const EXTRACTION_TIMEOUT_MS = 35_000;
 
 export const PROPOSAL_MODELS = [
   "@cf/zai-org/glm-4.7-flash",

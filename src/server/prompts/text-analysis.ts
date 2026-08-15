@@ -5,9 +5,13 @@ import {
   type ExtractedClaim,
 } from "../../shared/contracts";
 
+export const CLAIM_EXTRACTION_PROMPT_VERSION = "claim-extraction.v2" as const;
+export const EXTRACTION_INPUT_MAX_CHARS = 15_000;
+export const EXTRACTION_TRUNCATION_LIMITATION = "El artículo fue truncado para el análisis del prototipo.";
+
 const CLAIM_SCHEMA_SPEC = `Devuelve EXACTAMENTE un objeto JSON con esta forma (sin campos adicionales, sin markdown):
 {
-  "schemaVersion": "claim-extraction.v1",
+  "schemaVersion": "claim-extraction.v2",
   "claims": [
     {
       "verbatimText": "<fragmento literal del texto original>",
@@ -19,11 +23,12 @@ const CLAIM_SCHEMA_SPEC = `Devuelve EXACTAMENTE un objeto JSON con esta forma (s
       "electorallyRelevant": true,
       "sourceAvailability": "disponible" | "insuficiente" | "no consultada",
       "excluded": false,
-      "exclusionReason": "opinión" | "predicción" | "retórica" | "ambigüedad"
+      "exclusionReason": "opinión" | "predicción" | "retórica" | "ambigüedad",
+      "rationale": "<razón breve: por qué es verificable y qué evidencia oficial la podría sustentar>"
     }
   ]
 }
-Reglas: máximo 3 aseveraciones atómicas y verificables. "excluded" es true solo para opinión, predicción, retórica o ambigüedad, y entonces "exclusionReason" es obligatorio; en caso contrario omite "exclusionReason". "location" son índices de caracteres dentro del texto original. Nunca emitas veredictos editoriales ni afirmes verdad o falsedad.`;
+ Reglas: máximo 3 aseveraciones atómicas y verificables. La razón es una guía breve para los modelos supervisados posteriores, no una explicación de razonamiento interno. "excluded" es true solo para opinión, predicción, retórica o ambigüedad, y entonces "exclusionReason" es obligatorio; en caso contrario omite "exclusionReason". "location" son índices de caracteres dentro del texto original. Nunca emitas veredictos editoriales ni afirmes verdad o falsedad.`;
 
 const PROPOSAL_SCHEMA_SPEC = `Devuelve EXACTAMENTE un objeto JSON con esta forma (sin campos adicionales, sin markdown):
 {
@@ -39,13 +44,14 @@ const PROPOSAL_SCHEMA_SPEC = `Devuelve EXACTAMENTE un objeto JSON con esta forma
 Reglas: es una propuesta NO vinculante para revisión humana. Los tres índices son números entre 0 y 1. Usa solo IDs de evidencia presentes en la entrada. Nunca emitas veredictos editoriales ni afirmes verdad o falsedad.`;
 
 export function createClaimExtractionInput(text: string): Record<string, unknown> {
+  const extractionText = text.slice(0, EXTRACTION_INPUT_MAX_CHARS);
   return {
     messages: [
       {
         role: "system",
         content: `Extrae hasta tres aseveraciones atómicas verificables del texto. ${CLAIM_SCHEMA_SPEC}`,
       },
-      { role: "user", content: text },
+      { role: "user", content: extractionText },
     ],
     response_format: { type: "json_object" },
   };
@@ -55,8 +61,8 @@ export function createClaimRepairInput(invalidResponse: string): Record<string, 
   return {
     messages: [
       {
-        role: "user",
-        content: `La siguiente respuesta no cumple el esquema claim-extraction.v1. Reinténtala cumpliéndolo exactamente. ${CLAIM_SCHEMA_SPEC}\n\nRespuesta inválida:\n${invalidResponse}`,
+       role: "user",
+       content: `La siguiente respuesta no cumple el esquema claim-extraction.v2. Reinténtala cumpliéndolo exactamente. ${CLAIM_SCHEMA_SPEC}\n\nRespuesta inválida:\n${invalidResponse}`,
       },
     ],
     response_format: { type: "json_object" },

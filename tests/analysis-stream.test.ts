@@ -8,7 +8,7 @@ function sseResponse() {
     start(controller) {
       const encoder = new TextEncoder();
       for (const [index, name] of ANALYSIS_EVENT_NAMES.entries()) {
-        controller.enqueue(encoder.encode(`id: event-${index}\nevent: ${name}\ndata: ${JSON.stringify({ pipelineVersion: "analysis-sse.v1", promptVersion: "text-analysis.v1", durationMs: index, usage: null, retries: 0, degradations: [] })}\n\n`));
+        controller.enqueue(encoder.encode(`id: event-${index}\nevent: ${name}\ndata: ${JSON.stringify({ pipelineVersion: "analysis-sse.v1", promptVersion: "claim-extraction.v2", durationMs: index, usage: null, retries: 0, degradations: [] })}\n\n`));
       }
       controller.close();
     },
@@ -26,5 +26,17 @@ describe("analysis SSE client", () => {
   it("surfaces Spanish server validation errors", async () => {
     const response = new Response(JSON.stringify({ error: "El texto debe tener entre 20 y 20.000 caracteres para analizarlo." }), { status: 400 });
     await expect(streamAnalysis({ text: "corto", fetchImpl: async () => response })).rejects.toThrow("entre 20 y 20.000");
+  });
+
+  it("sends URL input without changing the SSE parser", async () => {
+    let body = "";
+    await streamAnalysis({
+      url: "https://example.com/noticia",
+      fetchImpl: async (_input, init) => {
+        body = String(init?.body);
+        return sseResponse();
+      },
+    });
+    expect(JSON.parse(body)).toEqual({ url: "https://example.com/noticia" });
   });
 });

@@ -10,7 +10,9 @@ import {
   type AnalysisEventName,
   type AnalysisEventMeta,
 } from "../../shared/analysis-events";
+import { parseAnalysisInput, type AnalysisInput } from "../../shared/contracts";
 import { analyzeText, type AnalyzeTextOptions } from "../pipeline/analyze-text";
+import { fetchArticleText } from "../article-fetch";
 import { PROPOSAL_MODELS } from "../config/models";
 import { createAiSearchProvider, type AiSearchNamespaceBinding, type AiSearchProvider } from "../providers/ai-search";
 import { OpenRouterClient, type OpenRouterModelProvider } from "../providers/openrouter";
@@ -28,6 +30,7 @@ export interface AnalysisRouteDependencies {
   openRouter?: OpenRouterModelProvider;
   now?: () => number;
   analyze?: typeof analyzeText;
+  fetchArticle?: (url: string, options: { signal: AbortSignal }) => Promise<string>;
 }
 
 export const analysisRoutes = createAnalysisRoutes();
@@ -43,16 +46,17 @@ export function createAnalysisRoutes(dependencies?: AnalysisRouteDependencies): 
       return context.json({ error: "El cuerpo de la solicitud debe ser JSON válido." }, 400);
     }
 
-    const text = body && typeof body === "object" && "text" in body ? (body as { text?: unknown }).text : undefined;
-    if (typeof text !== "string" || text.length < 20 || text.length > 20_000) {
-      return context.json({ error: "El texto debe tener entre 20 y 20.000 caracteres para analizarlo." }, 400);
-    }
+    const parsedInput = parseAnalysisInput(body);
+    if (parsedInput.error) return context.json({ error: parsedInput.error }, 400);
+    if (!parsedInput.input) return context.json({ error: "Proporciona exactamente uno de los campos \"text\" o \"url\"." }, 400);
+    const input: AnalysisInput = parsedInput.input;
 
     const env = context.env;
     const resolved: AnalysisRouteDependencies = dependencies ?? {
       ai: env.AI,
       search: createAiSearchProvider({ binding: env.AI_SEARCH }),
       openRouter: new OpenRouterClient({ env }),
+      fetchArticle: (url, options) => fetchArticleText(url, options),
     };
     const now = resolved.now ?? Date.now;
     const runAnalysis = resolved.analyze ?? analyzeText;
@@ -84,8 +88,30 @@ export function createAnalysisRoutes(dependencies?: AnalysisRouteDependencies): 
       };
 
       try {
-        await write("analysis.started", { analysisId, textLength: text.length });
+        await write("analysis.started", {
+          analysisId,
+          textLength: input.kind === "text" ? input.text.length : 0,
+          inputType: input.kind,
+          ...(input.kind === "url" ? { sourceUrl: input.url } : {}),
+        });
         startedAt = now();
+
+        let text = input.kind === "text" ? input.text : "";
+        if (input.kind === "url") {
+          try {
+            text = await (resolved.fetchArticle ?? ((url, options) => fetchArticleText(url, options)))(input.url, { signal: controller.signal });
+          } catch (error) {
+            const message = error instanceof Error ? error.message : "No fue posible leer el artículo.";
+            await write("analysis.completed", {
+              analysisId,
+              status: "failed",
+              claims: [],
+              limitations: [message],
+              traceEventIds: [],
+            }, { degradations: [message] });
+            return;
+          }
+        }
 
         const options: AnalyzeTextOptions = {
           text,
@@ -101,7 +127,7 @@ export function createAnalysisRoutes(dependencies?: AnalysisRouteDependencies): 
                 claims: progress.claims,
                 provenance: progress.provenance,
                 traceEventId: progress.traceEventId,
-              }, { retries: progress.retries });
+              }, { retries: progress.retries, degradations: progress.degradations });
             } else if (progress.type === "evidence.retrieved") {
               await write("evidence.retrieved", {
                 analysisId,

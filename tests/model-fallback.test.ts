@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { getOpenRouterModel, PIPELINE_TIMEOUT_MS, PROPOSAL_MODELS } from "../src/server/config/models";
+import { EXTRACTION_TIMEOUT_MS, getOpenRouterModel, PIPELINE_TIMEOUT_MS, PROPOSAL_MODELS } from "../src/server/config/models";
 import { analyzeText } from "../src/server/pipeline/analyze-text";
 import { OpenRouterClient, type OpenRouterTransport } from "../src/server/providers/openrouter";
 import type { WorkersAiBinding } from "../src/server/providers/workers-ai";
@@ -91,6 +91,7 @@ function isExtraction(input: { messages?: Array<{ role: string; content: string 
 describe("OpenRouter model fallback", () => {
   it("retains the 90-second shared budget and no-verdict consensus guard", () => {
     expect(PIPELINE_TIMEOUT_MS).toBe(90_000);
+    expect(EXTRACTION_TIMEOUT_MS).toBe(35_000);
   });
 
   it.each([
@@ -114,7 +115,7 @@ describe("OpenRouter model fallback", () => {
     expect(fallbackProposal?.status).toBe("valid");
     expect(fallbackProposal?.provenance).toEqual({ provider: "openrouter", modelId: getOpenRouterModel(failedModel) });
     expect(result.claims[0].provenance).toEqual({ provider: "workers-ai", modelId: "@cf/zai-org/glm-4.7-flash" });
-    expect(JSON.parse(await calls[0].text()).model).toBe(getOpenRouterModel(failedModel));
+    expect(JSON.parse(await calls[0].text()).model).toBe("openai/gpt-5.6-luna");
     expect(result.traceEvents.some((event) => event.title === "Respaldo de proveedor" && event.details.includes("openrouter"))).toBe(true);
   });
 
@@ -122,9 +123,9 @@ describe("OpenRouter model fallback", () => {
     const { transport } = createTransport(200, extraction);
     const result = await analyzeText({ text, ai: new FakeAi(new Set(), true), search: fakeSearch(), openRouter: createOpenRouter(transport) });
 
-    expect(result.claims[0].provenance).toEqual({ provider: "openrouter", modelId: getOpenRouterModel("@cf/zai-org/glm-4.7-flash") });
+    expect(result.claims[0].provenance).toEqual({ provider: "openrouter", modelId: "openai/gpt-5.6-luna" });
     expect(result.claims[0].consensus?.reviewFocus).toBe("Contrastar evidencia");
-    expect(result.traceEvents.some((event) => event.title === "Respaldo de proveedor")).toBe(true);
+    expect(result.traceEvents.some((event) => event.title === "Extracción de aseveraciones" && event.details.includes("openrouter"))).toBe(true);
   });
 
   it("surfaces an honest failure when the fallback also fails", async () => {

@@ -2,8 +2,10 @@
 
 import {
   isClaimExtractionV1,
+  isClaimExtractionV2,
   isProposalV1,
   type ClaimExtractionV1,
+  type ClaimExtractionV2,
   type EvidenceExcerpt,
   type ExtractedClaim,
   type JsonValue,
@@ -12,8 +14,8 @@ import {
   type TraceEvent,
 } from "../../shared/contracts";
 import { hashCanonicalJson, redactTrace } from "../../shared/trace";
-import { CLAIM_EXTRACTION_MODEL, getOpenRouterModel, PIPELINE_TIMEOUT_MS, PROPOSAL_MODELS, type ProposalModel } from "../config/models";
-import { createClaimExtractionInput, createClaimRepairInput, createProposalInput, createProposalRepairInput } from "../prompts/text-analysis";
+import { CLAIM_EXTRACTION_MODEL, EXTRACTION_TIMEOUT_MS, getOpenRouterModel, LUNA_EXTRACTION_MODEL, PIPELINE_TIMEOUT_MS, PROPOSAL_MODELS, type ProposalModel } from "../config/models";
+import { createClaimExtractionInput, createClaimRepairInput, createProposalInput, createProposalRepairInput, EXTRACTION_INPUT_MAX_CHARS, EXTRACTION_TRUNCATION_LIMITATION } from "../prompts/text-analysis";
 import type { AiSearchProvider } from "../providers/ai-search";
 import { runJsonWithProviderFallback, type ModelProvenance, type WorkersAiBinding } from "../providers/workers-ai";
 import type { OpenRouterModelProvider } from "../providers/openrouter";
@@ -27,7 +29,7 @@ export interface ProposalAttempt {
   errorCode?: "timeout" | "quota" | "outage" | "invalid_response";
   fallback?: {
     attempted: boolean;
-    reason: "timeout" | "quota" | "outage";
+    reason: "timeout" | "quota" | "outage" | "invalid_response";
     outcome: "success" | "failed";
   };
   retries: number;
@@ -73,6 +75,7 @@ export type TextAnalysisProgress =
       provenance: ModelProvenance;
       traceEventId: string;
       retries: number;
+      degradations?: string[];
     }
   | {
       type: "evidence.retrieved";
@@ -115,14 +118,21 @@ export async function analyzeText(options: AnalyzeTextOptions): Promise<TextAnal
   const timeout = setTimeout(() => controller.abort(), options.timeoutMs ?? PIPELINE_TIMEOUT_MS);
   const traceEvents: TraceEvent[] = [];
   const limitations: string[] = [];
+  const extractionDegradations = options.text.length > EXTRACTION_INPUT_MAX_CHARS ? [EXTRACTION_TRUNCATION_LIMITATION] : [];
+  limitations.push(...extractionDegradations);
 
   try {
-    const extraction = await runModel<ClaimExtractionV1>(options, CLAIM_EXTRACTION_MODEL, {
-      input: createClaimExtractionInput(options.text),
-      repairInput: createClaimRepairInput,
-      guard: isClaimExtractionV1,
-      signal: controller.signal,
-    });
+    const extractionController = new AbortController();
+    const abortExtraction = () => extractionController.abort();
+    controller.signal.addEventListener("abort", abortExtraction, { once: true });
+    const extractionTimeout = setTimeout(abortExtraction, EXTRACTION_TIMEOUT_MS);
+    let extraction: Awaited<ReturnType<typeof runExtractionModel>>;
+    try {
+      extraction = await runExtractionModel(options, extractionController.signal);
+    } finally {
+      clearTimeout(extractionTimeout);
+      controller.signal.removeEventListener("abort", abortExtraction);
+    }
 
     if (!extraction.value) {
       const limitation = extraction.error?.limitation ?? "No se pudieron extraer aseveraciones del texto.";
@@ -134,8 +144,10 @@ export async function analyzeText(options: AnalyzeTextOptions): Promise<TextAnal
       }));
       if (extraction.fallback?.attempted) {
         traceEvents.push(await createTrace("Análisis", "Respaldo de proveedor", "El respaldo OpenRouter no produjo aseveraciones válidas.", "Fallido", {
-          fromProvider: "workers-ai",
-          toProvider: "openrouter",
+          fromProvider: extraction.fallback.fromProvider,
+          toProvider: extraction.fallback.toProvider,
+          fromModel: extraction.fallback.fromModel,
+          toModel: extraction.fallback.toModel,
           reason: extraction.fallback.reason,
           provider: extraction.provenance.provider,
           model: extraction.provenance.modelId,
@@ -144,30 +156,46 @@ export async function analyzeText(options: AnalyzeTextOptions): Promise<TextAnal
       return buildResult("partial", [], limitations, traceEvents, now() - startedAt);
     }
 
-      const extractionTrace = await createTrace("Análisis", "Extracción de aseveraciones", "Se extrajeron aseveraciones para revisión editorial.", "Completado", {
+    const extractedClaims = extraction.value.claims.slice(0, 3);
+    if (extraction.value.claims.length > extractedClaims.length) {
+      const limitation = "El modelo propuso más de 3 aseveraciones; se conservaron solo las primeras 3 como límite del prototipo.";
+      extractionDegradations.push(limitation);
+      limitations.push(limitation);
+    }
+    if (extraction.fallback?.attempted && extraction.fallback.outcome === "success") {
+      const fallbackLimitation = "La extracción supervisora Luna no estuvo disponible; se utilizó Workers AI como respaldo.";
+      extractionDegradations.push(fallbackLimitation);
+      limitations.push(fallbackLimitation);
+    }
+
+    const extractionTrace = await createTrace("Análisis", "Extracción de aseveraciones", "Se extrajeron aseveraciones para revisión editorial.", "Completado", {
         provider: extraction.provenance.provider,
         model: extraction.provenance.modelId,
-        claims: extraction.value.claims.length,
+        claims: extractedClaims.length,
+        modelClaims: extraction.value.claims.length,
         repaired: extraction.repaired,
       });
       traceEvents.push(extractionTrace);
       await options.onProgress?.({
         type: "claim.extracted",
-        claims: extraction.value.claims,
+        claims: extractedClaims,
         provenance: extraction.provenance,
         traceEventId: extractionTrace.id,
         retries: extraction.repaired ? 1 : 0,
+        degradations: extractionDegradations,
       });
     if (extraction.fallback?.attempted) {
-      traceEvents.push(await createTrace("Análisis", "Respaldo de proveedor", extraction.fallback.outcome === "success" ? "Se utilizó OpenRouter como respaldo para extraer aseveraciones." : "El respaldo OpenRouter no produjo aseveraciones válidas.", extraction.fallback.outcome === "success" ? "Completado" : "Fallido", {
-        fromProvider: "workers-ai",
-        toProvider: "openrouter",
+      traceEvents.push(await createTrace("Análisis", "Respaldo de proveedor", extraction.fallback.outcome === "success" ? "Se utilizó un proveedor de respaldo para extraer aseveraciones." : "El proveedor de respaldo no produjo aseveraciones válidas.", extraction.fallback.outcome === "success" ? "Completado" : "Fallido", {
+        fromProvider: extraction.fallback.fromProvider,
+        toProvider: extraction.fallback.toProvider,
+        fromModel: extraction.fallback.fromModel,
+        toModel: extraction.fallback.toModel,
         reason: extraction.fallback.reason,
         provider: extraction.provenance.provider,
         model: extraction.provenance.modelId,
       }));
     }
-    const analyzedClaims = await Promise.all(extraction.value.claims.map((claim, claimIndex) => analyzeClaim(claim, extraction.provenance, options, controller.signal, claimIndex)));
+    const analyzedClaims = await Promise.all(extractedClaims.map((claim, claimIndex) => analyzeClaim(claim, extraction.provenance, options, controller.signal, claimIndex)));
     for (const item of analyzedClaims) {
       traceEvents.push(...item.traceEvents);
       limitations.push(...item.limitations);
@@ -286,6 +314,38 @@ async function runProposal(model: ProposalModel, input: Record<string, unknown>,
         fallback: result.fallback,
         retries: result.repaired ? 1 : 0,
       };
+}
+
+async function runExtractionModel(options: AnalyzeTextOptions, signal: AbortSignal) {
+  const input = createClaimExtractionInput(options.text);
+  if (!options.openRouter || options.openRouter.isConfigured === false) {
+    return runJsonWithProviderFallback<ClaimExtractionV1 | ClaimExtractionV2>({
+      primary: options.ai,
+      primaryModel: CLAIM_EXTRACTION_MODEL,
+      input,
+      repairInput: createClaimRepairInput,
+      guard: (value): value is ClaimExtractionV1 | ClaimExtractionV2 => isClaimExtractionV1(value) || isClaimExtractionV2(value),
+      signal,
+      fallbackUnavailableLimitation: "No hay una clave de OpenRouter configurada; el análisis continúa solo con Workers AI.",
+      timeoutMs: EXTRACTION_TIMEOUT_MS,
+    });
+  }
+
+  return runJsonWithProviderFallback<ClaimExtractionV1 | ClaimExtractionV2>({
+    primary: options.openRouter,
+    primaryModel: LUNA_EXTRACTION_MODEL,
+    primaryProvider: "openrouter",
+    fallback: { ai: options.ai, model: CLAIM_EXTRACTION_MODEL },
+    fallbackProvider: "workers-ai",
+    fallbackOnInvalidResponse: true,
+    input,
+    repairInput: createClaimRepairInput,
+    guard: (value): value is ClaimExtractionV1 | ClaimExtractionV2 => isClaimExtractionV1(value) || isClaimExtractionV2(value),
+    signal,
+    fallbackUnavailableLimitation: "No hay una clave de OpenRouter configurada; el análisis continúa solo con Workers AI.",
+    fallbackLabel: "Workers AI",
+    timeoutMs: EXTRACTION_TIMEOUT_MS,
+  });
 }
 
 async function runModel<T>(options: AnalyzeTextOptions, model: typeof CLAIM_EXTRACTION_MODEL | ProposalModel, request: {

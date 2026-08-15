@@ -12,7 +12,7 @@ import type {
 import type { ModelProvenance } from "../server/providers/workers-ai";
 
 export const ANALYSIS_PIPELINE_VERSION = "analysis-sse.v1" as const;
-export const ANALYSIS_PROMPT_VERSION = "text-analysis.v1" as const;
+export const ANALYSIS_PROMPT_VERSION = "claim-extraction.v2" as const;
 
 export const ANALYSIS_EVENT_NAMES = [
   "analysis.started",
@@ -44,6 +44,8 @@ export interface AnalysisEventMeta {
 export interface AnalysisStartedData extends AnalysisEventMeta {
   analysisId: string;
   textLength: number;
+  inputType?: "text" | "url";
+  sourceUrl?: string;
 }
 
 export interface ClaimExtractedData extends AnalysisEventMeta {
