@@ -281,6 +281,57 @@ export function isSourceCitation(value: unknown): value is SourceCitation {
   );
 }
 
+export interface EvidenceExcerpt {
+  id: string;
+  institution: string;
+  collection: string;
+  title: string;
+  version: string;
+  sourceUrl: string;
+  retrievalDate: string;
+  citationLocation: string;
+  license: string;
+  coverageLimits: string;
+  excerpt: string;
+  sha256: string;
+  period?: string;
+  type?: string;
+  score?: number;
+}
+
+export function isEvidenceExcerpt(value: unknown): value is EvidenceExcerpt {
+  return (
+    isRecord(value) &&
+    typeof value.id === "string" &&
+    value.id.trim().length > 0 &&
+    typeof value.institution === "string" &&
+    value.institution.trim().length > 0 &&
+    typeof value.collection === "string" &&
+    value.collection.trim().length > 0 &&
+    typeof value.title === "string" &&
+    value.title.trim().length > 0 &&
+    typeof value.version === "string" &&
+    value.version.trim().length > 0 &&
+    typeof value.sourceUrl === "string" &&
+    value.sourceUrl.trim().length > 0 &&
+    typeof value.retrievalDate === "string" &&
+    value.retrievalDate.trim().length > 0 &&
+    typeof value.citationLocation === "string" &&
+    value.citationLocation.trim().length > 0 &&
+    typeof value.license === "string" &&
+    value.license.trim().length > 0 &&
+    typeof value.coverageLimits === "string" &&
+    value.coverageLimits.trim().length > 0 &&
+    typeof value.excerpt === "string" &&
+    value.excerpt.trim().length > 0 &&
+    typeof value.sha256 === "string" &&
+    value.sha256.trim().length > 0 &&
+    (value.period === undefined || typeof value.period === "string") &&
+    (value.type === undefined || typeof value.type === "string") &&
+    (value.score === undefined || typeof value.score === "number")
+  );
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -289,3 +340,4 @@ function hasOnlyKeys(value: Record<string, unknown>, keys: readonly string[]): b
   const valueKeys = Object.keys(value);
   return valueKeys.length === keys.length && valueKeys.every((key) => keys.includes(key));
 }
+
