@@ -14,4 +14,4 @@ El extractor personalizado conserva el contenido de `article` o `main` cuando ex
 
 ## Flujo editorial
 
-El texto recuperado entra al mismo SSE y motor que el texto pegado. La entrada enviada a extracción se limita a 15.000 caracteres; si el artículo supera ese límite, el análisis conserva una limitación visible: `El artículo fue truncado para el análisis del prototipo.` `analysis.started` identifica `inputType: "url"` y conserva `sourceUrl`; las aseveraciones, razones, evidencia, propuestas y trazas siguen sujetas a revisión humana.
+El texto recuperado entra al mismo SSE y motor que el texto pegado. La entrada enviada a extracción se limita a 8.000 caracteres; si el artículo supera ese límite, el análisis conserva una limitación visible: `El artículo fue truncado para el análisis del prototipo.` La extracción `claim-extraction.v3` solo solicita fragmento literal, encuadre supervisor breve y exclusión; el servidor deriva normalización y ubicación cuando encuentra el fragmento exacto. `analysis.started` identifica `inputType: "url"` y conserva `sourceUrl`; las aseveraciones, razones, evidencia, propuestas y trazas siguen sujetas a revisión humana.

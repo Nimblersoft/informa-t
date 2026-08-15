@@ -8,7 +8,7 @@ function sseResponse() {
     start(controller) {
       const encoder = new TextEncoder();
       for (const [index, name] of ANALYSIS_EVENT_NAMES.entries()) {
-        controller.enqueue(encoder.encode(`id: event-${index}\nevent: ${name}\ndata: ${JSON.stringify({ pipelineVersion: "analysis-sse.v1", promptVersion: "claim-extraction.v2", durationMs: index, usage: null, retries: 0, degradations: [] })}\n\n`));
+        controller.enqueue(encoder.encode(`id: event-${index}\nevent: ${name}\ndata: ${JSON.stringify({ pipelineVersion: "analysis-sse.v1", promptVersion: "claim-extraction.v3", durationMs: index, usage: null, retries: 0, degradations: [] })}\n\n`));
       }
       controller.close();
     },

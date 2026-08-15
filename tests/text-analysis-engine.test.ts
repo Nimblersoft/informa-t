@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { isClaimExtractionV1, type ClaimExtractionV1, type ProposalV1 } from "../src/shared/contracts";
+import { isClaimExtractionV3, type ClaimExtractionV3, type ProposalV1 } from "../src/shared/contracts";
 import { PROPOSAL_MODELS } from "../src/server/config/models";
 import { analyzeText } from "../src/server/pipeline/analyze-text";
 import { EXTRACTION_INPUT_MAX_CHARS } from "../src/server/prompts/text-analysis";
@@ -11,22 +11,16 @@ import type { WorkersAiBinding } from "../src/server/providers/workers-ai";
 
 const text = "El INEC reportó que la pobreza por ingresos cambió durante junio de 2025.";
 
-function claim(index = 0): ClaimExtractionV1["claims"][number] {
+function claim(): ClaimExtractionV3["claims"][number] {
   return {
-    verbatimText: "El INEC reportó que la pobreza por ingresos cambió durante junio de 2025.",
-    normalizedText: "INEC reportó cambio de pobreza por ingresos en junio de 2025",
-    location: { start: index, end: index + 75 },
-    entities: ["INEC"],
-    dates: ["junio de 2025"],
-    verifiable: true,
-    electorallyRelevant: true,
-    sourceAvailability: "no consultada",
+    verbatim: "El INEC reportó que la pobreza por ingresos cambió durante junio de 2025.",
+    rationale: "El reporte oficial permite contrastar la afirmación.",
     excluded: false,
   };
 }
 
-function extraction(count = 1): ClaimExtractionV1 {
-  return { schemaVersion: "claim-extraction.v1", claims: Array.from({ length: count }, (_, index) => claim(index * 80)) };
+function extraction(count = 1): ClaimExtractionV3 {
+  return { schemaVersion: "claim-extraction.v3", claims: Array.from({ length: count }, () => claim()) };
 }
 
 function proposal(reviewFocus: ProposalV1["reviewFocus"] = "Contrastar evidencia"): ProposalV1 {
@@ -71,16 +65,16 @@ function isExtraction(input: { messages?: Array<{ role: string; content: string 
 }
 
 describe("text analysis engine", () => {
-  it("requires all claim fields and an exclusion reason for excluded candidates", () => {
+  it("requires the v3 claim fields and an exclusion reason for excluded candidates", () => {
     const excluded = { ...claim(), excluded: true };
-    expect(isClaimExtractionV1({ schemaVersion: "claim-extraction.v1", claims: [excluded] })).toBe(false);
-    expect(isClaimExtractionV1({
-      schemaVersion: "claim-extraction.v1",
+    expect(isClaimExtractionV3({ schemaVersion: "claim-extraction.v3", claims: [excluded] })).toBe(false);
+    expect(isClaimExtractionV3({
+      schemaVersion: "claim-extraction.v3",
       claims: [{ ...excluded, exclusionReason: "opinión" }],
     })).toBe(true);
-    expect(isClaimExtractionV1({
-      schemaVersion: "claim-extraction.v1",
-      claims: [{ ...claim(), sourceAvailability: "desconocida" }],
+    expect(isClaimExtractionV3({
+      schemaVersion: "claim-extraction.v3",
+      claims: [{ ...claim(), normalizedText: "no permitido" }],
     })).toBe(false);
   });
 
@@ -103,6 +97,26 @@ describe("text analysis engine", () => {
 
     expect(result.claims).toHaveLength(3);
     expect(result.claims.every((item) => item.proposals.length === 3)).toBe(true);
+  });
+
+  it("derives normalized text and source location without requiring model fields", async () => {
+    const sourceText = "Prefacio.  El INEC   reportó cambios verificables.";
+    const extracted = { schemaVersion: "claim-extraction.v3" as const, claims: [{ verbatim: "El INEC   reportó cambios verificables.", rationale: "El reporte permite contraste.", excluded: false }] };
+    const ai = new FakeAi((_model, input) => isExtraction(input) ? extracted : proposal());
+    const result = await analyzeText({ text: sourceText, ai, search: fakeSearch() });
+
+    expect(result.claims[0].claim.normalizedText).toBe("El INEC reportó cambios verificables.");
+    expect(result.claims[0].claim.location).toEqual({ start: 11, end: 50 });
+    expect(result.claims[0].claim.entities).toBeUndefined();
+  });
+
+  it("omits location when the model paraphrases the source", async () => {
+    const extracted = { schemaVersion: "claim-extraction.v3" as const, claims: [{ verbatim: "El INEC informó una variación.", rationale: "El encuadre requiere contraste.", excluded: false }] };
+    const ai = new FakeAi((_model, input) => isExtraction(input) ? extracted : proposal());
+    const result = await analyzeText({ text, ai, search: fakeSearch() });
+
+    expect(result.claims[0].claim.location).toBeUndefined();
+    expect(result.claims[0].claim.normalizedText).toBe("El INEC informó una variación.");
   });
 
   it("repairs exactly one invalid JSON response", async () => {

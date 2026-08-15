@@ -8,19 +8,23 @@ import type { AiSearchProviderResult } from "../src/server/providers/ai-search";
 import type { WorkersAiBinding } from "../src/server/providers/workers-ai";
 
 const text = "El instituto oficial reportó cambios verificables en el registro electoral durante junio de 2025.";
+const extractionClaim = {
+  verbatim: "El instituto oficial reportó cambios verificables en el registro electoral durante junio de 2025.",
+  rationale: "El registro oficial permite contrastar esta afirmación.",
+  excluded: false,
+};
+const extraction = { schemaVersion: "claim-extraction.v3" as const, claims: [extractionClaim] };
 const claim = {
-  verbatimText: "El instituto oficial reportó cambios verificables en el registro electoral durante junio de 2025.",
-  normalizedText: "El instituto oficial reportó cambios en el registro electoral",
-  location: { start: 0, end: 92 },
-  entities: ["instituto oficial"],
-  dates: ["junio de 2025"],
+  verbatimText: extractionClaim.verbatim,
+  normalizedText: extractionClaim.verbatim,
+  location: { start: 0, end: extractionClaim.verbatim.length },
+  dates: [],
   verifiable: true,
   electorallyRelevant: true,
   sourceAvailability: "no consultada" as const,
   excluded: false,
-  rationale: "El registro oficial permite contrastar esta afirmación.",
+  rationale: extractionClaim.rationale,
 };
-const extraction = { schemaVersion: "claim-extraction.v1" as const, claims: [claim] };
 const proposal = {
   schemaVersion: "proposal.v1" as const,
   reviewFocus: "Contrastar evidencia" as const,
@@ -115,7 +119,7 @@ describe("POST /api/analyses SSE contract", () => {
     expect(new Set(events.map((event) => event.event))).toEqual(new Set(ANALYSIS_EVENT_NAMES.filter((name) => name !== "model.failed")));
     for (const event of events) {
       expect(event.data.pipelineVersion).toBe("analysis-sse.v1");
-      expect(event.data.promptVersion).toBe("claim-extraction.v2");
+      expect(event.data.promptVersion).toBe("claim-extraction.v3");
       expect(typeof event.data.durationMs).toBe("number");
       expect(event.data).toHaveProperty("usage");
       expect(typeof event.data.retries).toBe("number");

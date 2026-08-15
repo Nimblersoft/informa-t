@@ -12,7 +12,7 @@ import type {
 import type { ModelProvenance } from "../server/providers/workers-ai";
 
 export const ANALYSIS_PIPELINE_VERSION = "analysis-sse.v1" as const;
-export const ANALYSIS_PROMPT_VERSION = "claim-extraction.v2" as const;
+export const ANALYSIS_PROMPT_VERSION = "claim-extraction.v3" as const;
 
 export const ANALYSIS_EVENT_NAMES = [
   "analysis.started",

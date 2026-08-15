@@ -299,8 +299,7 @@ export interface EvidenceExcerpt {
   score?: number;
 }
 
-export const CLAIM_EXTRACTION_SCHEMA_VERSION = "claim-extraction.v1" as const;
-export const CLAIM_EXTRACTION_V2_SCHEMA_VERSION = "claim-extraction.v2" as const;
+export const CLAIM_EXTRACTION_SCHEMA_VERSION = "claim-extraction.v3" as const;
 export const PROPOSAL_SCHEMA_VERSION = "proposal.v1" as const;
 
 export type AnalysisInput =
@@ -349,8 +348,8 @@ export interface ClaimLocation {
 export interface ExtractedClaim {
   verbatimText: string;
   normalizedText: string;
-  location: ClaimLocation;
-  entities: string[];
+  location?: ClaimLocation;
+  entities?: string[];
   dates: string[];
   verifiable: boolean;
   electorallyRelevant: boolean;
@@ -360,14 +359,16 @@ export interface ExtractedClaim {
   rationale?: string;
 }
 
-export interface ClaimExtractionV1 {
-  schemaVersion: typeof CLAIM_EXTRACTION_SCHEMA_VERSION;
-  claims: ExtractedClaim[];
+export interface ClaimExtractionV3Claim {
+  verbatim: string;
+  rationale: string;
+  excluded: boolean;
+  exclusionReason?: ClaimExclusionReason;
 }
 
-export interface ClaimExtractionV2 {
-  schemaVersion: typeof CLAIM_EXTRACTION_V2_SCHEMA_VERSION;
-  claims: ExtractedClaim[];
+export interface ClaimExtractionV3 {
+  schemaVersion: typeof CLAIM_EXTRACTION_SCHEMA_VERSION;
+  claims: ClaimExtractionV3Claim[];
 }
 
 export type ReviewFocus = "Contrastar evidencia" | "Evidencia limitada" | "Revisar contexto";
@@ -387,24 +388,13 @@ export interface ProposalV1 {
   };
 }
 
-export function isClaimExtractionV1(value: unknown): value is ClaimExtractionV1 {
+export function isClaimExtractionV3(value: unknown): value is ClaimExtractionV3 {
   return (
     isRecord(value) &&
     hasOnlyKeys(value, ["schemaVersion", "claims"]) &&
     value.schemaVersion === CLAIM_EXTRACTION_SCHEMA_VERSION &&
     Array.isArray(value.claims) &&
-    value.claims.length <= 3 &&
-    value.claims.every(isExtractedClaim)
-  );
-}
-
-export function isClaimExtractionV2(value: unknown): value is ClaimExtractionV2 {
-  return (
-    isRecord(value) &&
-    hasOnlyKeys(value, ["schemaVersion", "claims"]) &&
-    value.schemaVersion === CLAIM_EXTRACTION_V2_SCHEMA_VERSION &&
-    Array.isArray(value.claims) &&
-    value.claims.every(isExtractedClaimV2)
+    value.claims.every(isClaimExtractionV3Claim)
   );
 }
 
@@ -474,41 +464,13 @@ function hasOnlyKeys(value: Record<string, unknown>, keys: readonly string[]): b
   return valueKeys.length === keys.length && valueKeys.every((key) => keys.includes(key));
 }
 
-function isExtractedClaim(value: unknown): value is ExtractedClaim {
+function isClaimExtractionV3Claim(value: unknown): value is ClaimExtractionV3Claim {
   if (
     !isRecord(value) ||
-    !hasAllowedKeys(value, [
-      "verbatimText",
-      "normalizedText",
-      "location",
-      "entities",
-      "dates",
-      "verifiable",
-      "electorallyRelevant",
-      "sourceAvailability",
-      "excluded",
-      "exclusionReason",
-      "rationale",
-    ]) ||
-    !hasRequiredKeys(value, [
-      "verbatimText",
-      "normalizedText",
-      "location",
-      "entities",
-      "dates",
-      "verifiable",
-      "electorallyRelevant",
-      "sourceAvailability",
-      "excluded",
-    ]) ||
-    !isNonEmptyString(value.verbatimText) ||
-    !isNonEmptyString(value.normalizedText) ||
-    !isClaimLocation(value.location) ||
-    !isStringArray(value.entities) ||
-    !isStringArray(value.dates) ||
-    typeof value.verifiable !== "boolean" ||
-    typeof value.electorallyRelevant !== "boolean" ||
-    !isSourceAvailability(value.sourceAvailability) ||
+    !hasAllowedKeys(value, ["verbatim", "rationale", "excluded", "exclusionReason"]) ||
+    !hasRequiredKeys(value, ["verbatim", "rationale", "excluded"]) ||
+    !isNonEmptyString(value.verbatim) ||
+    !isNonEmptyString(value.rationale) ||
     typeof value.excluded !== "boolean"
   ) {
     return false;
@@ -517,23 +479,6 @@ function isExtractedClaim(value: unknown): value is ExtractedClaim {
   return value.excluded
     ? isClaimExclusionReason(value.exclusionReason)
     : value.exclusionReason === undefined;
-}
-
-function isExtractedClaimV2(value: unknown): value is ExtractedClaim {
-  return isExtractedClaim(value);
-}
-
-function isClaimLocation(value: unknown): value is ClaimLocation {
-  if (!isRecord(value) || !hasOnlyKeys(value, ["start", "end"])) return false;
-  const { start, end } = value;
-  return (
-    typeof start === "number" &&
-    typeof end === "number" &&
-    Number.isInteger(start) &&
-    Number.isInteger(end) &&
-    start >= 0 &&
-    end > start
-  );
 }
 
 function hasAllowedKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
@@ -546,10 +491,6 @@ function hasRequiredKeys(value: Record<string, unknown>, keys: readonly string[]
 
 function isClaimExclusionReason(value: unknown): value is ClaimExclusionReason {
   return value === "opinión" || value === "predicción" || value === "retórica" || value === "ambigüedad";
-}
-
-function isSourceAvailability(value: unknown): value is SourceAvailability {
-  return value === "disponible" || value === "insuficiente" || value === "no consultada";
 }
 
 function isReviewFocus(value: unknown): value is ReviewFocus {

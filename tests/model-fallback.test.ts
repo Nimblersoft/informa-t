@@ -2,28 +2,22 @@
 
 import { describe, expect, it } from "vitest";
 
-import { EXTRACTION_TIMEOUT_MS, getOpenRouterModel, PIPELINE_TIMEOUT_MS, PROPOSAL_MODELS } from "../src/server/config/models";
+import { EXTRACTION_ATTEMPT_TIMEOUT_MS, EXTRACTION_TIMEOUT_MS, getOpenRouterModel, PIPELINE_TIMEOUT_MS, PROPOSAL_MODELS } from "../src/server/config/models";
 import { analyzeText } from "../src/server/pipeline/analyze-text";
 import { OpenRouterClient, type OpenRouterTransport } from "../src/server/providers/openrouter";
 import type { WorkersAiBinding } from "../src/server/providers/workers-ai";
-import type { ClaimExtractionV1, ProposalV1 } from "../src/shared/contracts";
+import type { ClaimExtractionV3, ProposalV1 } from "../src/shared/contracts";
 import type { AiSearchProvider, AiSearchProviderResult } from "../src/server/providers/ai-search";
 
 const text = "El INEC reportó que la pobreza por ingresos cambió durante junio de 2025.";
 
-const claim: ClaimExtractionV1["claims"][number] = {
-  verbatimText: "El INEC reportó que la pobreza por ingresos cambió durante junio de 2025.",
-  normalizedText: "INEC reportó cambio de pobreza por ingresos en junio de 2025",
-  location: { start: 0, end: 75 },
-  entities: ["INEC"],
-  dates: ["junio de 2025"],
-  verifiable: true,
-  electorallyRelevant: true,
-  sourceAvailability: "no consultada",
+const claim: ClaimExtractionV3["claims"][number] = {
+  verbatim: "El INEC reportó que la pobreza por ingresos cambió durante junio de 2025.",
+  rationale: "El reporte oficial permite contrastar la afirmación.",
   excluded: false,
 };
 
-const extraction: ClaimExtractionV1 = { schemaVersion: "claim-extraction.v1", claims: [claim] };
+const extraction: ClaimExtractionV3 = { schemaVersion: "claim-extraction.v3", claims: [claim] };
 
 const proposal: ProposalV1 = {
   schemaVersion: "proposal.v1",
@@ -91,7 +85,8 @@ function isExtraction(input: { messages?: Array<{ role: string; content: string 
 describe("OpenRouter model fallback", () => {
   it("retains the 90-second shared budget and no-verdict consensus guard", () => {
     expect(PIPELINE_TIMEOUT_MS).toBe(90_000);
-    expect(EXTRACTION_TIMEOUT_MS).toBe(35_000);
+    expect(EXTRACTION_ATTEMPT_TIMEOUT_MS).toBe(20_000);
+    expect(EXTRACTION_TIMEOUT_MS).toBe(45_000);
   });
 
   it.each([

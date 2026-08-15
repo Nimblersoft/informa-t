@@ -1,11 +1,10 @@
 // Spec: docs/specs/model-fallback.md
 
 import {
-  isClaimExtractionV1,
-  isClaimExtractionV2,
+  isClaimExtractionV3,
   isProposalV1,
-  type ClaimExtractionV1,
-  type ClaimExtractionV2,
+  type ClaimExtractionV3,
+  type ClaimExtractionV3Claim,
   type EvidenceExcerpt,
   type ExtractedClaim,
   type JsonValue,
@@ -14,7 +13,7 @@ import {
   type TraceEvent,
 } from "../../shared/contracts";
 import { hashCanonicalJson, redactTrace } from "../../shared/trace";
-import { CLAIM_EXTRACTION_MODEL, EXTRACTION_TIMEOUT_MS, getOpenRouterModel, LUNA_EXTRACTION_MODEL, PIPELINE_TIMEOUT_MS, PROPOSAL_MODELS, type ProposalModel } from "../config/models";
+import { CLAIM_EXTRACTION_MODEL, EXTRACTION_ATTEMPT_TIMEOUT_MS, EXTRACTION_TIMEOUT_MS, getOpenRouterModel, LUNA_EXTRACTION_MODEL, PIPELINE_TIMEOUT_MS, PROPOSAL_MODELS, type ProposalModel } from "../config/models";
 import { createClaimExtractionInput, createClaimRepairInput, createProposalInput, createProposalRepairInput, EXTRACTION_INPUT_MAX_CHARS, EXTRACTION_TRUNCATION_LIMITATION } from "../prompts/text-analysis";
 import type { AiSearchProvider } from "../providers/ai-search";
 import { runJsonWithProviderFallback, type ModelProvenance, type WorkersAiBinding } from "../providers/workers-ai";
@@ -122,17 +121,7 @@ export async function analyzeText(options: AnalyzeTextOptions): Promise<TextAnal
   limitations.push(...extractionDegradations);
 
   try {
-    const extractionController = new AbortController();
-    const abortExtraction = () => extractionController.abort();
-    controller.signal.addEventListener("abort", abortExtraction, { once: true });
-    const extractionTimeout = setTimeout(abortExtraction, EXTRACTION_TIMEOUT_MS);
-    let extraction: Awaited<ReturnType<typeof runExtractionModel>>;
-    try {
-      extraction = await runExtractionModel(options, extractionController.signal);
-    } finally {
-      clearTimeout(extractionTimeout);
-      controller.signal.removeEventListener("abort", abortExtraction);
-    }
+    const extraction = await runExtractionStage(options, controller.signal);
 
     if (!extraction.value) {
       const limitation = extraction.error?.limitation ?? "No se pudieron extraer aseveraciones del texto.";
@@ -156,7 +145,7 @@ export async function analyzeText(options: AnalyzeTextOptions): Promise<TextAnal
       return buildResult("partial", [], limitations, traceEvents, now() - startedAt);
     }
 
-    const extractedClaims = extraction.value.claims.slice(0, 3);
+    const extractedClaims = extraction.value.claims.slice(0, 3).map((claim) => deriveExtractedClaim(claim, options.text));
     if (extraction.value.claims.length > extractedClaims.length) {
       const limitation = "El modelo propuso más de 3 aseveraciones; se conservaron solo las primeras 3 como límite del prototipo.";
       extractionDegradations.push(limitation);
@@ -316,22 +305,42 @@ async function runProposal(model: ProposalModel, input: Record<string, unknown>,
       };
 }
 
-async function runExtractionModel(options: AnalyzeTextOptions, signal: AbortSignal) {
+async function runExtractionStage(options: AnalyzeTextOptions, signal: AbortSignal) {
+  const stageController = new AbortController();
+  const abortStage = () => stageController.abort();
+  signal.addEventListener("abort", abortStage, { once: true });
+  const stageTimeout = setTimeout(abortStage, EXTRACTION_TIMEOUT_MS);
+
+  try {
+    let lastResult: Awaited<ReturnType<typeof runExtractionModel>> | undefined;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      if (stageController.signal.aborted) break;
+      lastResult = await runExtractionModel(options, stageController.signal, EXTRACTION_ATTEMPT_TIMEOUT_MS);
+      if (lastResult.value || stageController.signal.aborted || lastResult.error?.code !== "timeout" || attempt === 1) return lastResult;
+    }
+    return lastResult ?? await runExtractionModel(options, stageController.signal, EXTRACTION_ATTEMPT_TIMEOUT_MS);
+  } finally {
+    clearTimeout(stageTimeout);
+    signal.removeEventListener("abort", abortStage);
+  }
+}
+
+async function runExtractionModel(options: AnalyzeTextOptions, signal: AbortSignal, timeoutMs: number) {
   const input = createClaimExtractionInput(options.text);
   if (!options.openRouter || options.openRouter.isConfigured === false) {
-    return runJsonWithProviderFallback<ClaimExtractionV1 | ClaimExtractionV2>({
+    return runJsonWithProviderFallback<ClaimExtractionV3>({
       primary: options.ai,
       primaryModel: CLAIM_EXTRACTION_MODEL,
       input,
       repairInput: createClaimRepairInput,
-      guard: (value): value is ClaimExtractionV1 | ClaimExtractionV2 => isClaimExtractionV1(value) || isClaimExtractionV2(value),
+      guard: (value): value is ClaimExtractionV3 => isClaimExtractionV3(value),
       signal,
       fallbackUnavailableLimitation: "No hay una clave de OpenRouter configurada; el análisis continúa solo con Workers AI.",
-      timeoutMs: EXTRACTION_TIMEOUT_MS,
+      timeoutMs,
     });
   }
 
-  return runJsonWithProviderFallback<ClaimExtractionV1 | ClaimExtractionV2>({
+  return runJsonWithProviderFallback<ClaimExtractionV3>({
     primary: options.openRouter,
     primaryModel: LUNA_EXTRACTION_MODEL,
     primaryProvider: "openrouter",
@@ -340,12 +349,28 @@ async function runExtractionModel(options: AnalyzeTextOptions, signal: AbortSign
     fallbackOnInvalidResponse: true,
     input,
     repairInput: createClaimRepairInput,
-    guard: (value): value is ClaimExtractionV1 | ClaimExtractionV2 => isClaimExtractionV1(value) || isClaimExtractionV2(value),
+    guard: (value): value is ClaimExtractionV3 => isClaimExtractionV3(value),
     signal,
     fallbackUnavailableLimitation: "No hay una clave de OpenRouter configurada; el análisis continúa solo con Workers AI.",
     fallbackLabel: "Workers AI",
-    timeoutMs: EXTRACTION_TIMEOUT_MS,
+    timeoutMs,
   });
+}
+
+function deriveExtractedClaim(claim: ClaimExtractionV3Claim, sourceText: string): ExtractedClaim {
+  const start = sourceText.indexOf(claim.verbatim);
+  return {
+    verbatimText: claim.verbatim,
+    normalizedText: claim.verbatim.trim().replace(/\s+/g, " "),
+    ...(start >= 0 ? { location: { start, end: start + claim.verbatim.length } } : {}),
+    dates: [],
+    verifiable: !claim.excluded,
+    electorallyRelevant: true,
+    sourceAvailability: "no consultada",
+    excluded: claim.excluded,
+    ...(claim.exclusionReason ? { exclusionReason: claim.exclusionReason } : {}),
+    rationale: claim.rationale,
+  };
 }
 
 async function runModel<T>(options: AnalyzeTextOptions, model: typeof CLAIM_EXTRACTION_MODEL | ProposalModel, request: {

@@ -5,30 +5,23 @@ import {
   type ExtractedClaim,
 } from "../../shared/contracts";
 
-export const CLAIM_EXTRACTION_PROMPT_VERSION = "claim-extraction.v2" as const;
-export const EXTRACTION_INPUT_MAX_CHARS = 15_000;
+export const CLAIM_EXTRACTION_PROMPT_VERSION = "claim-extraction.v3" as const;
+export const EXTRACTION_INPUT_MAX_CHARS = 8_000;
 export const EXTRACTION_TRUNCATION_LIMITATION = "El artículo fue truncado para el análisis del prototipo.";
 
 const CLAIM_SCHEMA_SPEC = `Devuelve EXACTAMENTE un objeto JSON con esta forma (sin campos adicionales, sin markdown):
 {
-  "schemaVersion": "claim-extraction.v2",
+  "schemaVersion": "claim-extraction.v3",
   "claims": [
     {
-      "verbatimText": "<fragmento literal del texto original>",
-      "normalizedText": "<versión normalizada del fragmento>",
-      "location": { "start": <índice inicial>, "end": <índice final> },
-      "entities": ["<entidades mencionadas>"],
-      "dates": ["<fechas mencionadas>"],
-      "verifiable": true,
-      "electorallyRelevant": true,
-      "sourceAvailability": "disponible" | "insuficiente" | "no consultada",
+      "verbatim": "<fragmento literal exacto del texto original>",
+      "rationale": "<encuadre supervisor breve>",
       "excluded": false,
-      "exclusionReason": "opinión" | "predicción" | "retórica" | "ambigüedad",
-      "rationale": "<razón breve: por qué es verificable y qué evidencia oficial la podría sustentar>"
+      "exclusionReason": "opinión" | "predicción" | "retórica" | "ambigüedad"
     }
   ]
 }
- Reglas: máximo 3 aseveraciones atómicas y verificables. La razón es una guía breve para los modelos supervisados posteriores, no una explicación de razonamiento interno. "excluded" es true solo para opinión, predicción, retórica o ambigüedad, y entonces "exclusionReason" es obligatorio; en caso contrario omite "exclusionReason". "location" son índices de caracteres dentro del texto original. Nunca emitas veredictos editoriales ni afirmes verdad o falsedad.`;
+ Reglas: máximo 3 aseveraciones. "verbatim" debe ser una subcadena exacta, carácter por carácter, del texto original. "excluded" es true solo para opinión, predicción, retórica o ambigüedad, y entonces "exclusionReason" es obligatorio; en caso contrario omite "exclusionReason". No emitas veredictos editoriales ni afirmes verdad o falsedad. El rationale es solo un encuadre breve para supervisión; no expongas razonamiento interno ni cadena de pensamiento.`;
 
 const PROPOSAL_SCHEMA_SPEC = `Devuelve EXACTAMENTE un objeto JSON con esta forma (sin campos adicionales, sin markdown):
 {
@@ -62,7 +55,7 @@ export function createClaimRepairInput(invalidResponse: string): Record<string, 
     messages: [
       {
        role: "user",
-       content: `La siguiente respuesta no cumple el esquema claim-extraction.v2. Reinténtala cumpliéndolo exactamente. ${CLAIM_SCHEMA_SPEC}\n\nRespuesta inválida:\n${invalidResponse}`,
+        content: `La siguiente respuesta no cumple el esquema claim-extraction.v3. Reinténtala cumpliéndolo exactamente. ${CLAIM_SCHEMA_SPEC}\n\nRespuesta inválida:\n${invalidResponse}`,
       },
     ],
     response_format: { type: "json_object" },

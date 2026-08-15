@@ -173,17 +173,24 @@ export async function runJsonWithProviderFallback<T>(options: {
 async function runInvocation(ai: ModelInvocationBinding, model: string, input: unknown, signal: AbortSignal, timeoutMs?: number): Promise<unknown> {
   if (signal.aborted) throw new DOMException("La solicitud fue cancelada.", "AbortError");
   const invocation = ai.run(model, input, { signal });
-  if (timeoutMs === undefined) return invocation;
+  let abortHandler: (() => void) | undefined;
+  const aborted = new Promise<never>((_, reject) => {
+    abortHandler = () => reject(new DOMException("La solicitud fue cancelada.", "AbortError"));
+    signal.addEventListener("abort", abortHandler, { once: true });
+    if (signal.aborted) abortHandler();
+  });
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
-    return await Promise.race([
-      invocation,
-      new Promise<never>((_, reject) => {
+    const races: Promise<unknown>[] = [invocation, aborted];
+    if (timeoutMs !== undefined) {
+      races.push(new Promise<never>((_, reject) => {
         timer = setTimeout(() => reject(new DOMException("La invocación agotó el tiempo disponible.", "AbortError")), timeoutMs);
-      }),
-    ]);
+      }));
+    }
+    return await Promise.race(races);
   } finally {
     if (timer !== undefined) clearTimeout(timer);
+    if (abortHandler !== undefined) signal.removeEventListener("abort", abortHandler);
   }
 }
 

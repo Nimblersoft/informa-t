@@ -1,31 +1,24 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { extractReadableText, fetchArticleText, isPrivateIp } from "../src/server/article-fetch";
-import { EXTRACTION_TIMEOUT_MS, LUNA_EXTRACTION_MODEL, PROPOSAL_MODELS } from "../src/server/config/models";
+import { EXTRACTION_ATTEMPT_TIMEOUT_MS, EXTRACTION_TIMEOUT_MS, LUNA_EXTRACTION_MODEL, PROPOSAL_MODELS } from "../src/server/config/models";
 import { analyzeText } from "../src/server/pipeline/analyze-text";
 import type { AiSearchProvider } from "../src/server/providers/ai-search";
 import type { OpenRouterModelProvider } from "../src/server/providers/openrouter";
 import type { WorkersAiBinding } from "../src/server/providers/workers-ai";
-import { isClaimExtractionV2, parseAnalysisInput, type ClaimExtractionV2, type ProposalV1 } from "../src/shared/contracts";
+import { isClaimExtractionV3, parseAnalysisInput, type ClaimExtractionV3, type ProposalV1 } from "../src/shared/contracts";
 
 const text = "La autoridad electoral publicó un informe verificable durante junio de 2025.";
 
-function claim(index = 0, rationale = "El informe oficial permitiría contrastar esta afirmación.") {
+function claim(rationale = "El informe oficial permitiría contrastar esta afirmación."): ClaimExtractionV3["claims"][number] {
   return {
-    verbatimText: text,
-    normalizedText: "La autoridad electoral publicó un informe",
-    location: { start: index, end: index + text.length },
-    entities: ["autoridad electoral"],
-    dates: ["junio de 2025"],
-    verifiable: true,
-    electorallyRelevant: true,
-    sourceAvailability: "no consultada" as const,
-    excluded: false,
+    verbatim: text,
     rationale,
+    excluded: false,
   };
 }
 
-const extraction: ClaimExtractionV2 = { schemaVersion: "claim-extraction.v2", claims: [claim()] };
+const extraction: ClaimExtractionV3 = { schemaVersion: "claim-extraction.v3", claims: [claim()] };
 const proposal: ProposalV1 = {
   schemaVersion: "proposal.v1",
   reviewFocus: "Contrastar evidencia",
@@ -97,18 +90,18 @@ describe("URL analysis input and extraction", () => {
   });
 
   it("uses Luna, passes rationale, and truncates more than three claims honestly", async () => {
-    const lunaClaims = { ...extraction, claims: [claim(0), claim(80), claim(160), claim(240)] };
+    const lunaClaims = { ...extraction, claims: [claim(), claim(), claim(), claim()] };
     const result = await analyzeText({ text, ai: new FakeAi(), search, openRouter: createOpenRouter(lunaClaims) });
     expect(result.claims).toHaveLength(3);
     expect(result.claims[0].claim.rationale).toContain("informe oficial");
     expect(result.claims[0].provenance).toEqual({ provider: "openrouter", modelId: LUNA_EXTRACTION_MODEL });
     expect(result.limitations.join(" ")).toContain("más de 3");
-    expect(isClaimExtractionV2(lunaClaims)).toBe(true);
+    expect(isClaimExtractionV3(lunaClaims)).toBe(true);
   });
 
-  it("accepts v2 claims without a rationale", () => {
-    const { rationale: _rationale, ...claimWithoutRationale } = claim();
-    expect(isClaimExtractionV2({ schemaVersion: "claim-extraction.v2", claims: [claimWithoutRationale] })).toBe(true);
+  it("requires a rationale and rejects model-supplied derived fields in v3", () => {
+    expect(isClaimExtractionV3({ schemaVersion: "claim-extraction.v3", claims: [{ ...claim(), normalizedText: "no permitido" }] })).toBe(false);
+    expect(isClaimExtractionV3({ schemaVersion: "claim-extraction.v3", claims: [{ ...claim(), rationale: "" }] })).toBe(false);
   });
 
   it("falls back to Workers AI with an honest degradation", async () => {
@@ -118,18 +111,41 @@ describe("URL analysis input and extraction", () => {
     expect(result.traceEvents.some((event) => event.title === "Respaldo de proveedor" && event.details.includes('"fromProvider":"openrouter"') && event.details.includes('"toProvider":"workers-ai"'))).toBe(true);
   });
 
-  it("bounds a hung extraction stage below the full pipeline budget", async () => {
+  it("retries a timed-out extraction attempt once and respects the 45-second stage ceiling", async () => {
     vi.useFakeTimers();
-    const hung: OpenRouterModelProvider = {
-      isConfigured: true,
+    let calls = 0;
+    let extractionCalls = 0;
+    const hung: WorkersAiBinding = {
+      run: vi.fn((_model, _input, options) => {
+        calls += 1;
+        const isExtractionRequest = (_input as { messages?: Array<{ content?: string }> }).messages?.[0]?.content?.includes("Extrae") ?? false;
+        if (!isExtractionRequest) return Promise.resolve(proposal);
+        extractionCalls += 1;
+        if (extractionCalls === 2) return Promise.resolve(extraction);
+        return new Promise<unknown>((_resolve, reject) => options?.signal?.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")), { once: true }));
+      }),
+    };
+    const resultPromise = analyzeText({ text, ai: hung, search });
+    await vi.advanceTimersByTimeAsync(EXTRACTION_ATTEMPT_TIMEOUT_MS);
+    const result = await resultPromise;
+    expect(result.status).toBe("completed");
+    expect(extractionCalls).toBe(2);
+    expect(hung.run).toHaveBeenCalledWith("@cf/zai-org/glm-4.7-flash", expect.anything(), expect.anything());
+    expect(EXTRACTION_TIMEOUT_MS).toBe(45_000);
+    expect(PROPOSAL_MODELS).toHaveLength(3);
+  });
+
+  it("stops two hung extraction attempts at the stage ceiling", async () => {
+    vi.useFakeTimers();
+    const hung: WorkersAiBinding = {
       run: vi.fn((_model, _input, options) => new Promise<unknown>((_resolve, reject) => options?.signal?.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")), { once: true }))),
     };
-    const resultPromise = analyzeText({ text, ai: new FakeAi(), search, openRouter: hung });
+    const resultPromise = analyzeText({ text, ai: hung, search });
     await vi.advanceTimersByTimeAsync(EXTRACTION_TIMEOUT_MS);
     const result = await resultPromise;
+
     expect(result.status).toBe("partial");
     expect(result.limitations.join(" ")).toContain("tiempo");
-    expect(hung.run).toHaveBeenCalledWith(LUNA_EXTRACTION_MODEL, expect.anything(), expect.anything());
-    expect(PROPOSAL_MODELS).toHaveLength(3);
+    expect(hung.run).toHaveBeenCalledTimes(2);
   });
 });
