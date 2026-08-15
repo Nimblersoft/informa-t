@@ -1723,3 +1723,30 @@ a:hover {
     font-size: 0.88rem;
   }
 }
+
+.live-analysis-panel {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.analysis-input { resize: vertical; }
+.analysis-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.analysis-progress, .analysis-results, .analysis-live-log { display: grid; gap: 0.65rem; }
+.analysis-stage-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; list-style: none; }
+.analysis-stage-list li { padding: 0.5rem; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); color: var(--text-muted); text-align: center; }
+.analysis-stage-list li.active { color: var(--brand-primary); border-color: var(--brand-primary); }
+.analysis-stage-list li.complete { color: var(--emerald-accent); border-color: var(--emerald-accent); }
+.analysis-result-card, .analysis-log-entry { display: grid; gap: 0.35rem; padding: 0.75rem; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); }
+.analysis-log-entry { grid-template-columns: max-content 1fr 1fr 1fr; align-items: center; font-size: 0.82rem; color: var(--text-secondary); }
+.analysis-error { color: var(--rose-accent); }
+.analysis-disclaimer { color: var(--text-secondary); font-size: 0.85rem; }
+
+@media (max-width: 640px) {
+  .analysis-stage-list { grid-template-columns: repeat(2, 1fr); }
+  .analysis-log-entry { grid-template-columns: 1fr; }
+}

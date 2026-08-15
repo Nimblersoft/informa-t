@@ -22,3 +22,4 @@ Indice de la wiki del proyecto. El contexto operativo para agentes esta en [AGEN
 ## Investigacion
 
 - [Corpus oficial y casos reales para el demo](research/corpus-oficial-y-casos-demo.md) - registro inicial de fuentes, taxonomia editorial y casos conocidos para evaluar el prototipo.
+

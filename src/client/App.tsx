@@ -7,6 +7,7 @@ import { EvidencePanel } from "./components/EvidencePanel";
 import { ModelsPanel } from "./components/ModelsPanel";
 import { LogsPanel } from "./components/LogsPanel";
 import { EditorialDecision } from "./components/EditorialDecision";
+import { LiveAnalysisPanel } from "./components/LiveAnalysisPanel";
 
 declare global {
   interface Window {
@@ -114,6 +115,7 @@ export const App: React.FC = () => {
       <Header caseId={caseData.id} caseLabel={caseData.label} />
 
       <main className="editorial-main-content">
+        <LiveAnalysisPanel onNavigateToLog={handleNavigateToLog} />
         <div className="editorial-grid-layout">
           {/* Left Column: Extract Stream with primary and related evidence separated */}
           <div className="grid-col-left">

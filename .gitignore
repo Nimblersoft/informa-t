@@ -9,7 +9,9 @@ dist/
 .DS_Store
 .playwright-mcp/
 .wrangler/
+# Test output and reports
 test-results/
 playwright-report/
 
-# Test output and reports
+# Internal pitch materials
+docs/pitch/

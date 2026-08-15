@@ -30,6 +30,7 @@ export interface ProposalAttempt {
     reason: "timeout" | "quota" | "outage";
     outcome: "success" | "failed";
   };
+  retries: number;
 }
 
 export interface ProposalConsensus {
@@ -61,7 +62,36 @@ export interface AnalyzeTextOptions {
   openRouter?: OpenRouterModelProvider;
   timeoutMs?: number;
   now?: () => number;
+  signal?: AbortSignal;
+  onProgress?: (progress: TextAnalysisProgress) => void | Promise<void>;
 }
+
+export type TextAnalysisProgress =
+  | {
+      type: "claim.extracted";
+      claims: ExtractedClaim[];
+      provenance: ModelProvenance;
+      traceEventId: string;
+      retries: number;
+    }
+  | {
+      type: "evidence.retrieved";
+      claim: ExtractedClaim;
+      excerpts: EvidenceExcerpt[];
+      traceEventId?: string;
+    }
+  | {
+      type: "model.completed" | "model.failed";
+      claimIndex: number;
+      proposal: ProposalAttempt;
+      traceEventId: string;
+    }
+  | {
+      type: "consensus.completed";
+      claimIndex: number;
+      consensus: ProposalConsensus | null;
+      traceEventId: string;
+    };
 
 export async function analyzeText(options: AnalyzeTextOptions): Promise<TextAnalysisResult> {
   const now = options.now ?? Date.now;
@@ -79,6 +109,9 @@ export async function analyzeText(options: AnalyzeTextOptions): Promise<TextAnal
   }
 
   const controller = new AbortController();
+  const abortFromCaller = () => controller.abort();
+  options.signal?.addEventListener("abort", abortFromCaller, { once: true });
+  if (options.signal?.aborted) controller.abort();
   const timeout = setTimeout(() => controller.abort(), options.timeoutMs ?? PIPELINE_TIMEOUT_MS);
   const traceEvents: TraceEvent[] = [];
   const limitations: string[] = [];
@@ -111,12 +144,20 @@ export async function analyzeText(options: AnalyzeTextOptions): Promise<TextAnal
       return buildResult("partial", [], limitations, traceEvents, now() - startedAt);
     }
 
-    traceEvents.push(await createTrace("Análisis", "Extracción de aseveraciones", "Se extrajeron aseveraciones para revisión editorial.", "Completado", {
-      provider: extraction.provenance.provider,
-      model: extraction.provenance.modelId,
-      claims: extraction.value.claims.length,
-      repaired: extraction.repaired,
-    }));
+      const extractionTrace = await createTrace("Análisis", "Extracción de aseveraciones", "Se extrajeron aseveraciones para revisión editorial.", "Completado", {
+        provider: extraction.provenance.provider,
+        model: extraction.provenance.modelId,
+        claims: extraction.value.claims.length,
+        repaired: extraction.repaired,
+      });
+      traceEvents.push(extractionTrace);
+      await options.onProgress?.({
+        type: "claim.extracted",
+        claims: extraction.value.claims,
+        provenance: extraction.provenance,
+        traceEventId: extractionTrace.id,
+        retries: extraction.repaired ? 1 : 0,
+      });
     if (extraction.fallback?.attempted) {
       traceEvents.push(await createTrace("Análisis", "Respaldo de proveedor", extraction.fallback.outcome === "success" ? "Se utilizó OpenRouter como respaldo para extraer aseveraciones." : "El respaldo OpenRouter no produjo aseveraciones válidas.", extraction.fallback.outcome === "success" ? "Completado" : "Fallido", {
         fromProvider: "workers-ai",
@@ -126,7 +167,7 @@ export async function analyzeText(options: AnalyzeTextOptions): Promise<TextAnal
         model: extraction.provenance.modelId,
       }));
     }
-    const analyzedClaims = await Promise.all(extraction.value.claims.map((claim) => analyzeClaim(claim, extraction.provenance, options, controller.signal)));
+    const analyzedClaims = await Promise.all(extraction.value.claims.map((claim, claimIndex) => analyzeClaim(claim, extraction.provenance, options, controller.signal, claimIndex)));
     for (const item of analyzedClaims) {
       traceEvents.push(...item.traceEvents);
       limitations.push(...item.limitations);
@@ -134,10 +175,11 @@ export async function analyzeText(options: AnalyzeTextOptions): Promise<TextAnal
     return buildResult(limitations.length > 0 ? "partial" : "completed", analyzedClaims.map(({ analyzed }) => analyzed), limitations, traceEvents, now() - startedAt);
   } finally {
     clearTimeout(timeout);
+    options.signal?.removeEventListener("abort", abortFromCaller);
   }
 }
 
-async function analyzeClaim(claim: ExtractedClaim, extractionProvenance: ModelProvenance, options: AnalyzeTextOptions, signal: AbortSignal): Promise<{ analyzed: AnalyzedClaim; limitations: string[]; traceEvents: TraceEvent[] }> {
+async function analyzeClaim(claim: ExtractedClaim, extractionProvenance: ModelProvenance, options: AnalyzeTextOptions, signal: AbortSignal, claimIndex: number): Promise<{ analyzed: AnalyzedClaim; limitations: string[]; traceEvents: TraceEvent[] }> {
   const traceEvents: TraceEvent[] = [];
   const limitations: string[] = [];
   if (claim.excluded) {
@@ -151,6 +193,7 @@ async function analyzeClaim(claim: ExtractedClaim, extractionProvenance: ModelPr
           provenance: { provider: "workers-ai", modelId: model },
           status: "failed",
           limitation: "La aseveración fue excluida de la propuesta.",
+          retries: 0,
         })) as AnalyzedClaim["proposals"],
         consensus: null,
       },
@@ -163,6 +206,12 @@ async function analyzeClaim(claim: ExtractedClaim, extractionProvenance: ModelPr
   const updatedClaim: ExtractedClaim = { ...claim, sourceAvailability: evidenceResult.outcome === "Evidencia encontrada" ? "disponible" : "insuficiente" };
   traceEvents.push(...evidenceResult.traceEvents);
   limitations.push(...evidenceResult.limitations);
+  await options.onProgress?.({
+    type: "evidence.retrieved",
+    claim: updatedClaim,
+    excerpts: evidenceResult.excerpts,
+    traceEventId: evidenceResult.traceEvents[0]?.id,
+  });
 
   const input = createProposalInput(updatedClaim, evidenceResult.excerpts);
   const settled = await Promise.allSettled(PROPOSAL_MODELS.map((model) => runProposal(model, input, options, signal)));
@@ -171,20 +220,28 @@ async function analyzeClaim(claim: ExtractedClaim, extractionProvenance: ModelPr
     provenance: { provider: "workers-ai", modelId: PROPOSAL_MODELS[index] },
     status: "failed",
     limitation: "El modelo no está disponible temporalmente. No se generó una propuesta.",
+    retries: 0,
   })) as AnalyzedClaim["proposals"];
 
   for (const proposal of proposals) {
     if (proposal.status === "failed" && proposal.limitation) {
       limitations.push(proposal.limitation);
     }
-    traceEvents.push(await createTrace("Análisis", "Propuesta de modelo", proposal.status === "valid" ? "Propuesta no vinculante disponible para revisión humana." : proposal.limitation ?? "Propuesta no disponible.", proposal.status === "valid" ? "Completado" : "Fallido", {
+    const proposalTrace = await createTrace("Análisis", "Propuesta de modelo", proposal.status === "valid" ? "Propuesta no vinculante disponible para revisión humana." : proposal.limitation ?? "Propuesta no disponible.", proposal.status === "valid" ? "Completado" : "Fallido", {
       model: proposal.model,
       provider: proposal.provenance.provider,
       modelId: proposal.provenance.modelId,
       status: proposal.status,
       ...(proposal.proposal ? { proposal: proposal.proposal } : {}),
       ...(proposal.errorCode ? { errorCode: proposal.errorCode } : {}),
-    }));
+    });
+    traceEvents.push(proposalTrace);
+    await options.onProgress?.({
+      type: proposal.status === "valid" ? "model.completed" : "model.failed",
+      claimIndex,
+      proposal,
+      traceEventId: proposalTrace.id,
+    });
     if (proposal.fallback?.attempted) {
       traceEvents.push(await createTrace(
         "Análisis",
@@ -205,7 +262,9 @@ async function analyzeClaim(claim: ExtractedClaim, extractionProvenance: ModelPr
   }
 
   const consensus = getProposalConsensus(proposals);
-  traceEvents.push(await createTrace("Consenso", "Síntesis de propuestas", consensus ? "La síntesis compara propuestas no vinculantes; no es una decisión editorial." : "No hay suficientes propuestas válidas para una síntesis.", consensus ? "Completado" : "Sin consenso", { validProposals: proposals.filter((proposal) => proposal.status === "valid").length, consensus }));
+  const consensusTrace = await createTrace("Consenso", "Síntesis de propuestas", consensus ? "La síntesis compara propuestas no vinculantes; no es una decisión editorial." : "No hay suficientes propuestas válidas para una síntesis.", consensus ? "Completado" : "Sin consenso", { validProposals: proposals.filter((proposal) => proposal.status === "valid").length, consensus });
+  traceEvents.push(consensusTrace);
+  await options.onProgress?.({ type: "consensus.completed", claimIndex, consensus, traceEventId: consensusTrace.id });
   return { analyzed: { claim: updatedClaim, provenance: extractionProvenance, evidence: evidenceResult.excerpts, proposals, consensus }, limitations, traceEvents };
 }
 
@@ -217,7 +276,7 @@ async function runProposal(model: ProposalModel, input: Record<string, unknown>,
     signal,
   });
   return result.value
-    ? { model, provenance: result.provenance, status: "valid", proposal: result.value, fallback: result.fallback }
+    ? { model, provenance: result.provenance, status: "valid", proposal: result.value, fallback: result.fallback, retries: result.repaired ? 1 : 0 }
     : {
         model,
         provenance: result.provenance,
@@ -225,6 +284,7 @@ async function runProposal(model: ProposalModel, input: Record<string, unknown>,
         limitation: result.error?.limitation ?? "No se generó una propuesta.",
         errorCode: result.error?.code,
         fallback: result.fallback,
+        retries: result.repaired ? 1 : 0,
       };
 }
 
