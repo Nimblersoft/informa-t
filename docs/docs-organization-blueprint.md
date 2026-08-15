@@ -1,133 +1,133 @@
-# informa-t Documentation Blueprint
+# Plan de Organizacion Documental de informa-t
 
-This document defines how documentation is organized in this repository: the divide between versioned and unversioned material, the directory layout, the filing rules that keep folders from overlapping, and the frontmatter every document carries.
+Este documento define como se organiza la documentacion en este repositorio: la separacion entre material versionado y no versionado, la estructura de directorios, las reglas de archivado que evitan superposiciones y los metadatos que lleva cada documento.
 
 ---
 
-## 1. The Clean Divide: Versioned Wiki vs. Scratch Space
+## 1. Separacion Clara: Wiki Versionada y Espacio de Borradores
 
-Two environments, deliberately separated:
+Dos entornos deliberadamente separados:
 
-| | **Versioned wiki** (`docs/`) | **Scratch space** (unversioned) |
+| | **Wiki versionada** (`docs/`) | **Espacio de borradores** (sin versionar) |
 |---|---|---|
-| **Contains** | Invariants, contracts, decisions, runbooks | Raw notes, meeting transcripts, clippings, work-in-progress drafts, full research dumps |
-| **Trust** | High — reviewed, current, safe to act on | Low — unreviewed, possibly stale or contradictory |
-| **Lifecycle** | Git-tracked, reviewed, diffable | Freely edited, never reviewed, disposable |
-| **Audience** | Humans + agents, as source of truth | Humans thinking out loud; agents reading for input only |
+| **Contiene** | Invariantes, contratos, decisiones y runbooks | Notas sin procesar, transcripciones de reuniones, recortes, borradores y resultados completos de investigacion |
+| **Confianza** | Alta: revisada, vigente y segura para actuar | Baja: sin revision, posiblemente desactualizada o contradictoria |
+| **Ciclo de vida** | Seguida por Git, revisada y comparable | De edicion libre, nunca revisada y descartable |
+| **Audiencia** | Personas y agentes, como fuente de verdad | Personas trabajando ideas; agentes que la leen solo como insumo |
 
-**Rules:**
+**Reglas:**
 
-1. **The repository is the SSOT.** `docs/` is the single source of truth for architecture, decisions, contracts, and procedures. Nothing outside it is authoritative.
-2. **Scratch is input, never output.** An agent may read the scratch space to synthesize a document, but the synthesized result is committed to `docs/`.
-3. **No shared write surface.** Do not mount or sync the scratch space into the repository working tree. Read it over its own interface, synthesize, then commit.
-4. **Cite, don't inline.** When a `docs/` file distills something large, state the takeaway and link to the full source rather than pasting it in.
+1. **El repositorio es la SSOT.** `docs/` es la unica fuente de verdad para arquitectura, decisiones, contratos y procedimientos. Nada fuera de ella es autoritativo.
+2. **Los borradores son insumo, nunca resultado.** Un agente puede leer el espacio de borradores para sintetizar un documento, pero el resultado sintetizado se confirma en `docs/`.
+3. **No hay superficie compartida de escritura.** No montar ni sincronizar el espacio de borradores dentro del arbol de trabajo del repositorio. Leerlo por su propia interfaz, sintetizar y confirmar los cambios.
+4. **Citar, no insertar.** Cuando un archivo de `docs/` sintetiza material extenso, debe expresar la conclusion y enlazar a la fuente completa en lugar de copiarla.
 
-> **This project's scratch space:** [Google Doc team notes and idea drafts](https://docs.google.com/document/d/1tGYZESz2_R-wdWekXdu9wwhg4QKUGBKB-r0fIffOqbg/edit). The MediaHack II NotebookLM notebook is a separate read-only rules and priorities reference: <https://notebook.google.com/notebook/6745369c-5e1f-4662-9f97-2bc751cc7e40>.
-
----
-
-## 2. Organization System
-
-A **hybrid folder/tag structure**:
-
-- **Folders for namespacing** isolate document kinds and prevent naming collisions.
-- **Tags for typing** classify document type and cross-cutting concerns through YAML frontmatter.
+> **Espacio de borradores del proyecto:** [notas del equipo y borradores de ideas en Google Docs](https://docs.google.com/document/d/1tGYZESz2_R-wdWekXdu9wwhg4QKUGBKB-r0fIffOqbg/edit). El cuaderno de NotebookLM de MediaHack II es una referencia separada y de solo lectura para reglas y prioridades: <https://notebook.google.com/notebook/6745369c-5e1f-4662-9f97-2bc751cc7e40>.
 
 ---
 
-## 3. Directory Layout
+## 2. Sistema de Organizacion
+
+Una **estructura hibrida de carpetas y etiquetas**:
+
+- **Carpetas para espacios de nombres** que aislan tipos documentales y evitan colisiones de nombres.
+- **Etiquetas para tipificacion** que clasifican el tipo documental y los asuntos transversales mediante metadatos YAML.
+
+---
+
+## 3. Estructura de Directorios
 
 ```
 <repo>/
-├── AGENTS.md                        # Core agent operational context (SSOT)
-├── CLAUDE.md                        # Thin pointer to AGENTS.md
-├── CONTEXT.md                       # Domain glossary
-├── README.md                        # Human-facing overview
+├── AGENTS.md                        # Contexto operativo central para agentes (SSOT)
+├── CLAUDE.md                        # Referencia breve a AGENTS.md
+├── CONTEXT.md                       # Glosario del dominio
+├── README.md                        # Resumen para personas
 └── docs/
-    ├── index.md                     # Wiki landing page / document map
-    ├── docs-organization-blueprint.md  # This file
-    ├── adr/                         # Architectural Decision Records (technical choices)
-    ├── specs/                       # Module contracts and feature specifications
-    ├── architecture/                # System designs, topologies, C4 structural diagrams
-    ├── processes/                   # Standing policies, governance, boundaries
-    ├── workflows/                   # Lifecycle flows spanning multiple systems
-    ├── runbooks/                    # Step-by-step command recipes
-    └── research/                    # Takeaways and reports (full sources in scratch)
+    ├── index.md                     # Portada de la wiki y mapa documental
+    ├── docs-organization-blueprint.md  # Este archivo
+    ├── adr/                         # Registros de decisiones arquitectónicas
+    ├── specs/                       # Contratos de módulos y especificaciones funcionales
+    ├── architecture/                # Diseños de sistema, topologías y diagramas C4
+    ├── processes/                   # Políticas, gobernanza y límites permanentes
+    ├── workflows/                   # Flujos de ciclo de vida entre sistemas
+    ├── runbooks/                    # Guías operativas paso a paso
+    └── research/                    # Conclusiones e informes; fuentes completas en borradores
 ```
 
-Create a folder when it earns its first real file. `adr/` and `specs/` always exist. Do not scaffold empty directories for future use.
+Crear una carpeta cuando reciba su primer archivo real. `adr/` y `specs/` siempre existen. No crear directorios vacíos para uso futuro.
 
-### Bounded Categorization Rules
+### Reglas de Categorización Delimitada
 
-| Location | Target | Audience / Use | Primary Question Answered |
+| Ubicacion | Destino | Audiencia y uso | Pregunta principal |
 |---|---|---|---|
-| `skills/` | Executable agent logic | Agent harness only | What capabilities does the agent possess? |
-| `docs/adr/` | Decision records | Humans and agents | Why is it built this way? |
-| `docs/specs/` | Module and feature contracts | Humans and agents | What must this module do? |
-| `docs/architecture/` | Structural designs | Humans and agents | What is wired to what? |
-| `docs/processes/` | Standing policies and guidelines | Humans and agents | What are the rules and boundaries? |
-| `docs/workflows/` | Lifecycle pathways | Humans and agents | How does work flow from start to completion? |
-| `docs/runbooks/` | Technical action recipes | Humans or authorized agents | What exact commands do I run? |
-| `docs/research/` | Research takeaways | Humans and agents | What did we learn and recommend? |
-| `docs/templates/` | Document templates | Humans and agents | What layout should this document use? |
+| `skills/` | Logica ejecutable de agentes | Solo para el arnes de agentes | Que capacidades posee el agente? |
+| `docs/adr/` | Registros de decisiones | Personas y agentes | ¿Por qué se construye de esta manera? |
+| `docs/specs/` | Contratos de módulos y funciones | Personas y agentes | ¿Qué debe hacer este módulo? |
+| `docs/architecture/` | Diseños estructurales | Personas y agentes | ¿Qué se conecta con qué? |
+| `docs/processes/` | Políticas y guías permanentes | Personas y agentes | ¿Cuáles son las reglas y límites? |
+| `docs/workflows/` | Rutas del ciclo de vida | Personas y agentes | ¿Cómo fluye el trabajo de inicio a fin? |
+| `docs/runbooks/` | Guías operativas | Personas o agentes autorizados | ¿Qué comandos exactos debo ejecutar? |
+| `docs/research/` | Conclusiones de investigación | Personas y agentes | ¿Qué aprendimos y recomendamos? |
+| `docs/templates/` | Plantillas documentales | Personas y agentes | ¿Qué estructura debe usar este documento? |
 
-- **ADR vs. spec:** an ADR records a choice between alternatives and freezes when decided; a spec records current required behavior and changes with behavior.
-- **Workflow vs. runbook:** a workflow explains a lifecycle and transitions; a runbook gives exact commands. If a reader could copy-paste it, it is a runbook.
+- **ADR frente a especificación:** un ADR registra una elección entre alternativas y queda congelado al decidirse; una especificación registra el comportamiento requerido vigente y cambia junto con ese comportamiento.
+- **Flujo frente a guía operativa:** un flujo explica un ciclo de vida y sus transiciones; una guía operativa entrega comandos exactos. Si puede copiarse y pegarse, pertenece a `docs/runbooks/`.
 
 ---
 
-## 4. Metadata Schema and Frontmatter Conventions
+## 4. Esquema de Metadatos y Convenciones de Frontmatter
 
-Every document carries standard YAML frontmatter so parsers and query tooling can filter it.
+Cada documento lleva metadatos YAML estandar para que las herramientas de consulta puedan filtrarlo.
 
-### A. Project / Concept Document
+### A. Documento de Proyecto o Concepto
 
 ```yaml
 ---
-title: "Authentication Subsystem"
-type: concept | entity | index
-status: active | review-needed | stale
-confidence: strong | moderate | weak
-sources:
-  - "<link to the scratch-space original this was synthesized from>"
-tags:
-  - auth
-  - security
-last_checked: <YYYY-MM-DD>
+titulo: "Subsistema de autenticacion"
+tipo: concepto | entidad | indice
+estado: activo | necesita-revision | desactualizado
+confianza: alta | media | baja
+fuentes:
+  - "<enlace al original del espacio de borradores del que se sintetizo>"
+etiquetas:
+  - autenticacion
+  - seguridad
+ultima_revision: <AAAA-MM-DD>
 ---
 ```
 
-### B. Decision Record (ADR)
+### B. Registro de Decisión (ADR)
 
 ```yaml
 ---
-title: "ADR-0001: <Decision>"
-type: adr
-status: proposed | accepted | superseded
-decided_by: <name>
-date: <YYYY-MM-DD>
-supersedes: "docs/adr/<nnnn>-<slug>.md" # omit if none
+titulo: "ADR-0001: <Decisión>"
+tipo: adr
+estado: propuesto | aceptado | reemplazado
+decidido_por: <nombre>
+fecha: <AAAA-MM-DD>
+reemplaza: "docs/adr/<nnnn>-<slug>.md" # omitir si no aplica
 ---
 ```
 
-### C. Spec
+### C. Especificacion
 
 ```yaml
 ---
-title: "Spec: <module>"
-type: spec
-status: active | superseded
-covers: <source path this spec governs>
-last_checked: <YYYY-MM-DD>
+titulo: "Especificacion: <modulo>"
+tipo: especificacion
+estado: activa | reemplazada
+cubre: <ruta de fuente regida por esta especificacion>
+ultima_revision: <AAAA-MM-DD>
 ---
 ```
 
-`status` and `last_checked` make staleness detectable; mark a document stale rather than silently leaving it to mislead.
+`estado` y `ultima_revision` hacen detectable el desuso; marcar un documento como desactualizado en lugar de dejarlo desinformar silenciosamente.
 
 ---
 
-## 5. Compiled Views
+## 5. Vistas Compiladas
 
-The frontmatter supports compiled views such as stale-document review queues, ADR logs, and cross-folder topic listings.
+Los metadatos permiten vistas compiladas, como colas de revision de documentos desactualizados, registros de ADR y listados tematicos entre carpetas.
 
-> **View compiler:** none — indexes are hand-maintained.
+> **Compilador de vistas:** ninguno; los indices se mantienen manualmente.

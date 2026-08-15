@@ -1,13 +1,13 @@
-# informa-t Documentation
+# Documentacion de informa-t
 
-Wiki index for this project. Agent working context lives in [AGENTS.md](../AGENTS.md); domain terminology lives in [CONTEXT.md](../CONTEXT.md).
+Indice de la wiki del proyecto. El contexto operativo para agentes esta en [AGENTS.md](../AGENTS.md); la terminologia del dominio esta en [CONTEXT.md](../CONTEXT.md).
 
-| Location | Contains | Answers |
+| Ubicacion | Contiene | Responde |
 |---|---|---|
-| [`adr/`](adr/) | Architectural Decision Records | Why was a decision made? |
-| [`specs/`](specs/) | Product and module contracts | What must the product or module do? |
-| [`docs-organization-blueprint.md`](docs-organization-blueprint.md) | Filing rules and document schemas | Where does a document belong? |
+| [`adr/`](adr/) | Registros de decisiones arquitectonicas | Por que se tomo una decision? |
+| [`specs/`](specs/) | Contratos del producto y sus modulos | Que debe hacer el producto o el modulo? |
+| [`docs-organization-blueprint.md`](docs-organization-blueprint.md) | Reglas de archivado y esquemas documentales | Donde debe guardarse un documento? |
 
-## Specs
+## Especificaciones
 
-- [MediaHack PRD Draft](specs/mediahack-prd-draft.md) - supplied draft for refinement before implementation planning.
+- [Borrador del PRD de MediaHack](specs/mediahack-prd-draft.md) - borrador suministrado para refinar antes de planificar la implementacion.

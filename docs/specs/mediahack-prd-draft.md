@@ -1,12 +1,12 @@
 ---
-title: "PRD Draft: informa-t MediaHack II MVP"
-type: spec
-status: review-needed
-covers: "<!-- TODO: no implementation modules exist yet -->"
-sources:
-  - "User-supplied Mediahack PRD Draft.md"
+titulo: "Borrador de PRD: MVP de informa-t para MediaHack II"
+tipo: especificacion
+estado: necesita-revision
+cubre: "<!-- TODO: aun no existen modulos de implementacion -->"
+fuentes:
+  - "Mediahack PRD Draft.md proporcionado por la persona usuaria"
   - "https://notebook.google.com/notebook/6745369c-5e1f-4662-9f97-2bc751cc7e40"
-last_checked: 2026-08-15
+ultima_revision: 2026-08-15
 ---
 
 # Documento de Requerimientos de Producto (PRD)

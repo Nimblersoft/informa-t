@@ -33,6 +33,11 @@ docs/adr/                         future architectural decisions
 - **Political neutrality and privacy.** Apply equivalent treatment across political actors; do not profile citizens by political views or retain unnecessary personal data.
 - **Narrow MVP.** Prioritize a working, live-demonstrable evidence flow over broad or forensic capabilities.
 
+## Language
+
+- Write product documentation and all user-visible UI text in Latin American Spanish.
+- Keep agent-only context (`AGENTS.md`, `CONTEXT.md`, and `CLAUDE.md`) and source code in English.
+
 ## First-time Setup
 
 <!-- TODO: define after selecting the implementation stack. -->
