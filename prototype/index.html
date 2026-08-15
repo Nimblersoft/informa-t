@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>informa-t | Descomposición de Extractos & Análisis de Credibilidad</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #111827;
+      --bg-tertiary: #1f2937;
+      --bg-elevated: #1e293b;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.16);
+      
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      
+      --brand-primary: #38bdf8;
+      --brand-glow: rgba(56, 189, 248, 0.2);
+      --emerald-accent: #10b981;
+      --emerald-bg: rgba(16, 185, 129, 0.12);
+      --amber-accent: #f59e0b;
+      --amber-bg: rgba(245, 158, 11, 0.12);
+      --rose-accent: #f43f5e;
+      --rose-bg: rgba(244, 63, 94, 0.12);
+      --indigo-accent: #6366f1;
+      --indigo-bg: rgba(99, 102, 241, 0.12);
+      
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-serif: 'Newsreader', Georgia, serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+      --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+      --shadow-glow: 0 0 25px -5px rgba(56, 189, 248, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      padding-bottom: 90px; /* Space for switcher */
+    }
+
+    /* Top Navigation */
+    .app-header {
+      background-color: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
+      border-radius: var(--radius-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .trust-indicators-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      padding: 0.3rem 0.65rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .trust-pill:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--border-strong);
+      color: var(--text-primary);
+    }
+
+    .trust-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--emerald-accent);
+      box-shadow: 0 0 8px var(--emerald-accent);
+    }
+
+    .user-profile-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.3rem 0.6rem;
+      background: var(--bg-tertiary);
+      border-radius: 9999px;
+      border: 1px solid var(--border-subtle);
+      font-size: 0.8rem;
+    }
+
+    .user-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.7rem;
+      color: #fff;
+    }
+
+    /* Context Subhead */
+    .context-bar {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .context-case-title {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .case-highlight {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .intake-quick-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: #0284c7;
+      color: white;
+      border-color: #38bdf8;
+    }
+
+    .btn-primary:hover {
+      background: #0369a1;
+    }
+
+    .btn-secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border-color: var(--border-subtle);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-elevated);
+      border-color: var(--border-strong);
+    }
+
+    .btn-outline-emerald {
+      background: var(--emerald-bg);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-outline-emerald:hover {
+      background: rgba(16, 185, 129, 0.2);
+    }
+
+    /* Main Container */
+    .prototype-container {
+      flex: 1;
+      padding: 1.5rem;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Variant Presentation Frames */
+    .variant-frame {
+      display: none;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .variant-frame.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .variant-meta-card {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid var(--border-subtle);
+      border-left: 4px solid var(--brand-primary);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1.25rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .variant-meta-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .variant-meta-desc {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      margin-top: 0.2rem;
+    }
+
+    .variant-tag {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: var(--radius-sm);
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-weight: 600;
+    }
+
+    /* =========================================================================
+       LAYOUT: VERTICAL EXTRACTS STREAM (LEFT) + ANALYSIS BREAKDOWN (RIGHT)
+       ========================================================================= */
+    .two-column-workspace {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1100px) {
+      .two-column-workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-md);
+    }
+
+    .panel-header {
+      padding: 0.9rem 1.25rem;
+      background: rgba(31, 41, 55, 0.5);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .panel-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #fff;
+    }
+
+    .panel-body {
+      padding: 1.25rem;
+      flex: 1;
+    }
+
+    /* Vertical Stream of Original Extracts */
+    .vertical-extract-card {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.15rem;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .vertical-extract-card:hover {
+      border-color: rgba(56, 189, 248, 0.4);
+      background: rgba(30, 41, 59, 0.8);
+      transform: translateY(-2px);
+    }
+
+    .vertical-extract-card.active-extract-card {
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 1px var(--brand-primary), var(--shadow-glow);
+      background: rgba(14, 165, 233, 0.08);
+    }
+
+    .extract-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.6rem;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .extract-timestamp-badge {
+      font-family: var(--font-mono);
+      font-size: 0.725rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-secondary);
+      padding: 0.15rem 0.5rem;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .extract-topic-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: var(--radius-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .tag-blue { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+    .tag-purple { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; }
+    .tag-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+    .tag-gray { background: rgba(255, 255, 255, 0.08); color: var(--text-muted); }
+
+    .extract-verbatim-quote {
+      font-family: var(--font-serif);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #e2e8f0;
+      margin-bottom: 0.75rem;
+    }
+
+    .key-claim-highlight {
+      background: rgba(245, 158, 11, 0.18);
+      border-bottom: 2px solid var(--amber-accent);
+      color: #fff;
+      padding: 0 0.2rem;
+    }
+
+    .extract-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.725rem;
+      color: var(--text-muted);
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      padding-top: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .active-indicator-pill {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #38bdf8;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    /* Right Panel Analysis Components */
+    .analysis-section {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .analysis-section-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Claim Chips */
+    .chip-container {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-top: 0.4rem;
+    }
+
+    .claim-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #38bdf8;
+      font-size: 0.725rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .claim-chip:hover {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: #38bdf8;
+    }
+
+    .chip-badge-cne {
+      background: rgba(99, 102, 241, 0.12);
+      border-color: rgba(99, 102, 241, 0.3);
+      color: #818cf8;
+    }
+
+    .chip-badge-inec {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: #34d399;
+    }
+
+    .challenge-btn {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      text-decoration: underline;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .challenge-btn:hover {
+      color: var(--rose-accent);
+    }
+
+    /* Official Comparison Quote Box */
+    .official-quote-box {
+      background: #030712;
+      border-left: 3px solid var(--brand-primary);
+      padding: 0.85rem 1rem;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-family: var(--font-serif);
+      font-size: 0.875rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+      margin-top: 0.5rem;
+    }
+
+    /* Faktabaari 3Q Filter */
+    .filter-3q-box {
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      padding: 0.75rem;
+    }
+
+    .q-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.775rem;
+      padding: 0.3rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .q-item:last-child {
+      border-bottom: none;
+    }
+
+    .q-label { color: var(--text-secondary); }
+    .q-status { font-weight: 600; }
+    .q-status.pass { color: var(--emerald-accent); }
+    .q-status.warn { color: var(--amber-accent); }
+    .q-status.fail { color: var(--rose-accent); }
+
+    /* Intentionality Meters */
+    .intent-meters-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
+    .meter-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.6rem;
+    }
+
+    .meter-label { font-size: 0.7rem; color: var(--text-secondary); }
+    .meter-value { font-size: 1.1rem; font-weight: 700; display: flex; align-items: baseline; gap: 0.3rem; margin: 0.2rem 0; }
+    .meter-bar { height: 4px; background: rgba(255, 255, 255, 0.08); border-radius: 9999px; overflow: hidden; }
+    .meter-fill { height: 100%; border-radius: 9999px; }
+
+    /* Editorial Verdict Selectors */
+    .verdict-selector-row {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+
+    .verdict-btn {
+      padding: 0.4rem 0.75rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.775rem;
+      font-weight: 600;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .verdict-btn:hover {
+      border-color: var(--border-strong);
+      color: #fff;
+    }
+
+    .verdict-btn.selected-true {
+      background: var(--emerald-bg);
+      border-color: var(--emerald-accent);
+      color: #34d399;
+    }
+
+    .verdict-btn.selected-false {
+      background: var(--rose-bg);
+      border-color: var(--rose-accent);
+      color: #fb7185;
+    }
+
+    .verdict-btn.selected-misleading {
+      background: var(--amber-bg);
+      border-color: var(--amber-accent);
+      color: #fbbf24;
+    }
+
+    .verdict-btn.selected-opinion {
+      background: rgba(148, 163, 184, 0.15);
+      border-color: #94a3b8;
+      color: #cbd5e1;
+    }
+
+    .editorial-textarea {
+      width: 100%;
+      background: #030712;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.65rem;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.8125rem;
+      resize: vertical;
+      min-height: 60px;
+      margin-top: 0.5rem;
+    }
+
+    .editorial-textarea:focus {
+      outline: none;
+      border-color: var(--brand-primary);
+    }
+
+    /* =========================================================================
+       VARIANT B & C STYLES
+       ========================================================================= */
+    .ladder-layout {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .step-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+
+    .step-header {
+      padding: 1rem 1.5rem;
+      background: rgba(31, 41, 55, 0.4);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--brand-primary);
+    }
+
+    .step-circle {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid var(--brand-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+    }
+
+    .step-content {
+      padding: 1.5rem;
+    }
+
+    .parallel-matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+    }
+
+    .parallel-matrix-table th {
+      background: var(--bg-tertiary);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-strong);
+    }
+
+    .parallel-matrix-table td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: top;
+    }
+
+    .radar-matrix-layout {
+      display: grid;
+      grid-template-columns: 300px 1fr 320px;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 1200px) {
+      .radar-matrix-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* =========================================================================
+       FLOATING PROTOTYPE SWITCHER DOCK
+       ========================================================================= */
+    .prototype-switcher-dock {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      background: rgba(15, 23, 42, 0.94);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 9999px;
+      padding: 0.4rem 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.7), 0 0 20px rgba(56, 189, 248, 0.2);
+    }
+
+    .switcher-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .switcher-btn:hover {
+      background: var(--brand-primary);
+      color: #000;
+      border-color: var(--brand-primary);
+    }
+
+    .variant-selector-dropdown {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .variant-selector-dropdown option {
+      background: var(--bg-secondary);
+      color: #fff;
+    }
+
+    .keyboard-hint {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      padding: 0.1rem 0.4rem;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-family: var(--font-mono);
+    }
+
+    /* Modal Backdrop */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      z-index: 90;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-lg);
+      max-width: 680px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .code-snippet-box {
+      background: #030712;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.775rem;
+      color: #38bdf8;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      line-height: 1.5;
+    }
+
+    .toast-notification {
+      position: fixed;
+      top: 5rem;
+      right: 1.5rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--brand-primary);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1.25rem;
+      color: #fff;
+      font-size: 0.8125rem;
+      z-index: 110;
+      display: none;
+      box-shadow: var(--shadow-lg);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top App Navigation -->
+  <header class="app-header">
+    <div class="brand-group">
+      <a href="#" class="brand-logo">
+        <span style="color: #38bdf8;">◉</span> informa-t
+      </a>
+      <span class="brand-badge">MediaHack II MVP</span>
+      <span style="font-size: 0.8rem; color: var(--text-muted);">| Descomposición de Extractos & Fact-Checking Electoral</span>
+    </div>
+
+    <div class="trust-indicators-bar">
+      <div class="trust-pill" onclick="openJtiModal()">
+        <span class="trust-dot"></span>
+        <span>JTI Estándar CWA 17493</span>
+      </div>
+      <div class="trust-pill" onclick="openTrustProjectModal()">
+        <span>8 Indicadores de Confianza</span>
+      </div>
+      <div class="user-profile-badge">
+        <div class="user-avatar">SM</div>
+        <div>
+          <div style="font-weight: 600; line-height: 1.1;">Sofía Mendoza</div>
+          <div style="font-size: 0.65rem; color: var(--text-muted);">Mesa Editorial · Fact-Checking</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Context Subhead -->
+  <section class="context-bar">
+    <div class="context-case-title">
+      <span>Documento / URL Base:</span>
+      <span class="case-highlight">Entrevista Radial & Transmisión TikTok — Candidato Carlos Alvarado (Pacto Futuro)</span>
+      <span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 0.7rem; font-weight: 600; padding: 0.15rem 0.45rem; border-radius: 4px;">
+        4 Extractos Identificados (3 Fácticos · 1 Retórico)
+      </span>
+    </div>
+
+    <div class="intake-quick-actions">
+      <button class="btn btn-secondary" onclick="simulateNewIntake()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Nueva URL / Documento
+      </button>
+      <button class="btn btn-primary" onclick="openClaimReviewModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        Exportar ClaimReview Schema
+      </button>
+    </div>
+  </section>
+
+  <!-- Main Container -->
+  <main class="prototype-container">
+
+    <!-- =====================================================================
+         VARIANTE A: VERTICAL EXTRACTS STREAM (LEFT) + ANALYSIS BREAKDOWN (RIGHT)
+         ===================================================================== -->
+    <section id="variant-A" class="variant-frame active">
+      <div class="variant-meta-card">
+        <div>
+          <div class="variant-meta-title">Variante A: Flujo Vertical de Extractos & Panel de Despliegue de Análisis</div>
+          <div class="variant-meta-desc">El panel izquierdo muestra el contenido original completo descompuesto verticalmente en extractos cronológicos. Al seleccionar un extracto, el panel derecho despliega su análisis fáctico, fuentes oficiales CNE/INEC, test de discordancia y veredicto.</div>
+        </div>
+        <span class="variant-tag">Propuesta Recomendada para Salas de Redacción</span>
+      </div>
+
+      <div class="two-column-workspace">
+        
+        <!-- LEFT COLUMN: VERTICAL STREAM OF ORIGINAL EXTRACTS -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              Contenido Original & Extractos Verticales
+            </div>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Haz clic en un extracto para auditar</span>
+          </div>
+
+          <div class="panel-body">
+            
+            <!-- Extract Card 1 (Active) -->
+            <div class="vertical-extract-card active-extract-card" id="card-ext-1" onclick="selectExtract(1)">
+              <div class="extract-card-header">
+                <span class="extract-timestamp-badge">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  00:15 - 00:48 (Extracto #1)
+                </span>
+                <span class="extract-topic-tag tag-blue">Economía & Empleo</span>
+              </div>
+              <p class="extract-verbatim-quote">
+                "En nuestro primer año <span class="key-claim-highlight">crearemos 500.000 empleos formales</span> sin tocar la reserva y garantizando que el salario básico suba a $600 mediante decreto inmediato..."
+              </p>
+              <div class="extract-card-footer">
+                <span>2 aseveraciones fácticas detectadas</span>
+                <span class="active-indicator-pill" id="ind-ext-1">
+                  ● Activo en panel de análisis
+                </span>
+              </div>
+            </div>
+
+            <!-- Extract Card 2 -->
+            <div class="vertical-extract-card" id="card-ext-2" onclick="selectExtract(2)">
+              <div class="extract-card-header">
+                <span class="extract-timestamp-badge">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  01:20 - 02:05 (Extracto #2)
+                </span>
+                <span class="extract-topic-tag tag-purple">Salarios & Marco Jurídico</span>
+              </div>
+              <p class="extract-verbatim-quote">
+                "El Consejo de Salarios es un obstáculo burocrático; <span class="key-claim-highlight">fijaremos el sueldo vital en $600 el primer mes de mandato sin consultar a gremios</span> porque es mandato popular..."
+              </p>
+              <div class="extract-card-footer">
+                <span>1 aseveración fáctica detectada</span>
+                <span class="active-indicator-pill" id="ind-ext-2" style="display: none;">
+                  ● Activo en panel de análisis
+                </span>
+              </div>
+            </div>
+
+            <!-- Extract Card 3 -->
+            <div class="vertical-extract-card" id="card-ext-3" onclick="selectExtract(3)">
+              <div class="extract-card-header">
+                <span class="extract-timestamp-badge">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  04:10 - 05:00 (Extracto #3)
+                </span>
+                <span class="extract-topic-tag tag-amber">Subsidios a Combustibles</span>
+              </div>
+              <p class="extract-verbatim-quote">
+                "<span class="key-claim-highlight">Eliminaremos todos los subsidios a los combustibles desde el día uno</span> para ahorrar 3.000 millones de dólares y destinarlos directamente a créditos productivos..."
+              </p>
+              <div class="extract-card-footer">
+                <span>1 aseveración fáctica detectada</span>
+                <span class="active-indicator-pill" id="ind-ext-3" style="display: none;">
+                  ● Activo en panel de análisis
+                </span>
+              </div>
+            </div>
+
+            <!-- Extract Card 4 (Opinion / Non-factual) -->
+            <div class="vertical-extract-card" id="card-ext-4" onclick="selectExtract(4)">
+              <div class="extract-card-header">
+                <span class="extract-timestamp-badge">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  06:15 - 06:45 (Extracto #4)
+                </span>
+                <span class="extract-topic-tag tag-gray">Discurso / Retórica</span>
+              </div>
+              <p class="extract-verbatim-quote" style="color: var(--text-muted); font-style: italic;">
+                "Los mismos de siempre han destruido los sueños de la juventud ecuatoriana. El pueblo está cansado de la mentira y el 9 de febrero daremos un golpe democrático en las urnas..."
+              </p>
+              <div class="extract-card-footer">
+                <span style="color: var(--amber-accent);">0 aseveraciones fácticas (Retórica de campaña)</span>
+                <span class="active-indicator-pill" id="ind-ext-4" style="display: none;">
+                  ● Activo en panel de análisis
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: DEDICATED ANALYSIS BREAKDOWN PANEL FOR SELECTED EXTRACT -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              <span id="analysis-panel-title">Despliegue de Análisis: Extracto #1 (Empleo & Dolarización)</span>
+            </div>
+            <span style="font-size: 0.75rem; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 0.15rem 0.4rem; border-radius: 4px; font-weight: 600;" id="analysis-status-pill">
+              En Revisión
+            </span>
+          </div>
+
+          <div class="panel-body" id="analysis-panel-body">
+            
+            <!-- Section 1: Atomic Claims Decomposition -->
+            <div class="analysis-section">
+              <div class="analysis-section-title">
+                <span>1. Descomposición Fáctica (Aseveraciones del Extracto)</span>
+                <span style="font-size: 0.7rem; color: var(--brand-primary);" id="analysis-claims-count">2 Claims</span>
+              </div>
+              <div id="analysis-claims-list">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+
+            <!-- Section 2: Primary Source Contrast -->
+            <div class="analysis-section">
+              <div class="analysis-section-title">
+                <span>2. Cotejo con Fuentes Primarias Oficiales</span>
+                <span style="font-size: 0.7rem; color: var(--emerald-accent);">Trazabilidad RAG</span>
+              </div>
+              <div class="doc-viewer-tabs" style="display: flex; gap: 0.4rem; margin-bottom: 0.5rem;" id="analysis-source-tabs">
+                <!-- Tabs -->
+              </div>
+              <div class="official-quote-box" id="analysis-official-quote">
+                <!-- Quote text -->
+              </div>
+              <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem; display: flex; justify-content: space-between;">
+                <span id="analysis-doc-provenance">Expediente CNE-PL-2025-089</span>
+                <span>Integridad: <code>sha256:4f8a...b9c1</code></span>
+              </div>
+            </div>
+
+            <!-- Section 3: Faktabaari 3Q Filter -->
+            <div class="analysis-section">
+              <div class="analysis-section-title">
+                <span>3. Filtro de Tres Preguntas (Faktabaari / IFCN)</span>
+                <span style="font-size: 0.7rem; color: var(--emerald-accent);">Verificabilidad</span>
+              </div>
+              <div class="filter-3q-box" id="analysis-3q-box">
+                <!-- Questions -->
+              </div>
+            </div>
+
+            <!-- Section 4: Intent & Polarization Test -->
+            <div class="analysis-section">
+              <div class="analysis-section-title">
+                <span>4. Test de Discordancia & Intencionalidad</span>
+                <span style="font-size: 0.7rem; color: #a5b4fc;">Modelo Multimodal</span>
+              </div>
+              <div class="intent-meters-row" id="analysis-intent-meters">
+                <!-- Meters -->
+              </div>
+            </div>
+
+            <!-- Section 5: Editorial Decision for this Extract -->
+            <div class="analysis-section" style="border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.04);">
+              <div class="analysis-section-title" style="color: #fbbf24;">
+                <span>5. Decisión Editorial para este Extracto</span>
+                <span style="font-size: 0.7rem; color: var(--text-secondary);">Supervisión Humana Obligatoria</span>
+              </div>
+              <p style="font-size: 0.775rem; color: var(--text-secondary);">
+                Selecciona la calificación editorial fundamentada para este extracto:
+              </p>
+              <div class="verdict-selector-row" id="analysis-verdict-row">
+                <button class="verdict-btn" onclick="setExtractVerdict(this, 'true')">Consistente con Plan</button>
+                <button class="verdict-btn selected-misleading" onclick="setExtractVerdict(this, 'misleading')">Engañoso / Descontextualizado</button>
+                <button class="verdict-btn" onclick="setExtractVerdict(this, 'false')">Falso / Contradice CNE</button>
+                <button class="verdict-btn" onclick="setExtractVerdict(this, 'opinion')">Opinión / No verificable</button>
+              </div>
+
+              <textarea class="editorial-textarea" id="analysis-editorial-notes" placeholder="Justificación periodística del veredicto para este extracto...">La cifra prometida de 500.000 empleos en el primer año difiere de la meta oficial registrada en el CNE (Expediente CNE-PL-2025-089, Pág. 14), que fija 120.000 plazas anuales y condicionadas a reformas legislativas.</textarea>
+
+              <div style="margin-top: 0.75rem; display: flex; justify-content: flex-end;">
+                <button class="btn btn-outline-emerald" onclick="saveExtractVerdict()">
+                  Guardar Veredicto del Extracto
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         VARIANTE B: EDITORIAL COPILOT & STEP-LADDER AUDIT
+         ===================================================================== -->
+    <section id="variant-B" class="variant-frame">
+      <div class="variant-meta-card">
+        <div>
+          <div class="variant-meta-title">Variante B: Copiloto Guiado (Escalera de Verificación por Etapas)</div>
+          <div class="variant-meta-desc">Organiza el proceso periodístico de forma lineal y pedagógica desde la ingesta hasta el dictamen final JTI.</div>
+        </div>
+        <span class="variant-tag" style="background: rgba(99, 102, 241, 0.15); color: #a5b4fc;">Flujo Ágil</span>
+      </div>
+
+      <div class="ladder-layout">
+        <!-- Step 1 -->
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-badge"><span class="step-circle">1</span><span>INGESTA & DESCOMPOSICIÓN DE EXTRACTOS</span></div>
+            <span style="font-size: 0.75rem; color: #34d399;">4 Extractos Procesados</span>
+          </div>
+          <div class="step-content">
+            <p style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+              Audio extraído de entrevista radial (08:30 min). Segmentado automáticamente en 4 bloques temáticos.
+            </p>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; font-size: 0.75rem;">
+              <div style="background: var(--bg-tertiary); padding: 0.5rem; border-radius: 4px; border-left: 2px solid #38bdf8;">Ext 1: Empleo (2 claims)</div>
+              <div style="background: var(--bg-tertiary); padding: 0.5rem; border-radius: 4px; border-left: 2px solid #a5b4fc;">Ext 2: Salarios (1 claim)</div>
+              <div style="background: var(--bg-tertiary); padding: 0.5rem; border-radius: 4px; border-left: 2px solid #fcd34d;">Ext 3: Subsidios (1 claim)</div>
+              <div style="background: var(--bg-tertiary); padding: 0.5rem; border-radius: 4px; border-left: 2px solid #64748b;">Ext 4: Discurso (0 claims)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-badge"><span class="step-circle">2</span><span>MATRIZ DE COBERTURA PARALELA POR EXTRACTO</span></div>
+            <span style="font-size: 0.75rem; color: var(--brand-primary);">Cruce RAG CNE</span>
+          </div>
+          <div class="step-content" style="padding: 0;">
+            <table class="parallel-matrix-table">
+              <thead>
+                <tr>
+                  <th>Extracto / Afirmación</th>
+                  <th>Plan Oficial CNE</th>
+                  <th>Contraste</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Ext 1:</strong> 500k empleos en año 1</td>
+                  <td>Meta de 120k anuales (Pág. 14)</td>
+                  <td><span style="color: #fb7185; font-weight: 700;">Discrepancia ×4</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Ext 2:</strong> Salario a $600 por decreto</td>
+                  <td>Requiere Consejo Tripartito (Pág. 22)</td>
+                  <td><span style="color: #fbbf24; font-weight: 700;">Requiere Ley</span></td>
+                </tr>
+                <tr>
+                  <td><strong>Ext 3:</strong> Eliminación total subsidios</td>
+                  <td>Mantiene subsidio diésel (Pág. 37)</td>
+                  <td><span style="color: #fb7185; font-weight: 700;">Contradice Plan</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step-card">
+          <div class="step-header">
+            <div class="step-badge"><span class="step-circle">3</span><span>DICTAMEN EDITORIAL & CLAIMREVIEW</span></div>
+            <span style="font-size: 0.75rem; color: #10b981;">Validación Humana Final</span>
+          </div>
+          <div class="step-content">
+            <button class="btn btn-primary" onclick="openClaimReviewModal()">
+              Ver JSON-LD ClaimReview Multi-Extracto
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         VARIANTE C: RADAR & MATRIZ (OBSERVABILIDAD ELECTORAL)
+         ===================================================================== -->
+    <section id="variant-C" class="variant-frame">
+      <div class="variant-meta-card">
+        <div>
+          <div class="variant-meta-title">Variante C: Radar & Matriz (Observabilidad & Ecosistema de Desinformación)</div>
+          <div class="variant-meta-desc">Consola analítica agrupada por extractos, entidades nombradas y trazabilidad SHA-256 para monitoreo de campañas.</div>
+        </div>
+        <span class="variant-tag" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">Observatorio</span>
+      </div>
+
+      <div class="radar-matrix-layout">
+        <div class="panel-card">
+          <div class="panel-header"><div class="panel-title">Actores & Entidades</div></div>
+          <div class="panel-body">
+            <div style="font-size: 0.75rem; color: var(--text-secondary);">Actores: Carlos Alvarado, Pacto Futuro, CNE, INEC, BCE.</div>
+          </div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-header"><div class="panel-title">Matriz Triangulada por Extracto</div></div>
+          <div class="panel-body">
+            <div style="font-size: 0.8rem; color: #fff; margin-bottom: 0.5rem;">Extractos 1 a 3 contrastados con 3 fuentes primarias institucionales.</div>
+          </div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-header"><div class="panel-title">Auditoría SHA-256</div></div>
+          <div class="panel-body">
+            <button class="btn btn-primary" style="width: 100%;" onclick="openClaimReviewModal()">Generar ClaimReview</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =========================================================================
+       FLOATING SWITCHER DOCK
+       ========================================================================= -->
+  <aside class="prototype-switcher-dock" aria-label="Selector de Variantes de Prototipo">
+    <button class="switcher-btn" onclick="cycleVariant(-1)" title="Variante Anterior" aria-label="Variante Anterior">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+
+    <select class="variant-selector-dropdown" id="variant-select" onchange="setVariant(this.value)">
+      <option value="A">Variante A: Extractos Verticales + Panel de Análisis</option>
+      <option value="B">Variante B: Copiloto Guiado (Escalera Editorial)</option>
+      <option value="C">Variante C: Radar & Matriz (Observabilidad)</option>
+    </select>
+
+    <button class="switcher-btn" onclick="cycleVariant(1)" title="Siguiente Variante" aria-label="Siguiente Variante">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+
+    <span class="keyboard-hint">← / →</span>
+  </aside>
+
+  <!-- =========================================================================
+       INTERACTIVE MODALS
+       ========================================================================= -->
+  
+  <!-- ClaimReview Export Modal -->
+  <div class="modal-backdrop" id="modal-claimreview" onclick="closeModalOnBackdrop(event, 'modal-claimreview')">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">Schema.org / ClaimReview (Estructura Multi-Extracto)</div>
+        <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem;" onclick="closeModal('modal-claimreview')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 1rem;">
+          Este esquema JSON-LD incluye la descomposición de los extractos analizados con sus respectivas aseveraciones y fuentes primarias:
+        </p>
+        <pre class="code-snippet-box"><code>{
+  "@context": "https://schema.org",
+  "@type": "ClaimReview",
+  "datePublished": "2025-02-14",
+  "url": "https://informa-t.ec/verificaciones/entrevista-carlos-alvarado-2025",
+  "claimReviewed": "Carlos Alvarado realizó afirmaciones sobre empleo, salarios y subsidios en entrevista electoral.",
+  "itemReviewed": {
+    "@type": "CreativeWork",
+    "author": { "@type": "Person", "name": "Carlos Alvarado" },
+    "appearance": { "@type": "VideoObject", "url": "https://tiktok.com/@carlosalvarado/video/7391829" }
+  },
+  "author": {
+    "@type": "Organization",
+    "name": "informa-t / Alianza de Medios MediaHack",
+    "url": "https://informa-t.ec"
+  },
+  "reviewRating": {
+    "@type": "Rating",
+    "ratingValue": "2",
+    "alternateName": "Engañoso / Inconsistente con Plan CNE"
+  },
+  "hasPart": [
+    {
+      "@type": "ClaimReview",
+      "claimReviewed": "Extracto 1 (00:15): Crearemos 500.000 empleos en el primer año",
+      "reviewRating": { "@type": "Rating", "alternateName": "Contradice Plan CNE Pág. 14 (Meta anual: 120.000)" }
+    },
+    {
+      "@type": "ClaimReview",
+      "claimReviewed": "Extracto 2 (01:20): SBU a $600 por decreto ejecutivo",
+      "reviewRating": { "@type": "Rating", "alternateName": "Requiere Consejo Nacional de Trabajo y Salarios" }
+    },
+    {
+      "@type": "ClaimReview",
+      "claimReviewed": "Extracto 3 (04:10): Eliminación inmediata de subsidios",
+      "reviewRating": { "@type": "Rating", "alternateName": "Plan CNE estipula subsidio focalizado al diésel" }
+    }
+  ]
+}</code></pre>
+        <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end; gap: 0.5rem;">
+          <button class="btn btn-secondary" onclick="copySchemaToClipboard()">Copiar JSON-LD</button>
+          <button class="btn btn-primary" onclick="showToast('Publicado a Fact Check Explorer'); closeModal('modal-claimreview');">Emitir a Red de Medios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JTI Modal -->
+  <div class="modal-backdrop" id="modal-jti" onclick="closeModalOnBackdrop(event, 'modal-jti')">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">Estándar de Confianza Periodística JTI (CEN CWA 17493)</div>
+        <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem;" onclick="closeModal('modal-jti')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 1rem;">
+          La plataforma <strong>informa-t</strong> implementa los requisitos técnicos de la <em>Journalism Trust Initiative</em> para garantizar gobernanza ética, neutralidad y trazabilidad:
+        </p>
+        <ul style="font-size: 0.8125rem; color: #e2e8f0; line-height: 1.8; padding-left: 1.25rem;">
+          <li><strong>Supervisión Humana Obligatoria:</strong> Los modelos de IA no emiten dictámenes sin revisión y firma de un periodista.</li>
+          <li><strong>Trazabilidad a Fuentes Primarias:</strong> Cada afirmación enlaza obligatoriamente al documento original con hash de integridad.</li>
+          <li><strong>Metadatos Legibles por Máquina:</strong> Integración de Schema.org ClaimReview en todas las salidas públicas.</li>
+          <li><strong>Derecho a Corrección Pública:</strong> Módulo abierto para que cualquier actor o ciudadano reporte inconsistencias.</li>
+        </ul>
+        <div style="margin-top: 1.25rem; text-align: right;">
+          <button class="btn btn-primary" onclick="closeModal('modal-jti')">Entendido</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trust Project Modal -->
+  <div class="modal-backdrop" id="modal-trust" onclick="closeModalOnBackdrop(event, 'modal-trust')">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">8 Indicadores de Confianza (The Trust Project)</div>
+        <button class="btn btn-secondary" style="padding: 0.2rem 0.5rem;" onclick="closeModal('modal-trust')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.775rem;">
+          <div style="background: var(--bg-tertiary); padding: 0.75rem; border-radius: 6px;"><strong style="color: #38bdf8;">1. Buenas Prácticas</strong></div>
+          <div style="background: var(--bg-tertiary); padding: 0.75rem; border-radius: 6px;"><strong style="color: #38bdf8;">2. Experiencia del Autor</strong></div>
+          <div style="background: var(--bg-tertiary); padding: 0.75rem; border-radius: 6px;"><strong style="color: #38bdf8;">3. Etiquetas Claras</strong></div>
+          <div style="background: var(--bg-tertiary); padding: 0.75rem; border-radius: 6px;"><strong style="color: #38bdf8;">4. Referencias y Citas</strong></div>
+          <div style="background: var(--bg-tertiary); padding: 0.75rem; border-radius: 6px;"><strong style="color: #38bdf8;">5. Metodología Transparente</strong></div>
+          <div style="background: var(--bg-tertiary); padding: 0.75rem; border-radius: 6px;"><strong style="color: #38bdf8;">6. Origen Local</strong></div>
+          <div style="background: var(--bg-tertiary); padding: 0.75rem; border-radius: 6px;"><strong style="color: #38bdf8;">7. Voces Diversas</strong></div>
+          <div style="background: var(--bg-tertiary); padding: 0.75rem; border-radius: 6px;"><strong style="color: #38bdf8;">8. Feedback y Correcciones</strong></div>
+        </div>
+        <div style="margin-top: 1.25rem; text-align: right;">
+          <button class="btn btn-primary" onclick="closeModal('modal-trust')">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-notification" id="toast"><span id="toast-msg">Mensaje</span></div>
+
+  <script>
+    // State & Extract Data Store
+    const variants = ['A', 'B', 'C'];
+    let currentVariant = 'A';
+    let currentExtractId = 1;
+
+    const extractDetails = {
+      1: {
+        title: "Extracto #1: Empleo & Dolarización (00:15 - 00:48)",
+        statusPill: "En Revisión",
+        claimsCount: "2 Claims Atómicos",
+        claims: [
+          {
+            num: "1.1",
+            text: "Afirma que creará 500.000 empleos formales en su primer año de gobierno.",
+            badge: "Discrepancia en Metas",
+            badgeColor: "#fb7185",
+            chip: "🏛️ cne.gob.ec (Pág. 14)",
+            chipType: "chip-badge-cne"
+          },
+          {
+            num: "1.2",
+            text: "Sostiene que financiará el empleo sin tocar la Reserva Internacional del BCE.",
+            badge: "Verificable en BCE",
+            badgeColor: "#34d399",
+            chip: "🏦 bce.fin.ec (Boletín 142)",
+            chipType: ""
+          }
+        ],
+        sourceTabs: ["🏛️ Plan CNE 2025 (Pág. 14)", "📊 INEC ENEMDU Q4", "🏦 BCE Boletín 142"],
+        officialQuote: "\"Se establece como meta quinquenal proyectada la incorporación de 120.000 nuevas plazas de trabajo formal por año (totalizando 480.000 en 4 años), supeditadas a la aprobación del paquete de reformas de flexibilidad horaria.\" [Plan CNE Pág. 14, Párrafo 3]",
+        docProvenance: "CNE Plan de Trabajo Presidencial 2025 · Expediente CNE-PL-2025-089",
+        qFilter: [
+          { q: "1. ¿Es una aseveración fáctica verificable?", status: "pass", ans: "Sí (Contiene cifra de 500.000 empleos y plazo de 1 año)" },
+          { q: "2. ¿Es relevante para el debate público?", status: "pass", ans: "Sí (Eje macroeconómico y oferta central de campaña)" },
+          { q: "3. ¿Existe fuente primaria institucional?", status: "pass", ans: "Sí (Plan de Trabajo CNE y encuestas de empleo INEC)" }
+        ],
+        intent: { polar: 74, emot: 82, data: 28 },
+        notes: "La cifra de 500.000 empleos en el primer año difiere de la meta oficial registrada en el CNE (Expediente CNE-PL-2025-089, Pág. 14), que fija 120.000 plazas anuales y condicionadas a reformas legislativas.",
+        verdict: "misleading"
+      },
+      2: {
+        title: "Extracto #2: Salarios & Marco Jurídico (01:20 - 02:05)",
+        statusPill: "En Revisión",
+        claimsCount: "1 Claim Atómico",
+        claims: [
+          {
+            num: "2.1",
+            text: "Asegura que aumentará el Salario Básico Unificado a $600 por decreto ejecutivo el primer mes omitiendo al Consejo de Salarios.",
+            badge: "Inconsistencia Jurídica",
+            badgeColor: "#fbbf24",
+            chip: "🏛️ cne.gob.ec (Pág. 22)",
+            chipType: "chip-badge-cne"
+          }
+        ],
+        sourceTabs: ["🏛️ Plan CNE (Pág. 22)", "📜 Código del Trabajo (Art. 118)"],
+        officialQuote: "\"Cualquier modificación al Salario Básico Unificado deberá sustentarse en el informe técnico del Ministerio de Trabajo y la deliberación tripartita; el Ejecutivo no podrá decretar incrementos unilaterales sin ponderación actuarial.\" [Plan CNE Pág. 22 / Código del Trabajo]",
+        docProvenance: "Código Orgánico del Trabajo & Plan CNE 2025-2029",
+        qFilter: [
+          { q: "1. ¿Es una aseveración fáctica verificable?", status: "pass", ans: "Sí (Mecanismo de fijación salarial de $600)" },
+          { q: "2. ¿Es relevante para el debate público?", status: "pass", ans: "Sí (Impacto en costo de vida y masa salarial)" },
+          { q: "3. ¿Existe fuente primaria institucional?", status: "pass", ans: "Sí (Código del Trabajo y Plan de Trabajo CNE)" }
+        ],
+        intent: { polar: 68, emot: 75, data: 35 },
+        notes: "El candidato afirma que puede decretar unilateralmente un salario de $600 en el primer mes, pero el marco legal y su propio plan de trabajo reconocen la obligatoriedad del Consejo Nacional de Trabajo y Salarios.",
+        verdict: "misleading"
+      },
+      3: {
+        title: "Extracto #3: Subsidios a Combustibles (04:10 - 05:00)",
+        statusPill: "En Revisión",
+        claimsCount: "1 Claim Atómico",
+        claims: [
+          {
+            num: "3.1",
+            text: "Afirma que eliminará la totalidad de subsidios a combustibles desde el día 1 de gobierno para ahorrar $3.000 millones.",
+            badge: "Contradice Plan Registrado",
+            badgeColor: "#fb7185",
+            chip: "🏛️ cne.gob.ec (Pág. 37)",
+            chipType: "chip-badge-cne"
+          }
+        ],
+        sourceTabs: ["🏛️ Plan CNE (Pág. 37 - Subsidios)", "📊 Min. Finanzas Presupuesto"],
+        officialQuote: "\"Se mantendrá el subsidio focalizado al diésel para transporte público y pesca artesanal, iniciando una revisión gradual de gasolinas extra con compensación directa al sector productivo.\" [Plan CNE Pág. 37]",
+        docProvenance: "Plan de Trabajo CNE 2025-2029 (Capítulo Fiscal)",
+        qFilter: [
+          { q: "1. ¿Es una aseveración fáctica verificable?", status: "pass", ans: "Sí (Eliminación inmediata de subsidios y monto de $3.000M)" },
+          { q: "2. ¿Es relevante para el debate público?", status: "pass", ans: "Sí (Eje de conflicto social y política fiscal)" },
+          { q: "3. ¿Existe fuente primaria institucional?", status: "pass", ans: "Sí (Plan CNE y Presupuesto General del Estado)" }
+        ],
+        intent: { polar: 85, emot: 90, data: 20 },
+        notes: "La declaración en el discurso contradice directamente el Plan de Trabajo entregado al CNE, el cual estipula explícitamente mantener el subsidio focalizado al diésel.",
+        verdict: "false"
+      },
+      4: {
+        title: "Extracto #4: Discurso / Retórica (06:15 - 06:45)",
+        statusPill: "Descartado",
+        claimsCount: "0 Claims Fácticos",
+        claims: [
+          {
+            num: "4.1",
+            text: "Discurso valorativo y adjetivación sobre 'los mismos de siempre' y el descontento popular.",
+            badge: "Opinión / Retórica",
+            badgeColor: "#94a3b8",
+            chip: "⚠️ No verificable fáctico",
+            chipType: ""
+          }
+        ],
+        sourceTabs: ["ℹ️ Criterio IFCN sobre Opiniones"],
+        officialQuote: "\"Las afirmaciones basadas en juicios de valor, valoraciones subjetivas o retórica política general no son pasibles de verificación fáctica bajo el estándar IFCN.\" [Manual de Fact-Checking]",
+        docProvenance: "Filtro Metodológico de Verificabilidad IFCN",
+        qFilter: [
+          { q: "1. ¿Es una aseveración fáctica verificable?", status: "fail", ans: "No (Es una valoración subjetiva y juicio de valor político)" },
+          { q: "2. ¿Es relevante para el debate público?", status: "warn", ans: "Retórico de campaña, no fáctico" },
+          { q: "3. ¿Existe fuente primaria institucional?", status: "fail", ans: "No aplica para juicios de opinión" }
+        ],
+        intent: { polar: 92, emot: 95, data: 5 },
+        notes: "Este extracto fue clasificado como retórica discursiva de campaña electoral. Se descarta para el dictamen fáctico conforme al estándar IFCN.",
+        verdict: "opinion"
+      }
+    };
+
+    function init() {
+      // Setup URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const requestedVariant = urlParams.get('variant');
+      if (requestedVariant && variants.includes(requestedVariant.toUpperCase())) {
+        currentVariant = requestedVariant.toUpperCase();
+      }
+      applyVariant(currentVariant);
+      renderActiveExtractAnalysis(1);
+
+      // Keyboard navigation
+      window.addEventListener('keydown', (e) => {
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName)) return;
+        if (e.key === 'ArrowRight') cycleVariant(1);
+        else if (e.key === 'ArrowLeft') cycleVariant(-1);
+      });
+    }
+
+    function selectExtract(extractId) {
+      currentExtractId = extractId;
+
+      // Update active state on left cards
+      [1, 2, 3, 4].forEach(id => {
+        const card = document.getElementById(`card-ext-${id}`);
+        const ind = document.getElementById(`ind-ext-${id}`);
+        if (card) {
+          if (id === extractId) {
+            card.classList.add('active-extract-card');
+            if (ind) ind.style.display = 'inline-flex';
+          } else {
+            card.classList.remove('active-extract-card');
+            if (ind) ind.style.display = 'none';
+          }
+        }
+      });
+
+      renderActiveExtractAnalysis(extractId);
+      showToast(`Desplegando análisis para Extracto #${extractId}`);
+    }
+
+    function renderActiveExtractAnalysis(extractId) {
+      const data = extractDetails[extractId];
+      if (!data) return;
+
+      // Panel Header
+      document.getElementById('analysis-panel-title').innerText = `Despliegue de Análisis: ${data.title}`;
+      const statusPill = document.getElementById('analysis-status-pill');
+      statusPill.innerText = data.statusPill;
+      statusPill.style.background = data.statusPill === 'Descartado' ? 'rgba(148, 163, 184, 0.15)' : 'rgba(56, 189, 248, 0.15)';
+      statusPill.style.color = data.statusPill === 'Descartado' ? '#94a3b8' : '#38bdf8';
+
+      // Section 1: Claims List
+      document.getElementById('analysis-claims-count').innerText = data.claimsCount;
+      const claimsListEl = document.getElementById('analysis-claims-list');
+      claimsListEl.innerHTML = data.claims.map(c => `
+        <div style="background: var(--bg-elevated); padding: 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; border: 1px solid var(--border-subtle);">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+            <span style="font-family: var(--font-mono); font-size: 0.725rem; color: var(--text-secondary);">CLAIM ${c.num}</span>
+            <span style="font-size: 0.675rem; font-weight: 700; color: ${c.badgeColor};">${c.badge}</span>
+          </div>
+          <p style="font-size: 0.8125rem; color: #f1f5f9; line-height: 1.4;">${c.text}</p>
+          <div class="chip-container">
+            <span class="claim-chip ${c.chipType}"><span>${c.chip}</span></span>
+            <button class="challenge-btn" onclick="challengeSource(event, '${c.chip}')">Impugnar fuente</button>
+          </div>
+        </div>
+      `).join('');
+
+      // Section 2: Primary Source Tabs & Excerpt
+      const tabsEl = document.getElementById('analysis-source-tabs');
+      tabsEl.innerHTML = data.sourceTabs.map((t, idx) => `
+        <button class="btn ${idx === 0 ? 'btn-primary' : 'btn-secondary'}" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;">
+          ${t}
+        </button>
+      `).join('');
+
+      document.getElementById('analysis-official-quote').innerText = data.officialQuote;
+      document.getElementById('analysis-doc-provenance').innerText = data.docProvenance;
+
+      // Section 3: 3Q Filter
+      const qBoxEl = document.getElementById('analysis-3q-box');
+      qBoxEl.innerHTML = data.qFilter.map(item => `
+        <div class="q-item">
+          <span class="q-label">${item.q}</span>
+          <span class="q-status ${item.status}">${item.ans}</span>
+        </div>
+      `).join('');
+
+      // Section 4: Intent Meters
+      const metersEl = document.getElementById('analysis-intent-meters');
+      metersEl.innerHTML = `
+        <div class="meter-card">
+          <div class="meter-label">Polarización</div>
+          <div class="meter-value" style="color: #fb7185;">${data.intent.polar}%</div>
+          <div class="meter-bar"><div class="meter-fill" style="width: ${data.intent.polar}%; background: var(--rose-accent);"></div></div>
+        </div>
+        <div class="meter-card">
+          <div class="meter-label">Carga Emocional</div>
+          <div class="meter-value" style="color: #fbbf24;">${data.intent.emot}%</div>
+          <div class="meter-bar"><div class="meter-fill" style="width: ${data.intent.emot}%; background: var(--amber-accent);"></div></div>
+        </div>
+        <div class="meter-card">
+          <div class="meter-label">Sustento Fáctico</div>
+          <div class="meter-value" style="color: #38bdf8;">${data.intent.data}%</div>
+          <div class="meter-bar"><div class="meter-fill" style="width: ${data.intent.data}%; background: var(--brand-primary);"></div></div>
+        </div>
+      `;
+
+      // Section 5: Editorial Notes & Verdict
+      document.getElementById('analysis-editorial-notes').value = data.notes;
+      const verdictRow = document.getElementById('analysis-verdict-row');
+      const buttons = verdictRow.querySelectorAll('.verdict-btn');
+      buttons.forEach(btn => btn.className = 'verdict-btn');
+
+      if (data.verdict === 'true') buttons[0].classList.add('selected-true');
+      if (data.verdict === 'misleading') buttons[1].classList.add('selected-misleading');
+      if (data.verdict === 'false') buttons[2].classList.add('selected-false');
+      if (data.verdict === 'opinion') buttons[3].classList.add('selected-opinion');
+    }
+
+    function setExtractVerdict(btn, type) {
+      const parent = btn.parentElement;
+      parent.querySelectorAll('.verdict-btn').forEach(b => b.className = 'verdict-btn');
+      if (type === 'true') btn.classList.add('selected-true');
+      if (type === 'misleading') btn.classList.add('selected-misleading');
+      if (type === 'false') btn.classList.add('selected-false');
+      if (type === 'opinion') btn.classList.add('selected-opinion');
+      showToast(`Veredicto actualizado para Extracto #${currentExtractId}: ${btn.innerText}`);
+    }
+
+    function saveExtractVerdict() {
+      showToast(`✔ Veredicto para Extracto #${currentExtractId} guardado en el expediente`);
+    }
+
+    // Switcher Logic
+    function applyVariant(v) {
+      currentVariant = v;
+      variants.forEach(variantKey => {
+        const el = document.getElementById(`variant-${variantKey}`);
+        if (el) {
+          if (variantKey === v) el.classList.add('active');
+          else el.classList.remove('active');
+        }
+      });
+      const select = document.getElementById('variant-select');
+      if (select) select.value = v;
+
+      const url = new URL(window.location);
+      url.searchParams.set('variant', v);
+      window.history.replaceState({}, '', url);
+    }
+
+    function setVariant(v) { applyVariant(v); }
+    function cycleVariant(direction) {
+      let idx = variants.indexOf(currentVariant);
+      idx = (idx + direction + variants.length) % variants.length;
+      applyVariant(variants[idx]);
+    }
+
+    // Modals
+    function openClaimReviewModal() { document.getElementById('modal-claimreview').classList.add('active'); }
+    function openJtiModal() { document.getElementById('modal-jti').classList.add('active'); }
+    function openTrustProjectModal() { document.getElementById('modal-trust').classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function closeModalOnBackdrop(e, id) { if (e.target.id === id) closeModal(id); }
+
+    function copySchemaToClipboard() { showToast('Schema.org ClaimReview JSON-LD copiado'); }
+    function challengeSource(e, s) { e.stopPropagation(); showToast(`Reporte enviado: Impugnación de '${s}'`); }
+    function simulateNewIntake() { showToast('Procesando nueva URL y segmentando extractos...'); }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3200);
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

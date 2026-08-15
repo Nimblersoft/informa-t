@@ -4,7 +4,7 @@ informa-t es un MVP propuesto para MediaHack II que permite a periodistas y equi
 
 ## Estado
 
-El repositorio contiene solo documentacion. El PRD se esta refinando antes de crear un plan de implementacion o codigo de aplicacion.
+El repositorio contiene documentacion y un prototipo visual exploratorio. El PRD del MVP esta refinado y el plan de implementacion se encuentra en revision; no existe codigo de aplicacion aprobado todavia.
 
 ## Inicio Rapido
 
@@ -15,7 +15,7 @@ El repositorio contiene solo documentacion. El PRD se esta refinando antes de cr
 - [AGENTS.md](AGENTS.md): contexto operativo para agentes, restricciones y estado del proyecto.
 - [CONTEXT.md](CONTEXT.md): glosario canonico del dominio.
 - [docs/index.md](docs/index.md): mapa de documentacion.
-- [Borrador del PRD de MediaHack](docs/specs/mediahack-prd-draft.md): requisitos iniciales del MVP.
+- [Especificacion del MVP de MediaHack](docs/specs/mediahack-prd-draft.md): contrato funcional y tecnico vigente.
 
 ## Referencias
 
