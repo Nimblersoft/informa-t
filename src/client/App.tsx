@@ -6,6 +6,7 @@ import { AnalysisTabs, type TabId } from "./components/AnalysisTabs";
 import { EvidencePanel } from "./components/EvidencePanel";
 import { ModelsPanel } from "./components/ModelsPanel";
 import { LogsPanel } from "./components/LogsPanel";
+import { EditorialDecision } from "./components/EditorialDecision";
 
 declare global {
   interface Window {
@@ -148,6 +149,14 @@ export const App: React.FC = () => {
               }}
             </AnalysisTabs>
           </div>
+        </div>
+
+        {/* Human Editorial Decision Boundary */}
+        <div className="editorial-decision-boundary-section">
+          <EditorialDecision
+            caseId={caseData.id}
+            claims={caseData.excerpts}
+          />
         </div>
       </main>
     </div>
