@@ -6,6 +6,10 @@
   "ai": {
     "binding": "AI"
   },
+  "browser": {
+    "binding": "BROWSER",
+    "remote": true
+  },
   "assets": {
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { extractReadableText, fetchArticleText, isPrivateIp } from "../src/server/article-fetch";
+import { ArticleFetchError, extractReadableText, fetchArticleText, isPrivateIp } from "../src/server/article-fetch";
 import { EXTRACTION_ATTEMPT_TIMEOUT_MS, EXTRACTION_TIMEOUT_MS, LUNA_EXTRACTION_MODEL, PROPOSAL_MODELS } from "../src/server/config/models";
 import { analyzeText } from "../src/server/pipeline/analyze-text";
 import type { AiSearchProvider } from "../src/server/providers/ai-search";
@@ -87,6 +87,56 @@ describe("URL analysis input and extraction", () => {
     const oversizedFetch: typeof fetch = vi.fn(async () => new Response("small", { headers: { "content-type": "text/plain", "content-length": "1000001" } }));
     await expect(fetchArticleText("https://example.com/large", { fetchImpl: oversizedFetch, resolveHostname: async () => ["93.184.216.34"] })).rejects.toThrow("límite de tamaño");
     await expect(fetchArticleText("http://127.0.0.1/admin", { fetchImpl: oversizedFetch, resolveHostname: async () => ["127.0.0.1"] })).rejects.toThrow("red privada");
+  });
+
+  it("uses Browser Run content after a safe direct-fetch rejection", async () => {
+    const browser = {
+      quickAction: vi.fn(async () => new Response(JSON.stringify({ success: true, result: "<html><article><h1>Artículo renderizado</h1><p>Contenido protegido.</p></article></html>" }), { headers: { "content-type": "application/json" } })),
+    };
+    const fetchImpl: typeof fetch = vi.fn(async () => new Response("blocked", { status: 403, headers: { "content-type": "text/html" } }));
+
+    await expect(fetchArticleText("https://example.com/protected", {
+      fetchImpl,
+      browser,
+      resolveHostname: async () => ["93.184.216.34"],
+    })).resolves.toContain("Contenido protegido.");
+    expect(browser.quickAction).toHaveBeenCalledWith("content", expect.objectContaining({ url: "https://example.com/protected" }));
+  });
+
+  it("never sends an unsafe redirect to Browser Run", async () => {
+    const browser = { quickAction: vi.fn() };
+    const fetchImpl: typeof fetch = vi.fn(async () => new Response(null, { status: 302, headers: { location: "http://127.0.0.1/admin" } }));
+
+    await expect(fetchArticleText("https://example.com/redirect", {
+      fetchImpl,
+      browser,
+      resolveHostname: async () => ["93.184.216.34"],
+    })).rejects.toMatchObject({ diagnosticCategory: "unsafe_target" });
+    expect(browser.quickAction).not.toHaveBeenCalled();
+  });
+
+  it("normalizes transport, timeout, and Browser Run failures without upstream details", async () => {
+    const notFound: typeof fetch = vi.fn(async () => new Response("not found", { status: 404 }));
+    await expect(fetchArticleText("https://example.com/missing", { fetchImpl: notFound, resolveHostname: async () => ["93.184.216.34"] }))
+      .rejects.toMatchObject({ diagnosticCategory: "http_status" });
+
+    const transport = vi.fn(async () => { throw new Error("secret upstream response body"); }) as typeof fetch;
+    await expect(fetchArticleText("https://example.com/offline", { fetchImpl: transport, resolveHostname: async () => ["93.184.216.34"] }))
+      .rejects.toMatchObject({ diagnosticCategory: "transport", message: "No se pudo conectar con la fuente del artículo." });
+
+    const browser = { quickAction: vi.fn(async () => new Response("fallo interno", { status: 503 })) };
+    const rejected: typeof fetch = vi.fn(async () => new Response("blocked", { status: 403 }));
+    await expect(fetchArticleText("https://example.com/protected", { fetchImpl: rejected, browser, resolveHostname: async () => ["93.184.216.34"] }))
+      .rejects.toMatchObject({ diagnosticCategory: "browser_unavailable" });
+
+    vi.useFakeTimers();
+    const hung: typeof fetch = vi.fn((_input, init) => new Promise<Response>((_resolve, reject) => {
+      init?.signal?.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")), { once: true });
+    }));
+    const pending = fetchArticleText("https://example.com/hung", { fetchImpl: hung, timeoutMs: 100, resolveHostname: async () => ["93.184.216.34"] });
+    const timeoutAssertion = expect(pending).rejects.toMatchObject({ diagnosticCategory: "timeout" });
+    await vi.advanceTimersByTimeAsync(100);
+    await timeoutAssertion;
   });
 
   it("uses Luna, passes rationale, and truncates more than three claims honestly", async () => {

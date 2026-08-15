@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { describe, expect, it, vi } from "vitest";
 
 import { ANALYSIS_EVENT_NAMES, type AnalysisEventName } from "../src/shared/analysis-events";
+import { ArticleFetchError } from "../src/server/article-fetch";
 import { PROPOSAL_MODELS } from "../src/server/config/models";
 import { createAnalysisRoutes } from "../src/server/routes/analyses";
 import type { AiSearchProviderResult } from "../src/server/providers/ai-search";
@@ -167,6 +168,24 @@ describe("POST /api/analyses SSE contract", () => {
     expect(events[0].data.inputType).toBe("url");
     expect(events[0].data.sourceUrl).toBe("https://example.com/news");
     expect(events.find((event) => event.event === "claim.extracted")?.data.claims[0].rationale).toContain("registro oficial");
+  });
+
+  it("terminates URL extraction failures with an honest limitation and safe diagnostic category", async () => {
+    const events = await readEvents(await createAnalysisRoutes({
+      ai: new FakeAi(),
+      search: { searchEvidence: async () => evidenceResult() },
+      fetchArticle: async () => { throw new ArticleFetchError("No fue posible extraer el artículo con el navegador renderizado.", "browser_unavailable"); },
+    }).request("http://local.test/analyses", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ url: "https://example.com/protected" }),
+    }));
+
+    expect(events.map((event) => event.event)).toEqual(["analysis.started", "analysis.completed"]);
+    expect(events.at(-1)?.data.status).toBe("failed");
+    expect(events.at(-1)?.data.claims).toEqual([]);
+    expect(events.at(-1)?.data.limitations).toContain("No fue posible extraer el artículo con el navegador renderizado.");
+    expect(events.at(-1)?.data.degradations).toContain("url-extraction:browser_unavailable");
   });
 
   it("returns a cancellable SSE response", async () => {

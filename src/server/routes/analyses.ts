@@ -12,7 +12,7 @@ import {
 } from "../../shared/analysis-events";
 import { parseAnalysisInput, type AnalysisInput } from "../../shared/contracts";
 import { analyzeText, type AnalyzeTextOptions } from "../pipeline/analyze-text";
-import { fetchArticleText } from "../article-fetch";
+import { ArticleFetchError, fetchArticleText, type ArticleFetchOptions } from "../article-fetch";
 import { PROPOSAL_MODELS } from "../config/models";
 import { createAiSearchProvider, type AiSearchNamespaceBinding, type AiSearchProvider } from "../providers/ai-search";
 import { OpenRouterClient, type OpenRouterModelProvider } from "../providers/openrouter";
@@ -21,6 +21,7 @@ import type { WorkersAiBinding } from "../providers/workers-ai";
 export interface AnalysisRouteEnv {
   AI: WorkersAiBinding;
   AI_SEARCH: AiSearchNamespaceBinding;
+  BROWSER: BrowserRun;
   OPENROUTER_API_KEY?: string;
 }
 
@@ -30,7 +31,7 @@ export interface AnalysisRouteDependencies {
   openRouter?: OpenRouterModelProvider;
   now?: () => number;
   analyze?: typeof analyzeText;
-  fetchArticle?: (url: string, options: { signal: AbortSignal }) => Promise<string>;
+  fetchArticle?: (url: string, options: ArticleFetchOptions) => Promise<string>;
 }
 
 export const analysisRoutes = createAnalysisRoutes();
@@ -56,7 +57,7 @@ export function createAnalysisRoutes(dependencies?: AnalysisRouteDependencies): 
       ai: env.AI,
       search: createAiSearchProvider({ binding: env.AI_SEARCH }),
       openRouter: new OpenRouterClient({ env }),
-      fetchArticle: (url, options) => fetchArticleText(url, options),
+      fetchArticle: (url, options) => fetchArticleText(url, { ...options, browser: env.BROWSER }),
     };
     const now = resolved.now ?? Date.now;
     const runAnalysis = resolved.analyze ?? analyzeText;
@@ -101,14 +102,18 @@ export function createAnalysisRoutes(dependencies?: AnalysisRouteDependencies): 
           try {
             text = await (resolved.fetchArticle ?? ((url, options) => fetchArticleText(url, options)))(input.url, { signal: controller.signal });
           } catch (error) {
-            const message = error instanceof Error ? error.message : "No fue posible leer el artículo.";
+            const articleError = error instanceof ArticleFetchError
+              ? error
+              : new ArticleFetchError("No fue posible leer el artículo.", "transport");
+            const message = articleError.message;
+            const diagnostic = `url-extraction:${articleError.diagnosticCategory}`;
             await write("analysis.completed", {
               analysisId,
               status: "failed",
               claims: [],
               limitations: [message],
               traceEventIds: [],
-            }, { degradations: [message] });
+            }, { degradations: [message, diagnostic] });
             return;
           }
         }

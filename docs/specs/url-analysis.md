@@ -6,11 +6,11 @@
 
 ## Recuperación segura
 
-El Worker valida cada destino antes de recuperarlo y también valida los destinos de redirección. Rechaza localhost, metadatos, dominios locales, IP privadas, loopback, link-local, multicast y rangos reservados. La respuesta debe ser HTML o texto, no puede superar 1 MB y la recuperación expira en 8 segundos. El cuerpo se lee por fragmentos para no aceptar respuestas ilimitadas.
+El Worker valida cada destino antes de recuperarlo y también valida los destinos de redirección observados durante la prevalidación. Rechaza localhost, metadatos, dominios locales, IP privadas, loopback, link-local, multicast y rangos reservados. La respuesta debe ser HTML o texto, no puede superar 1 MB y la recuperación expira en 8 segundos. El cuerpo se lee por fragmentos para no aceptar respuestas ilimitadas. Un destino seguro que rechaza la recuperación directa puede pasar al binding `BROWSER` de Cloudflare Browser Run mediante `quickAction("content", ...)`; `remote: true` permite esa acción durante el desarrollo local. El binding no sustituye la validación SSRF ni los límites de tamaño.
 
 ## Texto legible y degradación
 
-El extractor personalizado conserva el contenido de `article` o `main` cuando existe, elimina scripts, estilos, navegación, formularios y bloques de plantilla, decodifica entidades y normaliza espacios. Si la recuperación o extracción falla, el flujo termina con `analysis.completed` fallido y una limitación honesta; nunca inventa aseveraciones ni un veredicto.
+El extractor personalizado conserva el contenido de `article` o `main` cuando existe, elimina scripts, estilos, navegación, formularios y bloques de plantilla, decodifica entidades y normaliza espacios. Browser Run permite extraer HTML después de renderizar páginas dinámicas o protegidas contra solicitudes directas. Si la recuperación o extracción falla, el flujo termina con `analysis.completed` fallido y una limitación honesta; `degradations` incluye una categoría segura `url-extraction:*` para diagnóstico. Nunca inventa aseveraciones ni un veredicto. Las categorías no incluyen mensajes ni contenido devuelto por la fuente.
 
 ## Flujo editorial
 
