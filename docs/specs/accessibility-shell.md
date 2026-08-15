@@ -85,18 +85,20 @@ All interactive elements must be reachable and actionable using standard keyboar
    - Form inputs must be unambiguously associated with their labels.
    - Icon-only or link buttons must include explicit action descriptions in Spanish.
 
-## Contrast Targets (WCAG 2.1 AA)
+## Visual Identity and Contrast Targets (WCAG 2.1 AA)
+
+The shell uses a restrained light editorial palette: an off-white canvas (`#f6f8fb`), white work surfaces, slate body text, and deep blue action and provenance cues. Evidence, audit/provenance, progress, and the human decision boundary use distinct top edges, descriptive labels, and spacing rather than decorative density. This follows the visual-design source's hierarchy, whitespace, high-contrast, descriptive-link, and simple-cue guidance.
 
 All visual elements must adhere to WCAG AA color contrast thresholds:
 
 1. **Normal Text (< 18pt regular or < 14pt bold)**: Minimum contrast ratio of **4.5:1** against adjacent background.
-   - Primary text (`#f8fafc` on `#0b0f19`): > 15:1 (PASS).
-   - Secondary text (`#94a3b8` on `#111827`): ~7.4:1 (PASS).
-   - Muted text (`--text-muted`): Set to `#94a3b8` or `#8899ac` ensuring at least 4.5:1 for body readability.
+    - Primary text (`#172033` on `#ffffff`): > 15:1 (PASS).
+    - Secondary text (`#475569` on `#ffffff`): > 7:1 (PASS).
+    - Muted text (`#526477` on `#ffffff`): > 5:1 (PASS).
 2. **Large Text (>= 18pt or >= 14pt bold) & UI Components / Indicators**: Minimum contrast ratio of **3.0:1**.
-   - Focus ring (`#38bdf8`): > 7:1 (PASS).
-   - Accent badges (Emerald `#34d399`, Amber `#fbbf24`, Indigo `#a5b4fc`, Rose `#fb7185`): all > 4.5:1 on their respective dark pill backgrounds.
-   - Input borders and card boundaries: `--border-strong` (`rgba(255,255,255,0.16)`) and `--border-focus` (`#38bdf8`).
+    - Focus ring and primary action (`#075985`): > 7:1 against white (PASS).
+    - State text uses dark semantic accents (Emerald `#047857`, Amber `#92400e`, Indigo `#3730a3`, Rose `#be123c`) on their pale state surfaces.
+    - Input borders and card boundaries use `--border-strong` (`#9aaabd`) and the deep-blue `--border-focus` (`#075985`).
 
 ## Responsive Viewport Expectations
 
