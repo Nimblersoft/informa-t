@@ -1,0 +1,5 @@
+Prompt ID: multimodel-fixtures.c1.decomposition.v1
+Return only a JSON object. Decompose this externally checkable claim into atomic checks and identify the primary-source fields needed for each check. Do not assign an editorial category, do not mention third-party fact-check results, and do not provide private reasoning.
+Claim: El Banco del Pacifico fue el mas rentable en 2024 con USD 173 millones de utilidad.
+Primary source: https://www.superbancos.gob.ec/estadisticas/portalestudios/balances-generales/
+JSON shape: {"claim":"string","checks":[{"question":"string","requiredSourceFields":["string"]}],"limitations":["string"]}

@@ -1,0 +1,5 @@
+Prompt ID: multimodel-fixtures.a3.decomposition.v1
+Return only a JSON object. Decompose this externally checkable claim into atomic checks and identify the primary-source fields needed for each check. Do not assign an editorial category, do not mention third-party fact-check results, and do not provide private reasoning.
+Claim: Las ventas en septiembre subieron 14% y en octubre 8,4%, pese al paro.
+Primary source: https://www.sri.gob.ec/detalle-noticias?idnoticia=1220&marquesina=1
+JSON shape: {"claim":"string","checks":[{"question":"string","requiredSourceFields":["string"]}],"limitations":["string"]}

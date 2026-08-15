@@ -1,0 +1,5 @@
+Prompt ID: multimodel-fixtures.a1.gemini.v1
+Return only a JSON object containing a non-binding evidence-review proposal. Do not assign an editorial category, state an expected outcome, cite third-party fact-checking, request or reveal private reasoning, credentials, or personal data.
+Claim: Hemos bajado la pobreza al mejor punto desde 2018, con 24 puntos.
+Primary source: https://www.ecuadorencifras.gob.ec/pobreza-por-ingresos-resultados-2025/
+JSON shape: {"reviewFocus":"string","supportingEvidence":["string"],"contraryEvidence":["string"],"rationale":"string","uncertainty":"string","limitations":["string"]}

@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://informa-t.nimblersoft.com/schemas/multimodel-fixture-case.v1.json",
+  "title": "Multimodel fixture case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "fixtureVersion",
+    "caseId",
+    "fecha",
+    "herramienta",
+    "modelo",
+    "promptId",
+    "proposalContentSha256",
+    "decomposition",
+    "proposals",
+    "traza"
+  ],
+  "properties": {
+    "fixtureVersion": { "const": "multimodel-fixture.v1" },
+    "caseId": { "enum": ["a1", "a2", "a3", "b1", "c1"] },
+    "fecha": { "type": "string", "format": "date-time" },
+    "herramienta": { "const": "multimodel" },
+    "modelo": { "type": "string", "minLength": 1 },
+    "promptId": { "const": "multimodel-fixtures.v1" },
+    "proposalContentSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "decomposition": { "$ref": "#/$defs/capturedOutput" },
+    "proposals": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": { "$ref": "#/$defs/capturedOutput" }
+    },
+    "traza": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schemaVersion", "events"],
+      "properties": {
+        "schemaVersion": { "const": "analysis-trace.v1" },
+        "events": {
+          "type": "array",
+          "minItems": 4,
+          "items": { "$ref": "#/$defs/traceEvent" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "capturedOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "fecha", "herramienta", "modelo", "promptId", "content", "contentSha256"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "fecha": { "type": "string", "format": "date-time" },
+        "herramienta": { "enum": ["kilo", "agy"] },
+        "modelo": { "type": "string", "minLength": 1 },
+        "promptId": { "type": "string", "pattern": "^multimodel-fixtures\\.[a-z0-9]+\\.(decomposition|openai|grok|glm)\\.v1$" },
+        "content": { "type": "object" },
+        "contentSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "operatorOverride": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["replacedModel", "reason", "authority"],
+          "properties": {
+            "replacedModel": { "const": "gemini-3.7-flash-high" },
+            "reason": { "const": "Antigravity backend 503" },
+            "authority": { "const": "operator instruction 2026-08-15 11:48" }
+          }
+        }
+      }
+    },
+    "traceEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "stage", "fecha", "herramienta", "modelo", "promptId", "outputSha256", "status"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "stage": { "enum": ["decomposition", "proposal"] },
+        "fecha": { "type": "string", "format": "date-time" },
+        "herramienta": { "enum": ["kilo", "agy"] },
+        "modelo": { "type": "string", "minLength": 1 },
+        "promptId": { "type": "string", "minLength": 1 },
+        "outputSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "status": { "const": "captured" }
+      }
+    }
+  }
+}

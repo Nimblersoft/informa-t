@@ -1,0 +1,5 @@
+Prompt ID: multimodel-fixtures.c1.glm.v1
+Return only a JSON object containing a non-binding evidence-review proposal. Do not assign an editorial category, state an expected outcome, cite third-party fact-checking, request or reveal private reasoning, credentials, or personal data.
+Claim: El Banco del Pacifico fue el mas rentable en 2024 con USD 173 millones de utilidad.
+Primary source: https://www.superbancos.gob.ec/estadisticas/portalestudios/balances-generales/
+JSON shape: {"reviewFocus":"string","supportingEvidence":["string"],"contraryEvidence":["string"],"rationale":"string","uncertainty":"string","limitations":["string"]}

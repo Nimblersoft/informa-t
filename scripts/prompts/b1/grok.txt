@@ -1,0 +1,5 @@
+Prompt ID: multimodel-fixtures.b1.grok.v1
+Return only a JSON object containing a non-binding evidence-review proposal. Do not assign an editorial category, state an expected outcome, cite third-party fact-checking, request or reveal private reasoning, credentials, or personal data.
+Claim: La pobreza en diciembre de 2017 era 21,5%; ahora estamos en 21,4%.
+Primary source: https://www.ecuadorencifras.gob.ec/pobreza-por-ingresos/
+JSON shape: {"reviewFocus":"string","supportingEvidence":["string"],"contraryEvidence":["string"],"rationale":"string","uncertainty":"string","limitations":["string"]}

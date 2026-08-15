@@ -1,0 +1,5 @@
+Prompt ID: multimodel-fixtures.a3.glm.v1
+Return only a JSON object containing a non-binding evidence-review proposal. Do not assign an editorial category, state an expected outcome, cite third-party fact-checking, request or reveal private reasoning, credentials, or personal data.
+Claim: Las ventas en septiembre subieron 14% y en octubre 8,4%, pese al paro.
+Primary source: https://www.sri.gob.ec/detalle-noticias?idnoticia=1220&marquesina=1
+JSON shape: {"reviewFocus":"string","supportingEvidence":["string"],"contraryEvidence":["string"],"rationale":"string","uncertainty":"string","limitations":["string"]}

@@ -1,0 +1,5 @@
+Prompt ID: multimodel-fixtures.b1.decomposition.v1
+Return only a JSON object. Decompose this externally checkable claim into atomic checks and identify the primary-source fields needed for each check. Do not assign an editorial category, do not mention third-party fact-check results, and do not provide private reasoning.
+Claim: La pobreza en diciembre de 2017 era 21,5%; ahora estamos en 21,4%.
+Primary source: https://www.ecuadorencifras.gob.ec/pobreza-por-ingresos/
+JSON shape: {"claim":"string","checks":[{"question":"string","requiredSourceFields":["string"]}],"limitations":["string"]}

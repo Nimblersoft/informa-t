@@ -1,0 +1,5 @@
+Prompt ID: multimodel-fixtures.a2.openai.v1
+Return only a JSON object containing a non-binding evidence-review proposal. Do not assign an editorial category, state an expected outcome, cite third-party fact-checking, request or reveal private reasoning, credentials, or personal data.
+Claim: En 2025, nueve de cada diez muertes violentas corresponden a personas con antecedentes penales.
+Primary source: https://cifras.ministeriodelinterior.gob.ec/#/app/estadisticas-seguridad-homicidios
+JSON shape: {"reviewFocus":"string","supportingEvidence":["string"],"contraryEvidence":["string"],"rationale":"string","uncertainty":"string","limitations":["string"]}
