@@ -103,6 +103,25 @@ describe("URL analysis input and extraction", () => {
     expect(browser.quickAction).toHaveBeenCalledWith("content", expect.objectContaining({ url: "https://example.com/protected" }));
   });
 
+  it("rejects rendered error pages and boilerplate-only pages before claim analysis", async () => {
+    const notFoundFetch: typeof fetch = vi.fn(async () => new Response("<html><body><nav>Inicio</nav><main>404 - Page not found</main><footer>Licencia CC BY</footer></body></html>", { headers: { "content-type": "text/html" } }));
+    await expect(fetchArticleText("https://example.com/missing", { fetchImpl: notFoundFetch, resolveHostname: async () => ["93.184.216.34"] }))
+      .rejects.toMatchObject({ diagnosticCategory: "not_article" });
+
+    const boilerplateFetch: typeof fetch = vi.fn(async () => new Response("<html><nav>Menú Inicio Buscar</nav><footer>Licencia CC BY 4.0 · Todos los derechos reservados</footer></html>", { headers: { "content-type": "text/html" } }));
+    await expect(fetchArticleText("https://example.com/template", { fetchImpl: boilerplateFetch, resolveHostname: async () => ["93.184.216.34"] }))
+      .rejects.toMatchObject({ diagnosticCategory: "not_article" });
+  });
+
+  it("rejects Browser Run output that is a rendered not-found page", async () => {
+    const browser = {
+      quickAction: vi.fn(async () => new Response(JSON.stringify({ success: true, result: "<html><main>Página no encontrada</main></html>" }), { headers: { "content-type": "application/json" } })),
+    };
+    const rejected: typeof fetch = vi.fn(async () => new Response("blocked", { status: 403 }));
+    await expect(fetchArticleText("https://example.com/protected", { fetchImpl: rejected, browser, resolveHostname: async () => ["93.184.216.34"] }))
+      .rejects.toMatchObject({ diagnosticCategory: "not_article" });
+  });
+
   it("never sends an unsafe redirect to Browser Run", async () => {
     const browser = { quickAction: vi.fn() };
     const fetchImpl: typeof fetch = vi.fn(async () => new Response(null, { status: 302, headers: { location: "http://127.0.0.1/admin" } }));
@@ -178,7 +197,7 @@ describe("URL analysis input and extraction", () => {
     const resultPromise = analyzeText({ text, ai: hung, search });
     await vi.advanceTimersByTimeAsync(EXTRACTION_ATTEMPT_TIMEOUT_MS);
     const result = await resultPromise;
-    expect(result.status).toBe("completed");
+    expect(result.status).toBe("partial");
     expect(extractionCalls).toBe(2);
     expect(hung.run).toHaveBeenCalledWith("@cf/zai-org/glm-4.7-flash", expect.anything(), expect.anything());
     expect(EXTRACTION_TIMEOUT_MS).toBe(45_000);

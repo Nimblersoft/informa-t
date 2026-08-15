@@ -10,7 +10,7 @@ El Worker valida cada destino antes de recuperarlo y también valida los destino
 
 ## Texto legible y degradación
 
-El extractor personalizado conserva el contenido de `article` o `main` cuando existe, elimina scripts, estilos, navegación, formularios y bloques de plantilla, decodifica entidades y normaliza espacios. Browser Run permite extraer HTML después de renderizar páginas dinámicas o protegidas contra solicitudes directas. Si la recuperación o extracción falla, el flujo termina con `analysis.completed` fallido y una limitación honesta; `degradations` incluye una categoría segura `url-extraction:*` para diagnóstico. Nunca inventa aseveraciones ni un veredicto. Las categorías no incluyen mensajes ni contenido devuelto por la fuente.
+El extractor personalizado conserva el contenido de `article` o `main` cuando existe, elimina scripts, estilos, navegación, formularios y bloques de plantilla, decodifica entidades y normaliza espacios. Browser Run permite extraer HTML después de renderizar páginas dinámicas o protegidas contra solicitudes directas. El servidor rechaza páginas no encontradas, plantillas, navegación o licencias sin contenido sustantivo con `url-extraction:not_article`; no pasan al motor de aseveraciones. Si la recuperación o extracción falla, el flujo termina con `analysis.completed` fallido y una limitación honesta; `degradations` incluye una categoría segura `url-extraction:*` para diagnóstico. Nunca inventa aseveraciones ni un veredicto. Las categorías no incluyen mensajes ni contenido devuelto por la fuente.
 
 ## Flujo editorial
 

@@ -254,6 +254,8 @@ export class AiSearchProvider {
         limitations.push(
           `Fragmento [${index}] descartado por metadatos incompletos. Campos faltantes requeridos: ${missingKeys.join(", ")}.`,
         );
+      } else if (!isRelevantEvidence(params.query, candidate)) {
+        limitations.push(`Fragmento [${index}] descartado por relevancia insuficiente para la aseveración.`);
       } else {
         const excerptItem: EvidenceExcerpt = {
           id: candidate.id as string,
@@ -345,6 +347,34 @@ export class AiSearchProvider {
       details: JSON.stringify(redacted),
     };
   }
+}
+
+function isRelevantEvidence(query: string, candidate: Record<string, unknown>): boolean {
+  const queryTerms = [...meaningfulTerms(query)];
+  const metadataTerms = meaningfulTerms([
+    candidate.institution,
+    candidate.collection,
+    candidate.title,
+  ].filter((value): value is string => typeof value === "string").join(" "));
+  const evidenceTerms = meaningfulTerms([
+    candidate.institution,
+    candidate.collection,
+    candidate.title,
+    candidate.excerpt,
+  ].filter((value): value is string => typeof value === "string").join(" "));
+  if (queryTerms.length === 0) return false;
+  if (queryTerms.some((term) => term.length >= 7 && metadataTerms.has(term))) return true;
+  const overlap = queryTerms.filter((term) => evidenceTerms.has(term)).length;
+  const minimumOverlap = queryTerms.length < 3 ? queryTerms.length : 2;
+  return overlap >= minimumOverlap && (queryTerms.length < 4 || overlap / queryTerms.length >= 0.25);
+}
+
+function meaningfulTerms(value: string): Set<string> {
+  const stopWords = new Set([
+    "para", "como", "desde", "entre", "sobre", "este", "esta", "estos", "estas", "que", "por", "con", "una", "uno", "unos", "unas", "del", "los", "las", "el", "la", "en", "de", "y", "o", "al", "se", "su", "sus", "fue", "son", "ser", "durante",
+  ]);
+  const normalized = value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  return new Set((normalized.match(/[a-z0-9]{3,}/g) ?? []).filter((term) => !stopWords.has(term)));
 }
 
 export function createAiSearchProvider(options: AiSearchProviderOptions): AiSearchProvider {

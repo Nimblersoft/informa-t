@@ -54,10 +54,17 @@ export const LiveAnalysisPanel: React.FC<LiveAnalysisPanelProps> = ({ onNavigate
   const completedEvents = events.filter((event) => event.type === "analysis.completed");
   const completion = completedEvents.at(-1) as Extract<AnalysisEvent, { type: "analysis.completed" }> | undefined;
   const extracted = latestClaims(events);
-  const claims = extracted?.claims ?? completion?.data.claims.map((claim) => claim.claim) ?? [];
+  const claims = (extracted?.claims ?? completion?.data.claims.map((claim) => claim.claim) ?? []).filter((claim) => claim.location !== undefined);
   const evidence = events.filter((event): event is Extract<AnalysisEvent, { type: "evidence.retrieved" }> => event.type === "evidence.retrieved");
   const proposals = events.filter((event): event is Extract<AnalysisEvent, { type: "model.completed" | "model.failed" }> => event.type === "model.completed" || event.type === "model.failed");
   const consensus = events.filter((event): event is Extract<AnalysisEvent, { type: "consensus.completed" }> => event.type === "consensus.completed");
+  const hasGroundedEvidence = completion?.data.claims.some((item) => !item.claim.excluded && item.evidence.length > 0) ?? false;
+  const effectiveStatus = status === "completed" && !hasGroundedEvidence ? "partial" : status;
+  const limitations = completion?.data.limitations.length
+    ? completion.data.limitations
+    : status === "completed" && !hasGroundedEvidence
+      ? ["No se puede marcar el análisis como completo porque no quedó evidencia oficial relevante."]
+      : [];
 
   return (
     <section className="live-analysis-panel" data-testid="live-analysis-panel" aria-labelledby="live-analysis-title">
@@ -95,12 +102,13 @@ export const LiveAnalysisPanel: React.FC<LiveAnalysisPanelProps> = ({ onNavigate
       {error && <p className="analysis-error" role="alert">{error}</p>}
       {status !== "idle" && (
         <div className="analysis-progress" data-testid="analysis-progress" aria-live="polite">
-          <p className="analysis-status">Estado: {status === "running" ? "analizando" : status === "partial" ? "parcial" : status === "completed" ? "completo" : "fallido"}</p>
+          <p className="analysis-status">Estado: {effectiveStatus === "running" ? "analizando" : effectiveStatus === "partial" ? "parcial" : effectiveStatus === "completed" ? "completo" : "fallido"}</p>
           <ol className="analysis-stage-list">
             {STAGES.map((item) => <li key={item.id} className={stage === item.id ? "active" : stage && STAGES.findIndex((stageItem) => stageItem.id === stage) > STAGES.findIndex((stageItem) => stageItem.id === item.id) ? "complete" : ""} data-testid={`analysis-stage-${item.id}`}>{item.label}</li>)}
           </ol>
         </div>
       )}
+      {limitations.length > 0 && <section className="analysis-limitations" data-testid="analysis-limitations" aria-label="Limitaciones del análisis"><h3>Limitaciones</h3><ul>{limitations.map((limitation, index) => <li key={`${limitation}-${index}`}>{limitation}</li>)}</ul></section>}
       {claims.length > 0 && <section className="analysis-results" aria-label="Aseveraciones extraídas"><h3>Aseveraciones extraídas</h3>{claims.map((claim, index) => <article key={`${claim.location?.start ?? claim.verbatimText}-${index}`} className="analysis-result-card"><p>{claim.verbatimText}</p>{claim.rationale && <p>{claim.rationale}</p>}<span>{claim.excluded ? "Excluida de propuestas" : "Lista para contraste"}</span></article>)}</section>}
       {evidence.length > 0 && <section className="analysis-results" aria-label="Evidencia recuperada"><h3>Evidencia recuperada</h3>{evidence.flatMap((event) => event.data.excerpts.map((excerpt) => <article key={excerpt.id} className="analysis-result-card"><a href={excerpt.sourceUrl} target="_blank" rel="noreferrer">{excerpt.title}</a><p>{excerpt.excerpt}</p><button type="button" className="btn-link-log" onClick={() => event.data.traceEventId && onNavigateToLog?.(event.data.traceEventId)}>Ver traza: {event.data.traceEventId ?? "no disponible"}</button></article>))}</section>}
       {proposals.length > 0 && <section className="analysis-results" aria-label="Propuestas no vinculantes"><h3>Propuestas no vinculantes</h3>{proposals.map((event, index) => <article key={`${event.id || event.type}-${index}`} className="analysis-result-card"><strong>{event.data.proposal.model}</strong><span>Proveedor: {event.data.proposal.provenance.provider} · {event.type === "model.failed" ? "No disponible" : "Disponible"}</span><p>{event.data.proposal.proposal?.reviewFocus ?? event.data.proposal.limitation}</p><button type="button" className="btn-link-log" onClick={() => onNavigateToLog?.(event.data.traceEventId)}>Ver traza: {event.data.traceEventId}</button></article>)}</section>}

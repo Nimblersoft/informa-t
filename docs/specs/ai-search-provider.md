@@ -132,6 +132,9 @@ export interface EvidenceExcerpt {
 ### 5.1. Strict Provenance Integrity
 Every field in `EvidenceExcerpt` must originate directly from the indexed document content and verified metadata. The provider must **never** synthesize, hallucinate, or extrapolate missing metadata.
 
+### 5.2. Conservative Relevance Admission
+After provenance validation, a fragment must share meaningful terms with the claim query across its official institution, collection, title, or excerpt. Stop words and presentation boilerplate do not count; a high-signal topical term in official collection/title metadata may admit a claim with additional numeric or contextual wording, while otherwise longer queries require at least two terms plus a minimum overlap ratio. Unrelated official fragments are discarded with a Spanish limitation. If no relevant fragment remains, the provider returns `Evidencia insuficiente` and an empty excerpt list.
+
 ---
 
 ## 6. Honest Insufficient Evidence & Non-Verdict Policy

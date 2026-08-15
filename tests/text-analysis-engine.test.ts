@@ -110,13 +110,13 @@ describe("text analysis engine", () => {
     expect(result.claims[0].claim.entities).toBeUndefined();
   });
 
-  it("omits location when the model paraphrases the source", async () => {
+  it("discards model paraphrases that are not grounded in the source", async () => {
     const extracted = { schemaVersion: "claim-extraction.v3" as const, claims: [{ verbatim: "El INEC informó una variación.", rationale: "El encuadre requiere contraste.", excluded: false }] };
     const ai = new FakeAi((_model, input) => isExtraction(input) ? extracted : proposal());
     const result = await analyzeText({ text, ai, search: fakeSearch() });
 
-    expect(result.claims[0].claim.location).toBeUndefined();
-    expect(result.claims[0].claim.normalizedText).toBe("El INEC informó una variación.");
+    expect(result.claims).toEqual([]);
+    expect(result.limitations.join(" ")).toContain("no aparecen literalmente");
   });
 
   it("repairs exactly one invalid JSON response", async () => {
@@ -178,5 +178,18 @@ describe("text analysis engine", () => {
     expect(result.status).toBe("invalid");
     expect(result.limitations).toEqual(["El texto debe tener entre 20 y 20.000 caracteres para analizarlo."]);
     expect(ai.inputs).toEqual([]);
+  });
+
+  it("does not complete when every grounded claim is excluded", async () => {
+    const excludedExtraction: ClaimExtractionV3 = {
+      schemaVersion: "claim-extraction.v3",
+      claims: [{ ...claim(), excluded: true, exclusionReason: "opinión" }],
+    };
+    const ai = new FakeAi((_model, input) => isExtraction(input) ? excludedExtraction : proposal());
+    const result = await analyzeText({ text, ai, search: fakeSearch() });
+
+    expect(result.status).toBe("partial");
+    expect(result.claims[0].claim.excluded).toBe(true);
+    expect(result.limitations.join(" ")).toContain("Todas las aseveraciones");
   });
 });

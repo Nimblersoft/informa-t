@@ -145,8 +145,21 @@ export async function analyzeText(options: AnalyzeTextOptions): Promise<TextAnal
       return buildResult("partial", [], limitations, traceEvents, now() - startedAt);
     }
 
-    const extractedClaims = extraction.value.claims.slice(0, 3).map((claim) => deriveExtractedClaim(claim, options.text));
-    if (extraction.value.claims.length > extractedClaims.length) {
+    const candidateClaims = extraction.value.claims.slice(0, 3);
+    const extractedClaims = candidateClaims
+      .map((claim) => deriveExtractedClaim(claim, options.text))
+      .filter((claim): claim is ExtractedClaim => claim !== undefined);
+    if (extraction.value.claims.length > 0 && extractedClaims.length === 0) {
+      limitations.push("Se descartaron las aseveraciones que no aparecen literalmente en el texto fuente recuperado.");
+    } else if (candidateClaims.length > extractedClaims.length) {
+      limitations.push("Se descartaron aseveraciones que no aparecen literalmente en el texto fuente recuperado.");
+    }
+    if (extractedClaims.length === 0) {
+      limitations.push("No se recuperó ninguna aseveración utilizable para revisión editorial.");
+    } else if (extractedClaims.every((claim) => claim.excluded)) {
+      limitations.push("Todas las aseveraciones recuperadas fueron excluidas de propuestas; la revisión queda incompleta.");
+    }
+    if (extraction.value.claims.length > candidateClaims.length) {
       const limitation = "El modelo propuso más de 3 aseveraciones; se conservaron solo las primeras 3 como límite del prototipo.";
       extractionDegradations.push(limitation);
       limitations.push(limitation);
@@ -220,15 +233,40 @@ async function analyzeClaim(claim: ExtractedClaim, extractionProvenance: ModelPr
   }
 
   const evidenceResult = await options.search.searchEvidence({ query: claim.normalizedText });
-  const updatedClaim: ExtractedClaim = { ...claim, sourceAvailability: evidenceResult.outcome === "Evidencia encontrada" ? "disponible" : "insuficiente" };
+  const hasRelevantEvidence = evidenceResult.outcome === "Evidencia encontrada" && evidenceResult.excerpts.length > 0;
+  const updatedClaim: ExtractedClaim = { ...claim, sourceAvailability: hasRelevantEvidence ? "disponible" : "insuficiente" };
   traceEvents.push(...evidenceResult.traceEvents);
   limitations.push(...evidenceResult.limitations);
+  if (!hasRelevantEvidence) {
+    limitations.push("No se recuperó evidencia oficial relevante para esta aseveración; la revisión queda incompleta.");
+  }
   await options.onProgress?.({
     type: "evidence.retrieved",
     claim: updatedClaim,
     excerpts: evidenceResult.excerpts,
     traceEventId: evidenceResult.traceEvents[0]?.id,
   });
+
+  if (!hasRelevantEvidence) {
+    const proposals = PROPOSAL_MODELS.map((model) => ({
+      model,
+      provenance: { provider: "workers-ai", modelId: model },
+      status: "failed" as const,
+      limitation: "No se generó una propuesta porque no se recuperó evidencia oficial relevante.",
+      retries: 0,
+    })) as AnalyzedClaim["proposals"];
+    for (const proposal of proposals) {
+      const proposalTrace = await createTrace("Análisis", "Propuesta de modelo", "No se generó una propuesta porque no se recuperó evidencia oficial relevante.", "Fallido", {
+        model: proposal.model,
+        provider: proposal.provenance.provider,
+        modelId: proposal.provenance.modelId,
+        status: proposal.status,
+      });
+      traceEvents.push(proposalTrace);
+      await options.onProgress?.({ type: "model.failed", claimIndex, proposal, traceEventId: proposalTrace.id });
+    }
+    return { analyzed: { claim: updatedClaim, provenance: extractionProvenance, evidence: [], proposals, consensus: null }, limitations, traceEvents };
+  }
 
   const input = createProposalInput(updatedClaim, evidenceResult.excerpts);
   const settled = await Promise.allSettled(PROPOSAL_MODELS.map((model) => runProposal(model, input, options, signal)));
@@ -357,12 +395,13 @@ async function runExtractionModel(options: AnalyzeTextOptions, signal: AbortSign
   });
 }
 
-function deriveExtractedClaim(claim: ClaimExtractionV3Claim, sourceText: string): ExtractedClaim {
+function deriveExtractedClaim(claim: ClaimExtractionV3Claim, sourceText: string): ExtractedClaim | undefined {
   const start = sourceText.indexOf(claim.verbatim);
+  if (start < 0) return undefined;
   return {
     verbatimText: claim.verbatim,
     normalizedText: claim.verbatim.trim().replace(/\s+/g, " "),
-    ...(start >= 0 ? { location: { start, end: start + claim.verbatim.length } } : {}),
+    location: { start, end: start + claim.verbatim.length },
     dates: [],
     verifiable: !claim.excluded,
     electorallyRelevant: true,

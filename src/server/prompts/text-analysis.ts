@@ -42,7 +42,7 @@ export function createClaimExtractionInput(text: string): Record<string, unknown
     messages: [
       {
         role: "system",
-        content: `Extrae hasta tres aseveraciones atómicas verificables del texto. ${CLAIM_SCHEMA_SPEC}`,
+        content: `Extrae hasta tres aseveraciones atómicas verificables únicamente del texto fuente. No uses navegación, encabezados, pies de página, cookies, licencias, menús, plantillas ni páginas de error como aseveraciones. ${CLAIM_SCHEMA_SPEC}`,
       },
       { role: "user", content: extractionText },
     ],
@@ -53,9 +53,9 @@ export function createClaimExtractionInput(text: string): Record<string, unknown
 export function createClaimRepairInput(invalidResponse: string): Record<string, unknown> {
   return {
     messages: [
-      {
-       role: "user",
-        content: `La siguiente respuesta no cumple el esquema claim-extraction.v3. Reinténtala cumpliéndolo exactamente. ${CLAIM_SCHEMA_SPEC}\n\nRespuesta inválida:\n${invalidResponse}`,
+       {
+        role: "user",
+        content: `La siguiente respuesta no cumple el esquema claim-extraction.v3. Reinténtala cumpliéndolo exactamente y conserva solo fragmentos literales del texto fuente. ${CLAIM_SCHEMA_SPEC}\n\nRespuesta inválida:\n${invalidResponse}`,
       },
     ],
     response_format: { type: "json_object" },
@@ -65,9 +65,9 @@ export function createClaimRepairInput(invalidResponse: string): Record<string, 
 export function createProposalInput(claim: ExtractedClaim, evidence: EvidenceExcerpt[]): Record<string, unknown> {
   return {
     messages: [
-      {
+       {
         role: "system",
-        content: `Produce una propuesta no vinculante para revisión humana. ${PROPOSAL_SCHEMA_SPEC}`,
+        content: `Produce una propuesta no vinculante para revisión humana. Si no hay evidencia oficial relevante, informa evidencia limitada y no inventes relación. ${PROPOSAL_SCHEMA_SPEC}`,
       },
       { role: "user", content: JSON.stringify({ claim, evidence }) },
     ],

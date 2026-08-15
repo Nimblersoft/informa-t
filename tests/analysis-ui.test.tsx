@@ -35,6 +35,7 @@ describe("LiveAnalysisPanel", () => {
     fireEvent.change(screen.getByTestId("analysis-text-input"), { target: { value: "Texto suficientemente largo para activar el análisis progresivo." } });
     fireEvent.click(screen.getByTestId("analysis-submit"));
     await waitFor(() => expect(screen.getByTestId("analysis-stage-models")).toBeTruthy());
+    expect(screen.getByText("Estado: parcial")).toBeTruthy();
     expect(screen.getByText("Fuente primaria")).toBeTruthy();
     expect(screen.getByText("El registro oficial permite contrastar la afirmación.")).toBeTruthy();
     expect(screen.getByText((_, element) => element?.tagName === "SPAN" && element.textContent?.includes("Proveedor: openrouter") === true)).toBeTruthy();

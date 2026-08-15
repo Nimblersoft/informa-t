@@ -6,10 +6,12 @@ El motor local recibe texto de 20 a 20.000 caracteres, limita la entrada enviada
 
 ## Contratos
 
-- Cada aseveración conserva texto literal, texto normalizado derivado localmente, ubicación de inicio y fin cuando el fragmento aparece literalmente, fechas, verificabilidad, relevancia electoral, disponibilidad de fuentes y una razón breve de encuadre. Las entidades son opcionales y se omiten si no existe un extractor local seguro.
+- Cada aseveración conserva texto literal, texto normalizado derivado localmente, ubicación de inicio y fin cuando el fragmento aparece literalmente, fechas, verificabilidad, relevancia electoral, disponibilidad de fuentes y una razón breve de encuadre. Las entidades son opcionales y se omiten si no existe un extractor local seguro. Las aseveraciones que no aparecen literalmente en el texto fuente se descartan antes de mostrarse.
 - Una aseveración excluida requiere uno de: `opinión`, `predicción`, `retórica` o `ambigüedad`.
 - Las propuestas de GLM, Gemma y Nemotron reciben el mismo objeto de aseveración, evidencia y esquema `proposal.v1`; su única salida es un foco de revisión no vinculante.
 - La evidencia se obtiene mediante `AiSearchProvider`; ausencia o metadatos incompletos conservan `Evidencia insuficiente`.
+- Una aseveración sin evidencia oficial relevante no genera propuestas y conserva `sourceAvailability: "insuficiente"`; el resultado no puede ser `completed`.
+- Si todas las aseveraciones están excluidas o no queda ninguna aseveración literal utilizable, el resultado es `partial` con una limitación visible en español.
 - El límite de tres aseveraciones es una restricción deliberada del prototipo; si un modelo devuelve más, el motor trunca la salida y registra una degradación honesta.
 
 ## Resiliencia y trazabilidad

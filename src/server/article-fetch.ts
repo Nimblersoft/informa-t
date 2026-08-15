@@ -13,7 +13,8 @@ export type ArticleFetchDiagnosticCategory =
   | "content_type"
   | "size_limit"
   | "empty"
-  | "browser_unavailable";
+  | "browser_unavailable"
+  | "not_article";
 
 export class ArticleFetchError extends Error {
   constructor(message: string, readonly diagnosticCategory: ArticleFetchDiagnosticCategory) {
@@ -86,9 +87,13 @@ export async function fetchArticleText(url: string, options: ArticleFetchOptions
       const contentType = response.headers.get("content-type")?.toLowerCase() ?? "";
       const text = contentType.includes("html") ? extractReadableText(body) : decodeEntities(body).trim();
       if (text.length === 0) {
+        if (contentType.includes("html") && !/<(article|main)\b/i.test(body)) {
+          throw new ArticleFetchError("La página no contiene texto de artículo verificable; solo se recuperó navegación, plantilla o licencia.", "not_article");
+        }
         if (options.browser) return fetchRenderedArticle(current.toString(), options.browser, deadline, options.signal);
         throw new ArticleFetchError("No se encontró texto legible en el artículo.", "empty");
       }
+      assertArticleText(text, contentType.includes("html") && /<(article|main)\b/i.test(body));
       return text;
     }
   } catch (error) {
@@ -205,6 +210,7 @@ async function fetchRenderedArticle(url: string, browser: BrowserRunContentBindi
     }
     const text = extractReadableText(payload.result);
     if (text.length === 0) throw new ArticleFetchError("No se encontró texto legible en el artículo renderizado.", "empty");
+    assertArticleText(text, /<(article|main)\b/i.test(payload.result));
     return text;
   } catch (error) {
     if (error instanceof ArticleFetchError) throw error;
@@ -212,6 +218,27 @@ async function fetchRenderedArticle(url: string, browser: BrowserRunContentBindi
     throw new ArticleFetchError("No fue posible extraer el artículo con el navegador renderizado.", "browser_unavailable");
   } finally {
     signal?.removeEventListener("abort", abort);
+  }
+}
+
+function assertArticleText(text: string, hasArticleContainer: boolean): void {
+  const normalized = text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  if (/\b(?:404|error 404|not found|page not found|pagina no encontrada|contenido no encontrado|recurso no encontrado)\b/.test(normalized)) {
+    throw new ArticleFetchError("La página no contiene un artículo verificable; se detectó una página no encontrada o una plantilla de error.", "not_article");
+  }
+
+  const content = normalized
+    .replace(/\b(?:inicio|home|menu|navegacion|navigation|buscar|search|suscrib(?:e|ete|irse)|login|iniciar sesion|contacto|cookies?|politica de privacidad|privacy policy|terminos y condiciones|terms and conditions|licencia|license|todos los derechos reservados|all rights reserved|compartir|share)\b/g, " ")
+    .replace(/\bcc\s+by(?:\s+[-\w.]+)*\b/g, " ")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+  const substantiveWords = content.match(/[a-z]{4,}/g) ?? [];
+  if (substantiveWords.length === 0 || (!hasArticleContainer && substantiveWords.length < 4)) {
+    throw new ArticleFetchError("La página no contiene texto de artículo verificable; solo se recuperó navegación, plantilla o licencia.", "not_article");
   }
 }
 
