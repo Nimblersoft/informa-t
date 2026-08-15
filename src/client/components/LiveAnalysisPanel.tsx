@@ -65,6 +65,15 @@ export const LiveAnalysisPanel: React.FC<LiveAnalysisPanelProps> = ({ onNavigate
         <h2 id="live-analysis-title" className="panel-title">Análisis progresivo</h2>
       <p className="panel-description">Pega una declaración, transcripción o URL de noticia para revisar sus aseveraciones con fuentes oficiales.</p>
       </div>
+      <section className="analysis-orientation" data-testid="analysis-orientation" aria-label="Ruta de lectura editorial">
+        <p className="analysis-orientation-intro">La salida en vivo se lee por capas; cada capa puede quedar pendiente o degradarse sin convertirse en un veredicto.</p>
+        <ul>
+          <li><strong>Evidencia</strong><span>Afirmaciones y fuentes primarias recuperadas.</span></li>
+          <li><strong>Estado de modelos</strong><span>Propuestas disponibles o no disponibles.</span></li>
+          <li><strong>Trazabilidad</strong><span>Eventos, versiones y degradaciones observables.</span></li>
+          <li><strong>Decisión humana</strong><span>La publicación queda en manos editoriales.</span></li>
+        </ul>
+      </section>
       <label className="form-label" htmlFor="analysis-text-input">Pegar texto o URL de noticia</label>
       <textarea
         id="analysis-text-input"

@@ -13,9 +13,14 @@ export const CompactAnalysis: React.FC = () => (
           Contrasta una URL pública o texto pegado con evidencia primaria, sin emitir un veredicto automático.
         </p>
       </div>
-      <a className="compact-full-review-link" href="/demo">
-        Abrir revisión completa
-      </a>
+      <nav className="compact-route-links" aria-label="Recorridos relacionados">
+        <a className="compact-full-review-link" href="/demo">
+          Abrir revisión completa
+        </a>
+        <a className="compact-walkthrough-link" href="/walkthrough">
+          Previsualización extensión de navegador
+        </a>
+      </nav>
     </header>
 
     <main className="compact-main">

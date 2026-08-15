@@ -134,7 +134,7 @@ Verification of accessibility and responsive requirements is implemented via aut
    - Mobile vertical stacking order verification: asserts that the primary evidence region, analysis tabs, and editorial decision section appear in correct vertical sequence without visual or DOM overlap.
    - Screenshot artifact captures for visual record.
 
-## Live Analysis Routes (`/`, `/demo`, `/compact`)
+## Live Analysis Routes (`/`, `/demo`, `/compact`, `/walkthrough`)
 
 The live analysis interface is the default route at `/`. It accepts a public-news URL or pasted text and reuses the SSE analysis client for progress, extracted atomic claims, linkable primary evidence, non-binding model availability/comparison, trace identifiers, and degradation or failure messages. The static Case A1 editorial review shell is available at `/demo`; `/compact` is the small-window presentation of the same live analysis flow.
 
@@ -148,6 +148,8 @@ The route contract is explicit:
 
 - `/` renders the URL/text input-led live analysis experience by default.
 - `/demo` renders the read-only A1 shell and its audit workflow.
-- `/compact` renders the compact live analysis experience and links to `/demo` for the full A1 review.
+- `/compact` renders the compact live analysis experience, links to `/demo` for the full A1 review, and exposes the clearly labeled future-preview link `Previsualización extensión de navegador` to `/walkthrough`; it must not imply an actual extension or browser access.
+- `/walkthrough` renders a public, static Spanish guide with direct links to the live analysis, reproducible A1 shell, and compact view. It states that model proposals and consensus are non-binding, exposes degradation as a limitation, and reserves every editorial decision for a journalist.
+- The live analysis panel uses a presentation-only orientation layer for evidence, model status, traceability, and human decision concepts. This layer is explanatory and does not change the SSE contract, server behavior, or imply that live output is identical to the A1 shell.
 
-Route verification is covered by `tests/compact-analysis.test.tsx`, `tests/e2e/routes.spec.ts`, and `tests/e2e/compact.spec.ts`, including direct route loading, text and URL request shapes, serious/critical axe checks, and narrow-viewport overflow.
+Route verification is covered by `tests/compact-analysis.test.tsx`, `tests/e2e/routes.spec.ts`, and `tests/e2e/compact.spec.ts`, including direct route loading, text and URL request shapes, serious/critical axe checks, direct walkthrough links, and narrow-viewport overflow.

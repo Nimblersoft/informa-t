@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 
 test.describe("Application routes", () => {
   test("defaults to live URL/text analysis at /", async ({ page }) => {
@@ -50,6 +51,33 @@ test.describe("Application routes", () => {
     await expect(page.locator('[data-testid="compact-shell"]')).toHaveAttribute("data-ready", "true");
     await expect(page.getByTestId("analysis-text-input")).toBeVisible();
     await expect(page.getByRole("link", { name: "Abrir revisión completa" })).toHaveAttribute("href", "/demo");
+    await expect(page.getByRole("link", { name: "Previsualización extensión de navegador" })).toHaveAttribute("href", "/walkthrough");
+    await expect(page.getByRole("link", { name: "Previsualización extensión de navegador" })).toBeVisible();
     await expect(page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth && document.body.scrollWidth <= document.body.clientWidth)).resolves.toBe(true);
+  });
+
+  test("renders the public walkthrough directly with accessible route actions", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/walkthrough");
+
+    await expect(page.getByTestId("walkthrough-shell")).toHaveAttribute("data-ready", "true");
+    await expect(page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth && document.body.scrollWidth <= document.body.clientWidth)).resolves.toBe(true);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/walkthrough");
+
+    await expect(page.getByTestId("walkthrough-shell")).toHaveAttribute("data-ready", "true");
+    await expect(page.getByRole("heading", { name: "Recorrido de la demostración" })).toBeVisible();
+    const liveAction = page.getByRole("link", { name: "Iniciar análisis en vivo" });
+    await expect(liveAction).toHaveAttribute("href", "/");
+    await expect(page.getByRole("link", { name: "Abrir caso A1 de demostración" })).toHaveAttribute("href", "/demo");
+    await expect(page.getByRole("link", { name: "Abrir vista compacta" })).toHaveAttribute("href", "/compact");
+    await expect(page.getByText("La decisión editorial no se automatiza")).toBeVisible();
+    await expect(page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth && document.body.scrollWidth <= document.body.clientWidth)).resolves.toBe(true);
+    await page.keyboard.press("Tab");
+    await expect(liveAction).toBeFocused();
+
+    const audit = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
+    expect(audit.violations.filter((violation) => violation.impact === "critical" || violation.impact === "serious")).toEqual([]);
   });
 });
