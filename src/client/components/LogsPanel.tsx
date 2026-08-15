@@ -87,6 +87,7 @@ export const LogsPanel: React.FC<LogsPanelProps> = ({
             id="stage-filter-select"
             className="stage-filter-select"
             data-testid="stage-filter"
+            aria-label="Filtrar eventos de auditoría por etapa"
             value={selectedStage}
             onChange={(e) => setSelectedStage(e.target.value)}
           >
@@ -130,6 +131,7 @@ export const LogsPanel: React.FC<LogsPanelProps> = ({
                     className="btn-toggle-event"
                     aria-expanded={isExpanded}
                     aria-controls={`event-details-${evt.id}`}
+                    aria-label={`${isExpanded ? "Ocultar" : "Ver"} detalles del evento ${evt.title}`}
                     data-testid={`toggle-event-${evt.id}`}
                     onClick={() => toggleEventExpansion(evt.id)}
                   >
@@ -180,12 +182,17 @@ export const LogsPanel: React.FC<LogsPanelProps> = ({
           <h4 className="section-subheading">Comparación paralela de propuestas</h4>
           <span className="comparison-badge">Matriz de contraste no vinculante</span>
         </div>
-        <div className="proposals-comparison-columns">
+        <div
+          className="proposals-comparison-columns"
+          role="list"
+          aria-label="Columnas de comparación de propuestas"
+        >
           {proposals.map((prop, idx) => (
-            <div
+            <article
               key={`comp-prop-${idx}`}
               className="comparison-col"
               data-testid={`comparison-col-${idx}`}
+              role="listitem"
             >
               <div className="col-header">
                 <span className="col-title">Propuesta 0{idx + 1}</span>
@@ -197,7 +204,7 @@ export const LogsPanel: React.FC<LogsPanelProps> = ({
                   {prop.attributed ? "Atribuida" : "Sin atribución a modelo o autor"}
                 </span>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       </section>
@@ -212,12 +219,13 @@ export const LogsPanel: React.FC<LogsPanelProps> = ({
           <h4 className="section-subheading">Citas y fuentes primarias auditables</h4>
           <span className="citations-badge">Fuentes documentales abiertas</span>
         </div>
-        <div className="citations-list" role="list">
+        <div className="citations-list" role="list" aria-label="Lista de citas y fuentes">
           {citations.map((cite) => (
-            <div
+            <article
               key={cite.id}
               className="citation-card"
               data-testid={`citation-${cite.id}`}
+              role="listitem"
             >
               <div className="citation-info">
                 <span className="citation-type-tag">{cite.type}</span>
@@ -233,12 +241,12 @@ export const LogsPanel: React.FC<LogsPanelProps> = ({
                   rel="noopener noreferrer"
                   className="citation-external-link"
                   data-testid={`link-cite-${cite.id}`}
-                  aria-label={`Abrir fuente oficial: ${cite.title}`}
+                  aria-label={`Abrir fuente oficial: ${cite.title} (se abre en nueva pestaña)`}
                 >
                   Abrir fuente oficial ↗
                 </a>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       </section>

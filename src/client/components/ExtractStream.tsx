@@ -38,48 +38,50 @@ export const ExtractStream: React.FC<ExtractStreamProps> = ({
           <span className="section-dot primary" aria-hidden="true" />
           <h3 className="section-heading">Evidencia primaria</h3>
         </div>
-        <div className="excerpts-list" role="list" aria-label="Lista de extractos primarios">
+        <div className="excerpts-list" aria-label="Lista de extractos primarios">
           {excerpts.map((item, index) => {
             const isSelected = item.id === activeExcerptId;
             return (
               <article
                 key={item.id}
-                role="button"
-                tabIndex={0}
-                aria-pressed={isSelected}
-                aria-label={`Extracto ${index + 1}: ${item.title}`}
-                data-testid={`excerpt-item-${item.id}`}
                 className={`excerpt-card ${isSelected ? "selected" : ""}`}
-                onClick={() => onSelectExcerpt(item.id)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    onSelectExcerpt(item.id);
-                  }
-                }}
               >
-                <div className="excerpt-card-header">
-                  <span className="excerpt-index">Extracto 0{index + 1}</span>
-                  <span className="excerpt-source-badge">{item.sourceType}</span>
-                </div>
-                <h4 className="excerpt-item-title">{item.title}</h4>
-                <blockquote className="excerpt-quote">
-                  &ldquo;{item.quote}&rdquo;
-                </blockquote>
-                <div className="excerpt-footer">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={isSelected ? "true" : "false"}
+                  aria-label={`Extracto ${index + 1}: ${item.title}`}
+                  data-testid={`excerpt-item-${item.id}`}
+                  className="excerpt-card-main"
+                  onClick={() => onSelectExcerpt(item.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      onSelectExcerpt(item.id);
+                    }
+                  }}
+                >
+                  <div className="excerpt-card-header">
+                    <span className="excerpt-index">Extracto 0{index + 1}</span>
+                    <span className="excerpt-source-badge">{item.sourceType}</span>
+                  </div>
+                  <h4 className="excerpt-item-title">{item.title}</h4>
+                  <blockquote className="excerpt-quote">
+                    &ldquo;{item.quote}&rdquo;
+                  </blockquote>
                   <div className="excerpt-meta">
                     <span className="meta-speaker">{item.speaker}</span>
                     <span className="meta-sep" aria-hidden="true">•</span>
                     <span className="meta-time">{item.timestamp}</span>
                   </div>
+                </div>
+                <div className="excerpt-footer">
                   <button
                     type="button"
                     className="btn-link-log"
                     data-testid={`btn-log-${item.id}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onNavigateToLog(item.logEventId);
-                    }}
+                    aria-label={`Ver traza en Logs para ${item.title}`}
+                    onClick={() => onNavigateToLog(item.logEventId)}
                   >
                     Ver traza
                   </button>
@@ -99,9 +101,9 @@ export const ExtractStream: React.FC<ExtractStreamProps> = ({
           <span className="section-dot context" aria-hidden="true" />
           <h3 className="section-heading">Contexto relacionado</h3>
         </div>
-        <div className="context-list" role="list" aria-label="Lista de antecedentes y contexto">
+        <div className="context-list" aria-label="Lista de antecedentes y contexto">
           {relatedContext.map((item) => (
-            <div
+            <article
               key={item.id}
               className="context-card"
               data-testid={`context-item-${item.id}`}
@@ -112,7 +114,7 @@ export const ExtractStream: React.FC<ExtractStreamProps> = ({
                 <span className="reference-label">Referencia normativa:</span>
                 <span className="reference-value">{item.reference}</span>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       </div>

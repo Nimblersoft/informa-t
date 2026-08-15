@@ -26,6 +26,7 @@ export const ModelsPanel: React.FC<ModelsPanelProps> = ({ proposals }) => {
             key={`proposal-${index}`}
             className="proposal-card"
             data-testid={`proposal-card-${index}`}
+            role="listitem"
           >
             <div className="proposal-card-header">
               <div className="proposal-badge-group">
@@ -70,7 +71,12 @@ export const ModelsPanel: React.FC<ModelsPanelProps> = ({ proposals }) => {
         ))}
       </div>
 
-      <div className="models-disclaimer-card" data-testid="models-disclaimer">
+      <div
+        className="models-disclaimer-card"
+        data-testid="models-disclaimer"
+        role="note"
+        aria-label="Aviso de control editorial humano"
+      >
         <h4 className="disclaimer-title">Principio de control editorial humano</h4>
         <p className="disclaimer-text">
           Cada propuesta técnica es evaluada exclusivamente como insumo de contraste documental. 

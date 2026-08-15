@@ -1,21 +1,66 @@
 # informa-t
 
-informa-t es un MVP propuesto para MediaHack II que permite a periodistas y equipos de verificacion examinar afirmaciones sobre informacion electoral con fuentes primarias auditables. Es un asistente editorial, no un publicador autonomo de verificaciones.
+informa-t es un MVP propuesto para MediaHack II que permite a periodistas y equipos de verificación examinar afirmaciones sobre información electoral con fuentes primarias auditables. Opera estrictamente como un asistente editorial de soporte a la decisión, preservando el control humano exclusivo sobre cualquier veredicto de verificación pública.
 
-## Estado
+> [!NOTE]
+> `prototype/index.html` es una referencia visual exploratoria no productiva. La implementación funcional y accesible del shell editorial reside en `src/client/` y se ejecuta mediante la aplicación React + Vite.
 
-El repositorio contiene documentacion y un prototipo visual exploratorio. El PRD del MVP esta refinado y el plan de implementacion se encuentra en revision; no existe codigo de aplicacion aprobado todavia.
+## Estado del Proyecto
 
-## Inicio Rapido
+El repositorio cuenta con la implementación funcional del shell editorial para el Caso A1, compuesta por:
+- Flujo estructurado de extractos primarios y contexto relacionado separado.
+- Panel analítico con pestañas WAI-ARIA (`Evidencia`, `Modelos` y `Logs`).
+- Trazabilidad auditable con eventos inmutables y enlaces a fuentes primarias abiertas.
+- Límite de decisión editorial humana con máquina de estados local y exportación de estándares `ClaimReview` (JSON-LD) y traza de auditoría (JSON).
+- Accesibilidad integral por teclado (WCAG 2.1 AA) y diseño adaptativo libre de desbordamiento horizontal en pantallas de escritorio (1440×900) y móviles (390×844).
 
-<!-- TODO: agregar los comandos de configuracion despues de aprobar el stack y el plan de implementacion. -->
+## Inicio Rápido
 
-## Documentacion
+### Requisitos previos
+- Node.js 20+
+- npm 10+
 
-- [AGENTS.md](AGENTS.md): contexto operativo para agentes, restricciones y estado del proyecto.
-- [CONTEXT.md](CONTEXT.md): glosario canonico del dominio.
-- [docs/index.md](docs/index.md): mapa de documentacion.
-- [Especificacion del MVP de MediaHack](docs/specs/mediahack-prd-draft.md): contrato funcional y tecnico vigente.
+### Instalación de dependencias
+```bash
+npm install
+```
+
+### Ejecución en modo desarrollo
+Inicia el servidor local de desarrollo con Vite:
+```bash
+npm run dev
+```
+
+### Compilación para producción
+Genera el paquete optimizado de producción:
+```bash
+npm run build
+```
+
+### Ejecución de pruebas
+Ejecuta la suite completa de pruebas unitarias (Vitest) y pruebas de extremo a extremo (Playwright):
+```bash
+npm test
+```
+
+Para ejecutar suites específicas:
+```bash
+# Pruebas unitarias
+npm run test:unit
+
+# Pruebas e2e (accesibilidad, responsive y flujos editoriales)
+npm run test:e2e
+```
+
+## Documentación
+
+- [AGENTS.md](AGENTS.md): contexto operativo para agentes, comandos y arquitectura.
+- [CONTEXT.md](CONTEXT.md): glosario canónico del dominio.
+- [docs/index.md](docs/index.md): mapa de documentación del repositorio.
+- [docs/specs/accessibility-shell.md](docs/specs/accessibility-shell.md): especificación de accesibilidad, teclado y diseño adaptativo.
+- [docs/specs/editorial-panel.md](docs/specs/editorial-panel.md): especificación del panel de revisión editorial.
+- [docs/specs/editorial-decision.md](docs/specs/editorial-decision.md): especificación de la frontera de decisión editorial y exportaciones.
+- [docs/specs/mediahack-prd-draft.md](docs/specs/mediahack-prd-draft.md): contrato funcional del MVP de MediaHack II.
 
 ## Referencias
 

@@ -26,6 +26,7 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({
             key={metric.id}
             className="index-card"
             data-testid={`index-card-${metric.id}`}
+            role="listitem"
           >
             <div className="index-card-top">
               <div className="index-name-group">
@@ -40,7 +41,14 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({
               </div>
             </div>
 
-            <div className="index-meter-track" aria-hidden="true">
+            <div
+              className="index-meter-track"
+              role="meter"
+              aria-valuenow={metric.value}
+              aria-valuemin={0}
+              aria-valuemax={metric.max}
+              aria-label={`Puntaje de ${metric.name}: ${metric.value} sobre ${metric.max}`}
+            >
               <div
                 className="index-meter-fill"
                 style={{ transform: `scaleX(${metric.value / 100})` }}
@@ -62,6 +70,7 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({
                 type="button"
                 className="btn-inspect-trace"
                 data-testid={`btn-trace-${metric.id}`}
+                aria-label={`Ver evento de trazabilidad de ${metric.name} en Logs`}
                 onClick={() => onNavigateToLog(metric.logEventId)}
               >
                 Ver evento de trazabilidad en Logs →

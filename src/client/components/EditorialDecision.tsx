@@ -159,7 +159,7 @@ export const EditorialDecision: React.FC<EditorialDecisionProps> = ({
         <div className="form-row">
           <div className="form-group author-group">
             <label htmlFor="editorial-author-input" className="form-label">
-              Periodista o editor responsable <span className="field-required">*</span>
+              Periodista o editor responsable <span className="field-required" aria-hidden="true">*</span>
             </label>
             <input
               id="editorial-author-input"
@@ -170,9 +170,10 @@ export const EditorialDecision: React.FC<EditorialDecisionProps> = ({
               value={author}
               onChange={(e) => setAuthor(e.target.value)}
               aria-required="true"
+              aria-describedby={!isAuthorValid ? "hint-author" : undefined}
             />
             {!isAuthorValid && (
-              <span className="field-hint" data-testid="hint-author">
+              <span id="hint-author" className="field-hint" data-testid="hint-author">
                 Campo obligatorio para habilitar la exportación.
               </span>
             )}
@@ -180,7 +181,7 @@ export const EditorialDecision: React.FC<EditorialDecisionProps> = ({
 
           <div className="form-group category-group">
             <label htmlFor="editorial-category-select" className="form-label">
-              Categoría editorial <span className="field-required">*</span>
+              Categoría editorial <span className="field-required" aria-hidden="true">*</span>
             </label>
             <div className="category-select-wrapper">
               <select
@@ -190,6 +191,7 @@ export const EditorialDecision: React.FC<EditorialDecisionProps> = ({
                 value={category ?? ""}
                 onChange={(e) => handleCategorySelect(e.target.value)}
                 aria-required="true"
+                aria-describedby={!isCategoryValid ? "hint-category" : undefined}
               >
                 <option value="">-- Seleccione una categoría --</option>
                 {CATEGORIES.map((cat) => (
@@ -205,6 +207,7 @@ export const EditorialDecision: React.FC<EditorialDecisionProps> = ({
                   data-testid="btn-withdraw-decision"
                   className="btn-withdraw"
                   onClick={handleWithdraw}
+                  aria-label="Retirar selección de categoría"
                   title="Retirar selección de categoría"
                 >
                   Retirar
@@ -212,7 +215,7 @@ export const EditorialDecision: React.FC<EditorialDecisionProps> = ({
               )}
             </div>
             {!isCategoryValid && (
-              <span className="field-hint" data-testid="hint-category">
+              <span id="hint-category" className="field-hint" data-testid="hint-category">
                 Seleccione una de las seis categorías normadas.
               </span>
             )}
@@ -222,7 +225,7 @@ export const EditorialDecision: React.FC<EditorialDecisionProps> = ({
         <div className="form-group justification-group">
           <label htmlFor="editorial-justification-input" className="form-label">
             Fundamentación y justificación editorial{" "}
-            <span className="field-required">*</span>
+            <span className="field-required" aria-hidden="true">*</span>
           </label>
           <textarea
             id="editorial-justification-input"
@@ -233,9 +236,10 @@ export const EditorialDecision: React.FC<EditorialDecisionProps> = ({
             value={justification}
             onChange={(e) => setJustification(e.target.value)}
             aria-required="true"
+            aria-describedby={!isJustificationValid ? "hint-justification" : undefined}
           />
           {!isJustificationValid && (
-            <span className="field-hint" data-testid="hint-justification">
+            <span id="hint-justification" className="field-hint" data-testid="hint-justification">
               Ingrese una argumentación fundamentada sin espacios vacíos.
             </span>
           )}
@@ -305,6 +309,8 @@ export const EditorialDecision: React.FC<EditorialDecisionProps> = ({
               type="button"
               data-testid="btn-toggle-trace-history"
               className="btn-toggle-trace"
+              aria-expanded={showTraceHistory}
+              aria-controls="editorial-trace-viewer"
               onClick={() => setShowTraceHistory((prev) => !prev)}
             >
               Historial de acciones ({events.length})
@@ -315,8 +321,11 @@ export const EditorialDecision: React.FC<EditorialDecisionProps> = ({
         {/* Browser-local audit trace history viewer */}
         {showTraceHistory && (
           <div
+            id="editorial-trace-viewer"
             className="editorial-trace-viewer"
             data-testid="editorial-trace-viewer"
+            role="region"
+            aria-label="Registro local de eventos editoriales"
           >
             <h3 className="trace-viewer-title">
               Registro local de eventos editoriales ({events.length})
