@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import { isClaimExtractionV3, type ClaimExtractionV3, type ProposalV1 } from "../src/shared/contracts";
+import { isClaimExtractionV4, type ClaimExtractionV4, type ProposalV1 } from "../src/shared/contracts";
 import { PROPOSAL_MODELS } from "../src/server/config/models";
 import { analyzeText } from "../src/server/pipeline/analyze-text";
 import { EXTRACTION_INPUT_MAX_CHARS } from "../src/server/prompts/text-analysis";
@@ -11,16 +11,16 @@ import type { WorkersAiBinding } from "../src/server/providers/workers-ai";
 
 const text = "El INEC reportó que la pobreza por ingresos cambió durante junio de 2025.";
 
-function claim(): ClaimExtractionV3["claims"][number] {
+function claim(decision: ClaimExtractionV4["claims"][number]["decision"] = "lista_para_contraste"): ClaimExtractionV4["claims"][number] {
   return {
     verbatim: "El INEC reportó que la pobreza por ingresos cambió durante junio de 2025.",
     rationale: "El reporte oficial permite contrastar la afirmación.",
-    excluded: false,
+    decision,
   };
 }
 
-function extraction(count = 1): ClaimExtractionV3 {
-  return { schemaVersion: "claim-extraction.v3", claims: Array.from({ length: count }, () => claim()) };
+function extraction(count = 1): ClaimExtractionV4 {
+  return { schemaVersion: "claim-extraction.v4", claims: Array.from({ length: count }, () => claim()) };
 }
 
 function proposal(reviewFocus: ProposalV1["reviewFocus"] = "Contrastar evidencia"): ProposalV1 {
@@ -31,7 +31,7 @@ function proposal(reviewFocus: ProposalV1["reviewFocus"] = "Contrastar evidencia
     contraryEvidenceIds: [],
     rationale: "La propuesta identifica evidencia oficial para que una persona editora la contraste.",
     uncertainty: "La cobertura depende del corpus consultado.",
-    limitations: [],
+    limitations: reviewFocus === "Revisar contexto" ? ["Falta precisar el período de comparación."] : [],
     indices: { polarization: 10, emotionalLoad: 20, publicDataSupport: 80 },
   };
 }
@@ -65,15 +65,11 @@ function isExtraction(input: { messages?: Array<{ role: string; content: string 
 }
 
 describe("text analysis engine", () => {
-  it("requires the v3 claim fields and an exclusion reason for excluded candidates", () => {
-    const excluded = { ...claim(), excluded: true };
-    expect(isClaimExtractionV3({ schemaVersion: "claim-extraction.v3", claims: [excluded] })).toBe(false);
-    expect(isClaimExtractionV3({
-      schemaVersion: "claim-extraction.v3",
-      claims: [{ ...excluded, exclusionReason: "opinión" }],
-    })).toBe(true);
-    expect(isClaimExtractionV3({
-      schemaVersion: "claim-extraction.v3",
+  it("requires the v4 decision and rejects model-supplied derived fields", () => {
+    expect(isClaimExtractionV4({ schemaVersion: "claim-extraction.v4", claims: [{ ...claim(), decision: "opinión" }] })).toBe(true);
+    expect(isClaimExtractionV4({ schemaVersion: "claim-extraction.v4", claims: [{ ...claim(), decision: "no permitido" }] })).toBe(false);
+    expect(isClaimExtractionV4({
+      schemaVersion: "claim-extraction.v4",
       claims: [{ ...claim(), normalizedText: "no permitido" }],
     })).toBe(false);
   });
@@ -99,9 +95,20 @@ describe("text analysis engine", () => {
     expect(result.claims.every((item) => item.proposals.length === 3)).toBe(true);
   });
 
+  it("bounds slow proposal attempts so all extracted claims finish within the pipeline budget", async () => {
+    const ai = new FakeAi((_model, input) => isExtraction(input)
+      ? extraction(2)
+      : new Promise((resolve) => setTimeout(() => resolve(proposal()), 50)));
+    const result = await analyzeText({ text, ai, search: fakeSearch(), proposalAttemptTimeoutMs: 1 });
+
+    expect(result.status).toBe("partial");
+    expect(result.claims).toHaveLength(2);
+    expect(result.claims.flatMap((item) => item.proposals).every((item) => item.status === "failed" && item.errorCode === "timeout")).toBe(true);
+  });
+
   it("derives normalized text and source location without requiring model fields", async () => {
     const sourceText = "Prefacio.  El INEC   reportó cambios verificables.";
-    const extracted = { schemaVersion: "claim-extraction.v3" as const, claims: [{ verbatim: "El INEC   reportó cambios verificables.", rationale: "El reporte permite contraste.", excluded: false }] };
+    const extracted = { schemaVersion: "claim-extraction.v4" as const, claims: [{ verbatim: "El INEC   reportó cambios verificables.", rationale: "El reporte permite contraste.", decision: "lista_para_contraste" as const }] };
     const ai = new FakeAi((_model, input) => isExtraction(input) ? extracted : proposal());
     const result = await analyzeText({ text: sourceText, ai, search: fakeSearch() });
 
@@ -111,7 +118,7 @@ describe("text analysis engine", () => {
   });
 
   it("discards model paraphrases that are not grounded in the source", async () => {
-    const extracted = { schemaVersion: "claim-extraction.v3" as const, claims: [{ verbatim: "El INEC informó una variación.", rationale: "El encuadre requiere contraste.", excluded: false }] };
+    const extracted = { schemaVersion: "claim-extraction.v4" as const, claims: [{ verbatim: "El INEC informó una variación.", rationale: "El encuadre requiere contraste.", decision: "lista_para_contraste" as const }] };
     const ai = new FakeAi((_model, input) => isExtraction(input) ? extracted : proposal());
     const result = await analyzeText({ text, ai, search: fakeSearch() });
 
@@ -181,9 +188,9 @@ describe("text analysis engine", () => {
   });
 
   it("does not complete when every grounded claim is excluded", async () => {
-    const excludedExtraction: ClaimExtractionV3 = {
-      schemaVersion: "claim-extraction.v3",
-      claims: [{ ...claim(), excluded: true, exclusionReason: "opinión" }],
+    const excludedExtraction: ClaimExtractionV4 = {
+      schemaVersion: "claim-extraction.v4",
+      claims: [{ ...claim(), decision: "opinión" }],
     };
     const ai = new FakeAi((_model, input) => isExtraction(input) ? excludedExtraction : proposal());
     const result = await analyzeText({ text, ai, search: fakeSearch() });
@@ -192,4 +199,36 @@ describe("text analysis engine", () => {
     expect(result.claims[0].claim.excluded).toBe(true);
     expect(result.limitations.join(" ")).toContain("Todas las aseveraciones");
   });
+
+  it("continues ambiguous claims through evidence and all three contextual proposals", async () => {
+    let searches = 0;
+    const ai = new FakeAi((_model, input) => isExtraction(input)
+      ? extractionFromClaim({ ...claim(), verbatim: "La pobreza se ha reducido en un 20%", decision: "ambigüedad", rationale: "Falta período, geografía o base para contrastar." })
+      : proposal("Revisar contexto"));
+    const result = await analyzeText({
+      text: "La pobreza se ha reducido en un 20%.",
+      ai,
+      search: { searchEvidence: async () => { searches += 1; return evidenceResult(); } },
+    });
+
+    expect(searches).toBe(1);
+    expect(result.claims[0].claim).toMatchObject({ excluded: false, verifiable: false, extractionDecision: "ambigüedad", pipelineDisposition: "continuar_con_contexto" });
+    expect(result.claims[0].evidence).toHaveLength(1);
+    expect(result.claims[0].proposals).toHaveLength(3);
+    expect(result.claims[0].proposals.every((item) => item.status === "valid" && item.proposal?.reviewFocus === "Revisar contexto" && (item.proposal.limitations.length ?? 0) > 0)).toBe(true);
+    expect(result.limitations).toContain("La aseveración continúa con contexto: falta precisar período, geografía o base antes de un contraste directo.");
+  });
+
+  it("does not consult evidence for hard exclusions", async () => {
+    let searches = 0;
+    const ai = new FakeAi((_model, input) => isExtraction(input) ? extractionFromClaim({ ...claim(), decision: "opinión" }) : proposal());
+    const result = await analyzeText({ text, ai, search: { searchEvidence: async () => { searches += 1; return evidenceResult(); } } });
+
+    expect(searches).toBe(0);
+    expect(result.claims[0].claim.excluded).toBe(true);
+  });
 });
+
+function extractionFromClaim(claimValue: ClaimExtractionV4["claims"][number]): ClaimExtractionV4 {
+  return { schemaVersion: "claim-extraction.v4", claims: [claimValue] };
+}

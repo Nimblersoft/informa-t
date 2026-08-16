@@ -5,6 +5,7 @@ import { ANALYSIS_EVENT_NAMES, type AnalysisEventName } from "../src/shared/anal
 import { ArticleFetchError } from "../src/server/article-fetch";
 import { PROPOSAL_MODELS } from "../src/server/config/models";
 import { createAnalysisRoutes } from "../src/server/routes/analyses";
+import type { AuditDatabase, AuditStatement } from "../src/server/audit/claim-extraction-audit";
 import type { AiSearchProviderResult } from "../src/server/providers/ai-search";
 import type { WorkersAiBinding } from "../src/server/providers/workers-ai";
 
@@ -12,9 +13,9 @@ const text = "El instituto oficial reportó cambios verificables en el registro 
 const extractionClaim = {
   verbatim: "El instituto oficial reportó cambios verificables en el registro electoral durante junio de 2025.",
   rationale: "El registro oficial permite contrastar esta afirmación.",
-  excluded: false,
+  decision: "lista_para_contraste" as const,
 };
-const extraction = { schemaVersion: "claim-extraction.v3" as const, claims: [extractionClaim] };
+const extraction = { schemaVersion: "claim-extraction.v4" as const, claims: [extractionClaim] };
 const claim = {
   verbatimText: extractionClaim.verbatim,
   normalizedText: extractionClaim.verbatim,
@@ -24,6 +25,8 @@ const claim = {
   electorallyRelevant: true,
   sourceAvailability: "no consultada" as const,
   excluded: false,
+  extractionDecision: "lista_para_contraste" as const,
+  pipelineDisposition: "continuar" as const,
   rationale: extractionClaim.rationale,
 };
 const proposal = {
@@ -83,9 +86,14 @@ class FakeAi implements WorkersAiBinding {
   }
 }
 
-function createTestApp(ai: WorkersAiBinding, now = () => Date.now()) {
+function createAudit(): AuditDatabase {
+  const statement: AuditStatement = { bind: () => statement };
+  return { prepare: () => statement, batch: async () => [] };
+}
+
+function createTestApp(ai: WorkersAiBinding, now = () => Date.now(), audit = createAudit()) {
   const app = new Hono();
-  app.route("/api", createAnalysisRoutes({ ai, search: { searchEvidence: async () => evidenceResult() }, now }));
+  app.route("/api", createAnalysisRoutes({ ai, search: { searchEvidence: async () => evidenceResult() }, now, audit }));
   return app;
 }
 
@@ -120,7 +128,7 @@ describe("POST /api/analyses SSE contract", () => {
     expect(new Set(events.map((event) => event.event))).toEqual(new Set(ANALYSIS_EVENT_NAMES.filter((name) => name !== "model.failed")));
     for (const event of events) {
       expect(event.data.pipelineVersion).toBe("analysis-sse.v1");
-      expect(event.data.promptVersion).toBe("claim-extraction.v3");
+      expect(event.data.promptVersion).toBe("claim-extraction-prompt.v4");
       expect(typeof event.data.durationMs).toBe("number");
       expect(event.data).toHaveProperty("usage");
       expect(typeof event.data.retries).toBe("number");
@@ -143,6 +151,22 @@ describe("POST /api/analyses SSE contract", () => {
     expect(events.at(-1)?.data.claims).toHaveLength(1);
   });
 
+  it("keeps evidence and proposals when audit binding is absent, but marks the terminal partial", async () => {
+    const events = await readEvents(await createAnalysisRoutes({ ai: new FakeAi(), search: { searchEvidence: async () => evidenceResult() } }).request("http://local.test/analyses", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ text }),
+    }));
+    const claimEvent = events.find((event) => event.event === "claim.extracted");
+
+    expect(claimEvent?.data.traceEvent.id).toMatch(/^trace-analysis-/);
+    expect(events.some((event) => event.event === "evidence.retrieved")).toBe(true);
+    expect(events.some((event) => event.event === "model.completed")).toBe(true);
+    expect(claimEvent?.data.degradations.join(" ")).toContain("auditoría interna");
+    expect(events.at(-1)?.data.status).toBe("partial");
+    expect(events.at(-1)?.data.limitations.join(" ")).toContain("auditoría interna");
+  });
+
   it("rejects invalid input in Spanish without invoking a provider", async () => {
     const ai = new FakeAi();
     const response = await createTestApp(ai).request("http://local.test/api/analyses", {
@@ -159,6 +183,7 @@ describe("POST /api/analyses SSE contract", () => {
       ai: new FakeAi(),
       search: { searchEvidence: async () => evidenceResult() },
       fetchArticle: async () => text,
+      audit: createAudit(),
     }).request("http://local.test/analyses", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -175,6 +200,7 @@ describe("POST /api/analyses SSE contract", () => {
       ai: new FakeAi(),
       search: { searchEvidence: async () => evidenceResult() },
       fetchArticle: async () => { throw new ArticleFetchError("No fue posible extraer el artículo con el navegador renderizado.", "browser_unavailable"); },
+      audit: createAudit(),
     }).request("http://local.test/analyses", {
       method: "POST",
       headers: { "content-type": "application/json" },

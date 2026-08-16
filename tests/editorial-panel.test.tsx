@@ -310,8 +310,9 @@ describe("Editorial review panel unit tests", () => {
         expect(link.getAttribute("href")).toBe(cite.url);
       }
 
-      // Strict prohibition: No % sign anywhere
-      expect(container.textContent).not.toContain("%");
+      // The prefilled live claim may use percentages; demo index cards remain raw 0-100 values.
+      fireEvent.click(screen.getByTestId("tab-evidence"));
+      expect(screen.getByTestId(`index-card-${a1Fixture.indices[0].id}`).textContent).not.toContain("%");
     });
   });
 });

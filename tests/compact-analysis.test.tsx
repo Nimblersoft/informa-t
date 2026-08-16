@@ -26,17 +26,14 @@ describe("CompactAnalysis", () => {
 });
 
 describe("LiveAnalysisHome", () => {
-  it("renders the live input-led default without an A1 shell or verdict controls", () => {
+  it("renders the live route with the same editorial shell and prefilled analysis input", () => {
     render(<LiveAnalysisHome />);
 
-    expect(screen.getByTestId("live-home").getAttribute("data-ready")).toBe("true");
-    expect(screen.getByRole("heading", { name: "Análisis contextual" })).toBeTruthy();
+    expect(screen.getByTestId("editorial-shell").getAttribute("data-ready")).toBe("true");
     expect(screen.getByTestId("analysis-text-input")).toBeTruthy();
     expect(screen.getByTestId("analysis-orientation").textContent).toContain("Trazabilidad");
-    expect(screen.getByTestId("live-human-boundary").textContent).toContain("La decisión sigue siendo humana");
-    expect(screen.queryByTestId("editorial-shell")).toBeNull();
-    expect(screen.queryByText("Cierto")).toBeNull();
-    expect(screen.queryByText("Falso")).toBeNull();
+    expect((screen.getByTestId("analysis-text-input") as HTMLTextAreaElement).value).toBe("Según los últimos reportes oficiales del INEC, la pobreza por ingresos a nivel nacional se ubicó en el 25,5% en junio de 2025, mientras que la pobreza extrema alcanzó el 8,4%.");
+    expect(screen.getByTestId("analysis-tabs")).toBeTruthy();
   });
 });
 

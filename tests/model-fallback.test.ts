@@ -6,18 +6,18 @@ import { EXTRACTION_ATTEMPT_TIMEOUT_MS, EXTRACTION_TIMEOUT_MS, getOpenRouterMode
 import { analyzeText } from "../src/server/pipeline/analyze-text";
 import { OpenRouterClient, type OpenRouterTransport } from "../src/server/providers/openrouter";
 import type { WorkersAiBinding } from "../src/server/providers/workers-ai";
-import type { ClaimExtractionV3, ProposalV1 } from "../src/shared/contracts";
+import type { ClaimExtractionV4, ProposalV1 } from "../src/shared/contracts";
 import type { AiSearchProvider, AiSearchProviderResult } from "../src/server/providers/ai-search";
 
 const text = "El INEC reportó que la pobreza por ingresos cambió durante junio de 2025.";
 
-const claim: ClaimExtractionV3["claims"][number] = {
+const claim: ClaimExtractionV4["claims"][number] = {
   verbatim: "El INEC reportó que la pobreza por ingresos cambió durante junio de 2025.",
   rationale: "El reporte oficial permite contrastar la afirmación.",
-  excluded: false,
+  decision: "lista_para_contraste",
 };
 
-const extraction: ClaimExtractionV3 = { schemaVersion: "claim-extraction.v3", claims: [claim] };
+const extraction: ClaimExtractionV4 = { schemaVersion: "claim-extraction.v4", claims: [claim] };
 
 const proposal: ProposalV1 = {
   schemaVersion: "proposal.v1",

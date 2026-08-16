@@ -27,5 +27,16 @@
       "namespace": "default",
       "remote": true
     }
-  ]
+  ],
+  "d1_databases": [
+    {
+      "binding": "AUDIT_DB",
+      "database_name": "informa-t-audit",
+      "database_id": "bdf3cf9a-fbb6-41d9-a571-42cd4a763cb8",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "triggers": {
+    "crons": ["17 * * * *"]
+  }
 }

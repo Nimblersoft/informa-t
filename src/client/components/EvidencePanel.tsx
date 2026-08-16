@@ -21,6 +21,7 @@ export const EvidencePanel: React.FC<EvidencePanelProps> = ({
       </div>
 
       <div className="indices-grid" role="list" aria-label="Lista de índices heurísticos">
+        {indices.length === 0 && <p className="empty-editorial-state">Las señales de propuestas disponibles aparecerán aquí.</p>}
         {indices.map((metric) => (
           <article
             key={metric.id}

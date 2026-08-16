@@ -6,12 +6,10 @@ test.describe("Application routes", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto("/");
 
-    await expect(page.locator('[data-testid="live-home"]')).toHaveAttribute("data-ready", "true");
-    await expect(page.getByRole("heading", { name: "Análisis contextual" })).toBeVisible();
+    await expect(page.locator('[data-testid="editorial-shell"]')).toHaveAttribute("data-ready", "true");
     await expect(page.getByTestId("analysis-text-input")).toBeVisible();
-    await expect(page.getByTestId("live-human-boundary")).toContainText("La decisión sigue siendo humana");
-    await expect(page.locator('[data-testid="editorial-shell"]')).toHaveCount(0);
-    await expect(page.getByRole("link", { name: "Abrir caso A1 de demostración" })).toHaveAttribute("href", "/demo");
+    await expect(page.getByTestId("analysis-text-input")).toHaveValue("Según los últimos reportes oficiales del INEC, la pobreza por ingresos a nivel nacional se ubicó en el 25,5% en junio de 2025, mientras que la pobreza extrema alcanzó el 8,4%.");
+    await expect(page.getByTestId("analysis-tabs")).toBeVisible();
     await expect(page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth && document.body.scrollWidth <= document.body.clientWidth)).resolves.toBe(true);
   });
 
@@ -22,7 +20,7 @@ test.describe("Application routes", () => {
       await route.fulfill({
         status: 200,
         contentType: "text/event-stream",
-        body: "event: analysis.started\ndata: {\"analysisId\":\"root\",\"textLength\":20,\"pipelineVersion\":\"analysis-sse.v1\",\"promptVersion\":\"claim-extraction.v3\",\"durationMs\":1,\"usage\":null,\"retries\":0,\"degradations\":[]}\n\nevent: analysis.completed\ndata: {\"analysisId\":\"root\",\"status\":\"failed\",\"claims\":[],\"limitations\":[\"Prueba controlada\"],\"traceEventIds\":[],\"pipelineVersion\":\"analysis-sse.v1\",\"promptVersion\":\"claim-extraction.v3\",\"durationMs\":1,\"usage\":null,\"retries\":0,\"degradations\":[\"Prueba controlada\"]}\n\n",
+        body: "event: analysis.started\ndata: {\"analysisId\":\"root\",\"textLength\":20,\"pipelineVersion\":\"analysis-sse.v1\",\"promptVersion\":\"claim-extraction-prompt.v4\",\"durationMs\":1,\"usage\":null,\"retries\":0,\"degradations\":[]}\n\nevent: analysis.completed\ndata: {\"analysisId\":\"root\",\"status\":\"failed\",\"claims\":[],\"limitations\":[\"Prueba controlada\"],\"traceEventIds\":[],\"pipelineVersion\":\"analysis-sse.v1\",\"promptVersion\":\"claim-extraction-prompt.v4\",\"durationMs\":1,\"usage\":null,\"retries\":0,\"degradations\":[\"Prueba controlada\"]}\n\n",
       });
     });
 
@@ -41,6 +39,7 @@ test.describe("Application routes", () => {
     await expect(page.locator('[data-testid="editorial-shell"]')).toHaveAttribute("data-ready", "true");
     await expect(page.getByTestId("editorial-decision-container")).toBeVisible();
     await expect(page.getByTestId("analysis-text-input")).toBeVisible();
+    await expect(page.getByTestId("analysis-text-input")).toHaveValue("Según los últimos reportes oficiales del INEC, la pobreza por ingresos a nivel nacional se ubicó en el 25,5% en junio de 2025, mientras que la pobreza extrema alcanzó el 8,4%.");
     await expect(page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth && document.body.scrollWidth <= document.body.clientWidth)).resolves.toBe(true);
   });
 

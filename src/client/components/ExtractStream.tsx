@@ -39,6 +39,7 @@ export const ExtractStream: React.FC<ExtractStreamProps> = ({
           <h3 className="section-heading">Evidencia primaria</h3>
         </div>
         <div className="excerpts-list" aria-label="Lista de extractos primarios">
+          {excerpts.length === 0 && <p className="empty-editorial-state">Las aseveraciones extraídas aparecerán aquí al iniciar el análisis.</p>}
           {excerpts.map((item, index) => {
             const isSelected = item.id === activeExcerptId;
             return (
@@ -102,6 +103,7 @@ export const ExtractStream: React.FC<ExtractStreamProps> = ({
           <h3 className="section-heading">Contexto relacionado</h3>
         </div>
         <div className="context-list" aria-label="Lista de antecedentes y contexto">
+          {relatedContext.length === 0 && <p className="empty-editorial-state">La evidencia oficial recuperada aparecerá como contexto relacionado.</p>}
           {relatedContext.map((item) => (
             <article
               key={item.id}

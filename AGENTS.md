@@ -104,7 +104,7 @@ Target runtime is Cloudflare Workers with Vite / Static Asset bindings configure
 
 ## Observability
 
-Structured trace events (`TraceEvent`) and audit logs provide deterministic traceability with SHA-256 canonical hashing across ingestion, extraction, analysis, and consensus stages.
+Structured trace events (`TraceEvent`) and audit logs provide deterministic traceability with SHA-256 canonical hashing across ingestion, extraction, analysis, and consensus stages. Extractor decisions are retained for seven days in the private `AUDIT_DB` D1 binding; the application never stores full source bodies or exposes an audit-read endpoint. The hourly Cron Trigger removes expired rows.
 
 ## Specs
 

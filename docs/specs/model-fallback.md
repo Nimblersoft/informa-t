@@ -2,7 +2,7 @@
 
 ## Alcance
 
-La extracción usa OpenRouter con `openai/gpt-5.6-luna` como proveedor supervisor para `claim-extraction.v3`. El modelo devuelve únicamente el fragmento literal, un encuadre supervisor breve y la decisión de exclusión. Si Luna falla por indisponibilidad, cuota, tiempo agotado o JSON inválido después de una reparación, intenta la extracción actual de Workers AI como respaldo y conserva una degradación visible. Las propuestas `proposal.v1` mantienen Workers AI como primario y su respaldo OpenRouter equivalente.
+La extracción usa OpenRouter con `openai/gpt-5.6-luna` como proveedor supervisor para `claim-extraction.v4`, con prompt `claim-extraction-prompt.v4`. El modelo devuelve únicamente el fragmento literal, un encuadre supervisor breve y una decisión explícita. Si Luna falla por indisponibilidad, cuota, tiempo agotado o JSON inválido después de una reparación, intenta la extracción actual de Workers AI como respaldo y conserva una degradación visible. Las propuestas `proposal.v1` mantienen Workers AI como primario y su respaldo OpenRouter equivalente.
 
 ## Configuración y secretos
 
@@ -12,9 +12,9 @@ La extracción usa OpenRouter con `openai/gpt-5.6-luna` como proveedor superviso
 
 ## Cliente y presupuesto
 
-`OpenRouterClient` usa `fetch` contra `/api/v1/chat/completions`, envía los mensajes de extracción y `response_format: { type: "json_object" }`. Cada intento de extracción tiene 20.000 ms y puede repetirse exactamente una vez cuando se agota el tiempo; la etapa completa tiene un techo de 45.000 ms, independiente y menor que el presupuesto total predeterminado de 90.000 ms. Estos límites aplican tanto a Luna como a Workers AI y evitan que una invocación colgada consuma todo el análisis. La entrada de extracción se limita a 8.000 caracteres; si se recorta, se registra una limitación visible en español.
+`OpenRouterClient` usa `fetch` contra `/api/v1/chat/completions`, envía los mensajes de extracción y `response_format: { type: "json_object" }`. Cada intento de extracción tiene 20.000 ms y puede repetirse exactamente una vez cuando se agota el tiempo; la etapa completa tiene un techo de 45.000 ms, independiente y menor que el presupuesto total predeterminado de 90.000 ms. Cada intento de propuesta, primario o de respaldo, también tiene un techo independiente de 20.000 ms. Estos límites aplican tanto a Luna como a Workers AI y evitan que una invocación colgada consuma todo el análisis. La entrada de extracción se limita a 8.000 caracteres; si se recorta, se registra una limitación visible en español.
 
-Cada proveedor conserva exactamente un intento de reparación para una respuesta JSON inválida. En extracción, una respuesta inválida después de la reparación activa Workers AI; en propuestas se conserva la regla existente y no se fabrica una propuesta.
+Cada proveedor conserva exactamente un intento de reparación para una respuesta JSON inválida. En extracción, una respuesta inválida después de la reparación activa Workers AI; en propuestas se conserva la regla existente y no se fabrica una propuesta. Para una aseveración `ambigüedad`, la reparación exige `reviewFocus: "Revisar contexto"`, incertidumbre no vacía y al menos una limitación.
 
 ## Proveniencia y degradación
 

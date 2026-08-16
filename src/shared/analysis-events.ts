@@ -12,7 +12,7 @@ import type {
 import type { ModelProvenance } from "../server/providers/workers-ai";
 
 export const ANALYSIS_PIPELINE_VERSION = "analysis-sse.v1" as const;
-export const ANALYSIS_PROMPT_VERSION = "claim-extraction.v3" as const;
+export const ANALYSIS_PROMPT_VERSION = "claim-extraction-prompt.v4" as const;
 
 export const ANALYSIS_EVENT_NAMES = [
   "analysis.started",
@@ -53,6 +53,7 @@ export interface ClaimExtractedData extends AnalysisEventMeta {
   claims: ExtractedClaim[];
   provenance: ModelProvenance;
   traceEventId: string;
+  traceEvent: import("./contracts").TraceEvent;
 }
 
 export interface EvidenceRetrievedData extends AnalysisEventMeta {

@@ -12,9 +12,11 @@
 | Dominio público principal | `https://informa-t.nimblersoft.com` (custom domain, cert Cloudflare) |
 | Dominio de respaldo | `https://informa-t.ericmaster.workers.dev` |
 | Worker | `informa-t` (cuenta Nimblersoft) |
-| Bindings | `AI`, `AI_SEARCH`, `ASSETS` — sin D1/KV/R2/DO (sin persistencia) |
-| Commit desplegado | `34fe05f` (claim-extraction.v3) |
-| Versión actual | `11f0217b-77ac-4792-a024-7717fa7a9a2a` |
+| Bindings | `AI`, `AI_SEARCH`, `ASSETS`, `AUDIT_DB` — D1 privado para auditoría de siete días |
+| D1 | `informa-t-audit` (`bdf3cf9a-fbb6-41d9-a571-42cd4a763cb8`) |
+| Cron | `17 * * * *` — elimina filas vencidas |
+| Commit desplegado | Cutover v4 con auditoría D1 |
+| Versión actual | `263b5ba8-29ec-4330-bc4e-0a60c2584c30` |
 | Última versión buena previa | `4a0549c8-3995-4490-a562-d2209c731742` (misma lógica v3, sin dominio custom) |
 
 ## 2. Smoke pre-demo (ejecutar 10 min antes de la presentación)
@@ -64,6 +66,6 @@ El rollback de Workers es inmediato y sin reconstrucción (mismo código ya subi
 
 ## 5. Notas operativas
 
-- Sin persistencia: cada análisis es una solicitud SSE en memoria; no hay datos que corromper ni limpiar entre demos.
+- La auditoría de extracción persiste solo decisiones mínimas durante siete días; el Cron Trigger elimina filas vencidas. No existe una ruta pública para consultar la tabla.
 - `OPENROUTER_API_KEY` vive en secretos del Worker (Infisical como fuente); nunca en código ni en este runbook.
 - La cuota de OpenRouter es de pago por uso; una demo consume ~2-4 invocaciones de extracción. Si se agota, la etapa cae al respaldo Workers AI automáticamente (con procedencia visible en la traza).

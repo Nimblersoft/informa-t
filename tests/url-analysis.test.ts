@@ -6,19 +6,19 @@ import { analyzeText } from "../src/server/pipeline/analyze-text";
 import type { AiSearchProvider } from "../src/server/providers/ai-search";
 import type { OpenRouterModelProvider } from "../src/server/providers/openrouter";
 import type { WorkersAiBinding } from "../src/server/providers/workers-ai";
-import { isClaimExtractionV3, parseAnalysisInput, type ClaimExtractionV3, type ProposalV1 } from "../src/shared/contracts";
+import { isClaimExtractionV4, parseAnalysisInput, type ClaimExtractionV4, type ProposalV1 } from "../src/shared/contracts";
 
 const text = "La autoridad electoral publicó un informe verificable durante junio de 2025.";
 
-function claim(rationale = "El informe oficial permitiría contrastar esta afirmación."): ClaimExtractionV3["claims"][number] {
+function claim(rationale = "El informe oficial permitiría contrastar esta afirmación."): ClaimExtractionV4["claims"][number] {
   return {
     verbatim: text,
     rationale,
-    excluded: false,
+    decision: "lista_para_contraste",
   };
 }
 
-const extraction: ClaimExtractionV3 = { schemaVersion: "claim-extraction.v3", claims: [claim()] };
+const extraction: ClaimExtractionV4 = { schemaVersion: "claim-extraction.v4", claims: [claim()] };
 const proposal: ProposalV1 = {
   schemaVersion: "proposal.v1",
   reviewFocus: "Contrastar evidencia",
@@ -165,12 +165,12 @@ describe("URL analysis input and extraction", () => {
     expect(result.claims[0].claim.rationale).toContain("informe oficial");
     expect(result.claims[0].provenance).toEqual({ provider: "openrouter", modelId: LUNA_EXTRACTION_MODEL });
     expect(result.limitations.join(" ")).toContain("más de 3");
-    expect(isClaimExtractionV3(lunaClaims)).toBe(true);
+    expect(isClaimExtractionV4(lunaClaims)).toBe(true);
   });
 
-  it("requires a rationale and rejects model-supplied derived fields in v3", () => {
-    expect(isClaimExtractionV3({ schemaVersion: "claim-extraction.v3", claims: [{ ...claim(), normalizedText: "no permitido" }] })).toBe(false);
-    expect(isClaimExtractionV3({ schemaVersion: "claim-extraction.v3", claims: [{ ...claim(), rationale: "" }] })).toBe(false);
+  it("requires a rationale and rejects model-supplied derived fields in v4", () => {
+    expect(isClaimExtractionV4({ schemaVersion: "claim-extraction.v4", claims: [{ ...claim(), normalizedText: "no permitido" }] })).toBe(false);
+    expect(isClaimExtractionV4({ schemaVersion: "claim-extraction.v4", claims: [{ ...claim(), rationale: "" }] })).toBe(false);
   });
 
   it("falls back to Workers AI with an honest degradation", async () => {

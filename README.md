@@ -11,6 +11,7 @@ El repositorio cuenta con la implementación funcional del shell editorial para 
 - Flujo estructurado de extractos primarios y contexto relacionado separado.
 - Panel analítico con pestañas WAI-ARIA (`Evidencia`, `Modelos` y `Logs`).
 - Trazabilidad auditable con eventos inmutables y enlaces a fuentes primarias abiertas.
+- Auditoría interna de decisiones del extractor en D1 durante siete días, sin guardar el texto fuente completo ni exponer lectura pública.
 - Límite de decisión editorial humana con máquina de estados local y exportación de estándares `ClaimReview` (JSON-LD) y traza de auditoría (JSON).
 - Accesibilidad integral por teclado (WCAG 2.1 AA) y diseño adaptativo libre de desbordamiento horizontal en pantallas de escritorio (1440×900) y móviles (390×844).
 
@@ -60,6 +61,7 @@ npm run test:e2e
 - [docs/specs/accessibility-shell.md](docs/specs/accessibility-shell.md): especificación de accesibilidad, teclado y diseño adaptativo.
 - [docs/specs/editorial-panel.md](docs/specs/editorial-panel.md): especificación del panel de revisión editorial.
 - [docs/specs/editorial-decision.md](docs/specs/editorial-decision.md): especificación de la frontera de decisión editorial y exportaciones.
+- [docs/specs/claim-extraction-audit.md](docs/specs/claim-extraction-audit.md): datos, retención y degradación de la auditoría D1.
 - [docs/specs/mediahack-prd-draft.md](docs/specs/mediahack-prd-draft.md): contrato funcional del MVP de MediaHack II.
 
 ## Referencias

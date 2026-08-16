@@ -299,7 +299,7 @@ export interface EvidenceExcerpt {
   score?: number;
 }
 
-export const CLAIM_EXTRACTION_SCHEMA_VERSION = "claim-extraction.v3" as const;
+export const CLAIM_EXTRACTION_SCHEMA_VERSION = "claim-extraction.v4" as const;
 export const PROPOSAL_SCHEMA_VERSION = "proposal.v1" as const;
 
 export type AnalysisInput =
@@ -337,7 +337,9 @@ export function parseAnalysisInput(value: unknown): AnalysisInputParseResult {
   return { input: { kind: "url", url: value.url.trim() } };
 }
 
-export type ClaimExclusionReason = "opinión" | "predicción" | "retórica" | "ambigüedad";
+export type ClaimExtractionDecision = "lista_para_contraste" | "ambigüedad" | "opinión" | "predicción" | "retórica";
+export type ClaimExclusionReason = Exclude<ClaimExtractionDecision, "lista_para_contraste" | "ambigüedad">;
+export type ClaimPipelineDisposition = "continuar" | "continuar_con_contexto" | "excluir";
 export type SourceAvailability = "disponible" | "insuficiente" | "no consultada";
 
 export interface ClaimLocation {
@@ -355,20 +357,21 @@ export interface ExtractedClaim {
   electorallyRelevant: boolean;
   sourceAvailability: SourceAvailability;
   excluded: boolean;
+  extractionDecision: ClaimExtractionDecision;
+  pipelineDisposition: ClaimPipelineDisposition;
   exclusionReason?: ClaimExclusionReason;
   rationale?: string;
 }
 
-export interface ClaimExtractionV3Claim {
+export interface ClaimExtractionV4Claim {
   verbatim: string;
   rationale: string;
-  excluded: boolean;
-  exclusionReason?: ClaimExclusionReason;
+  decision: ClaimExtractionDecision;
 }
 
-export interface ClaimExtractionV3 {
+export interface ClaimExtractionV4 {
   schemaVersion: typeof CLAIM_EXTRACTION_SCHEMA_VERSION;
-  claims: ClaimExtractionV3Claim[];
+  claims: ClaimExtractionV4Claim[];
 }
 
 export type ReviewFocus = "Contrastar evidencia" | "Evidencia limitada" | "Revisar contexto";
@@ -388,13 +391,13 @@ export interface ProposalV1 {
   };
 }
 
-export function isClaimExtractionV3(value: unknown): value is ClaimExtractionV3 {
+export function isClaimExtractionV4(value: unknown): value is ClaimExtractionV4 {
   return (
     isRecord(value) &&
     hasOnlyKeys(value, ["schemaVersion", "claims"]) &&
     value.schemaVersion === CLAIM_EXTRACTION_SCHEMA_VERSION &&
     Array.isArray(value.claims) &&
-    value.claims.every(isClaimExtractionV3Claim)
+    value.claims.every(isClaimExtractionV4Claim)
   );
 }
 
@@ -464,21 +467,19 @@ function hasOnlyKeys(value: Record<string, unknown>, keys: readonly string[]): b
   return valueKeys.length === keys.length && valueKeys.every((key) => keys.includes(key));
 }
 
-function isClaimExtractionV3Claim(value: unknown): value is ClaimExtractionV3Claim {
+function isClaimExtractionV4Claim(value: unknown): value is ClaimExtractionV4Claim {
   if (
     !isRecord(value) ||
-    !hasAllowedKeys(value, ["verbatim", "rationale", "excluded", "exclusionReason"]) ||
-    !hasRequiredKeys(value, ["verbatim", "rationale", "excluded"]) ||
+    !hasOnlyKeys(value, ["verbatim", "rationale", "decision"]) ||
+    !hasRequiredKeys(value, ["verbatim", "rationale", "decision"]) ||
     !isNonEmptyString(value.verbatim) ||
     !isNonEmptyString(value.rationale) ||
-    typeof value.excluded !== "boolean"
+    !isClaimExtractionDecision(value.decision)
   ) {
     return false;
   }
 
-  return value.excluded
-    ? isClaimExclusionReason(value.exclusionReason)
-    : value.exclusionReason === undefined;
+  return true;
 }
 
 function hasAllowedKeys(value: Record<string, unknown>, keys: readonly string[]): boolean {
@@ -489,8 +490,8 @@ function hasRequiredKeys(value: Record<string, unknown>, keys: readonly string[]
   return keys.every((key) => key in value);
 }
 
-function isClaimExclusionReason(value: unknown): value is ClaimExclusionReason {
-  return value === "opinión" || value === "predicción" || value === "retórica" || value === "ambigüedad";
+function isClaimExtractionDecision(value: unknown): value is ClaimExtractionDecision {
+  return value === "lista_para_contraste" || value === "ambigüedad" || value === "opinión" || value === "predicción" || value === "retórica";
 }
 
 function isReviewFocus(value: unknown): value is ReviewFocus {

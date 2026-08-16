@@ -1745,6 +1745,8 @@ a:hover {
 .analysis-log-entry { grid-template-columns: max-content 1fr 1fr 1fr; align-items: center; font-size: 0.82rem; color: var(--text-secondary); }
 .analysis-error { color: var(--rose-accent); }
 .analysis-disclaimer { color: var(--text-secondary); font-size: 0.85rem; }
+.analysis-output-notice { color: var(--brand-primary); font-size: 0.9rem; font-weight: 700; }
+.empty-editorial-state { padding: 1rem; color: var(--text-secondary); border: 1px dashed var(--border-strong); border-radius: var(--radius-sm); background: var(--bg-tertiary); }
 
 @media (max-width: 640px) {
   .analysis-stage-list { grid-template-columns: repeat(2, 1fr); }
@@ -1827,6 +1829,12 @@ a:hover {
 .analysis-result-card:hover {
   border-color: var(--border-strong);
   box-shadow: 0 5px 14px rgba(23, 32, 51, 0.08);
+}
+
+.proposal-card .meta-val,
+.proposal-card .proposal-message,
+.context-description {
+  overflow-wrap: anywhere;
 }
 
 .excerpt-card.selected,

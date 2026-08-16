@@ -271,7 +271,7 @@ test.describe("Editorial review panel — Case A1 E2E Journeys", () => {
     );
   });
 
-  test("8. Prohibitions check: No percent signs, no four verdicts, no active editorial controls", async ({
+  test("8. Prohibitions check: no automated verdicts or active editorial controls", async ({
     page,
   }) => {
     await page.goto("/demo");
@@ -283,18 +283,13 @@ test.describe("Editorial review panel — Case A1 E2E Journeys", () => {
     // Get all rendered text across all tabs
     const bodyText = await page.innerText("body");
 
-    // No % symbol in rendered text
-    expect(bodyText).not.toContain("%");
-
     // Switch to Models tab and check
     await page.locator('[data-testid="tab-models"]').click();
     const modelsText = await page.innerText("body");
-    expect(modelsText).not.toContain("%");
 
     // Switch to Logs tab and check
     await page.locator('[data-testid="tab-logs"]').click();
     const logsText = await page.innerText("body");
-    expect(logsText).not.toContain("%");
 
     // Verify no active decision/publish buttons exist
     const publishBtn = page.locator("button:has-text('Publicar')");

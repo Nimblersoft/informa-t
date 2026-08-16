@@ -16,10 +16,12 @@ Indice de la wiki del proyecto. El contexto operativo para agentes esta en [AGEN
 - [ADR-0002: Explicabilidad mediante trazas estructuradas](adr/0002-explicabilidad-mediante-trazas-estructuradas.md) - Define la pestana de logs auditables y el limite entre justificacion estructurada y razonamiento interno privado.
 - [ADR-0003: Interfaz editorial con evidencia, modelos y logs](adr/0003-ui-editorial-con-evidencia-modelos-y-logs.md) - Fija el flujo de extractos, las pestañas analíticas, los seis veredictos y los índices normalizados.
 - [ADR-0004: Runtime Cloudflare y modos de análisis](adr/0004-runtime-cloudflare-y-modos-de-analisis.md) - Fija el stack mínimo, los bindings y la separación entre fixtures capturados e inferencia en vivo.
+- [ADR-0005: Auditoría durable de decisiones del extractor](adr/0005-auditoria-durable-de-decisiones-del-extractor.md) - Supersede solo la prohibición de D1 de ADR-0004 para la auditoría privada de siete días.
 
 ## Especificaciones
 
 - [Especificación del MVP de MediaHack](specs/mediahack-prd-draft.md) - contrato funcional y técnico vigente para implementar el prototipo.
+- [Auditoría de extracción de aseveraciones](specs/claim-extraction-audit.md) - datos permitidos, retención, acceso operativo y fallos seguros.
 
 ## Investigacion
 

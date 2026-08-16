@@ -3,6 +3,7 @@
 import React, { useRef, useState } from "react";
 import { streamAnalysis } from "../analysis-stream";
 import type { AnalysisEvent, ClaimExtractedData } from "../../shared/analysis-events";
+import type { TraceEvent } from "../../shared/contracts";
 
 type Stage = "claims" | "evidence" | "models" | "consensus";
 
@@ -13,12 +14,16 @@ const STAGES: readonly { id: Stage; label: string }[] = [
   { id: "consensus", label: "Comparación" },
 ];
 
+export const DEFAULT_ANALYSIS_INPUT = "Según los últimos reportes oficiales del INEC, la pobreza por ingresos a nivel nacional se ubicó en el 25,5% en junio de 2025, mientras que la pobreza extrema alcanzó el 8,4%.";
+
 interface LiveAnalysisPanelProps {
-  onNavigateToLog?: (eventId: string) => void;
+  onTraceEvent?: (event: TraceEvent) => void;
+  onAnalysisReset?: () => void;
+  onAnalysisEvent?: (event: AnalysisEvent) => void;
 }
 
-export const LiveAnalysisPanel: React.FC<LiveAnalysisPanelProps> = ({ onNavigateToLog }) => {
-  const [input, setInput] = useState("");
+export const LiveAnalysisPanel: React.FC<LiveAnalysisPanelProps> = ({ onTraceEvent, onAnalysisReset, onAnalysisEvent }) => {
+  const [input, setInput] = useState(DEFAULT_ANALYSIS_INPUT);
   const [status, setStatus] = useState<"idle" | "running" | "completed" | "partial" | "failed">("idle");
   const [stage, setStage] = useState<Stage | null>(null);
   const [events, setEvents] = useState<AnalysisEvent[]>([]);
@@ -27,6 +32,8 @@ export const LiveAnalysisPanel: React.FC<LiveAnalysisPanelProps> = ({ onNavigate
 
   const handleEvent = (event: AnalysisEvent) => {
     setEvents((current) => [...current, event]);
+    onAnalysisEvent?.(event);
+    if (event.type === "claim.extracted") onTraceEvent?.(event.data.traceEvent);
     if (event.type === "claim.extracted") setStage("claims");
     if (event.type === "evidence.retrieved") setStage("evidence");
     if (event.type === "model.completed" || event.type === "model.failed") setStage("models");
@@ -37,6 +44,7 @@ export const LiveAnalysisPanel: React.FC<LiveAnalysisPanelProps> = ({ onNavigate
   const run = async () => {
     setError(null);
     setEvents([]);
+    onAnalysisReset?.();
     setStage(null);
     setStatus("running");
     controller.current = new AbortController();
@@ -55,9 +63,6 @@ export const LiveAnalysisPanel: React.FC<LiveAnalysisPanelProps> = ({ onNavigate
   const completion = completedEvents.at(-1) as Extract<AnalysisEvent, { type: "analysis.completed" }> | undefined;
   const extracted = latestClaims(events);
   const claims = (extracted?.claims ?? completion?.data.claims.map((claim) => claim.claim) ?? []).filter((claim) => claim.location !== undefined);
-  const evidence = events.filter((event): event is Extract<AnalysisEvent, { type: "evidence.retrieved" }> => event.type === "evidence.retrieved");
-  const proposals = events.filter((event): event is Extract<AnalysisEvent, { type: "model.completed" | "model.failed" }> => event.type === "model.completed" || event.type === "model.failed");
-  const consensus = events.filter((event): event is Extract<AnalysisEvent, { type: "consensus.completed" }> => event.type === "consensus.completed");
   const hasGroundedEvidence = completion?.data.claims.some((item) => !item.claim.excluded && item.evidence.length > 0) ?? false;
   const effectiveStatus = status === "completed" && !hasGroundedEvidence ? "partial" : status;
   const limitations = completion?.data.limitations.length
@@ -109,11 +114,8 @@ export const LiveAnalysisPanel: React.FC<LiveAnalysisPanelProps> = ({ onNavigate
         </div>
       )}
       {limitations.length > 0 && <section className="analysis-limitations" data-testid="analysis-limitations" aria-label="Limitaciones del análisis"><h3>Limitaciones</h3><ul>{limitations.map((limitation, index) => <li key={`${limitation}-${index}`}>{limitation}</li>)}</ul></section>}
-      {claims.length > 0 && <section className="analysis-results" aria-label="Aseveraciones extraídas"><h3>Aseveraciones extraídas</h3>{claims.map((claim, index) => <article key={`${claim.location?.start ?? claim.verbatimText}-${index}`} className="analysis-result-card"><p>{claim.verbatimText}</p>{claim.rationale && <p>{claim.rationale}</p>}<span>{claim.excluded ? "Excluida de propuestas" : "Lista para contraste"}</span></article>)}</section>}
-      {evidence.length > 0 && <section className="analysis-results" aria-label="Evidencia recuperada"><h3>Evidencia recuperada</h3>{evidence.flatMap((event) => event.data.excerpts.map((excerpt) => <article key={excerpt.id} className="analysis-result-card"><a href={excerpt.sourceUrl} target="_blank" rel="noreferrer">{excerpt.title}</a><p>{excerpt.excerpt}</p><button type="button" className="btn-link-log" onClick={() => event.data.traceEventId && onNavigateToLog?.(event.data.traceEventId)}>Ver traza: {event.data.traceEventId ?? "no disponible"}</button></article>))}</section>}
-      {proposals.length > 0 && <section className="analysis-results" aria-label="Propuestas no vinculantes"><h3>Propuestas no vinculantes</h3>{proposals.map((event, index) => <article key={`${event.id || event.type}-${index}`} className="analysis-result-card"><strong>{event.data.proposal.model}</strong><span>Proveedor: {event.data.proposal.provenance.provider} · {event.type === "model.failed" ? "No disponible" : "Disponible"}</span><p>{event.data.proposal.proposal?.reviewFocus ?? event.data.proposal.limitation}</p><button type="button" className="btn-link-log" onClick={() => onNavigateToLog?.(event.data.traceEventId)}>Ver traza: {event.data.traceEventId}</button></article>)}</section>}
-      {consensus.length > 0 && <section className="analysis-results" aria-label="Comparación no vinculante"><h3>Comparación no vinculante</h3>{consensus.map((event) => <article key={event.id} className="analysis-result-card"><p>{event.data.consensus ? `Acuerdo reportado: ${event.data.consensus.agreement}` : "No se reportó acuerdo suficiente entre propuestas."}</p><span>{event.data.consensus?.reviewFocus ?? "La comparación queda pendiente de revisión humana."}</span><button type="button" className="btn-link-log" onClick={() => onNavigateToLog?.(event.data.traceEventId)}>Ver traza: {event.data.traceEventId}</button></article>)}</section>}
-      {events.length > 0 && <section className="analysis-live-log" aria-label="Logs del análisis"><h3>Logs del análisis</h3>{events.map((event, index) => <article key={`${event.id || event.type}-${index}`} className="analysis-log-entry"><button type="button" className="btn-link-log" onClick={() => traceId(event) && onNavigateToLog?.(traceId(event) as string)}>{event.type}</button><span>Versión {event.data.pipelineVersion} · {event.data.durationMs} ms · Reintentos: {event.data.retries}</span><span>Uso: {event.data.usage ? JSON.stringify(event.data.usage) : "no reportado"}</span><span>Degradaciones: {event.data.degradations.length > 0 ? event.data.degradations.join("; ") : "ninguna"}</span></article>)}</section>}
+      {claims.length > 0 && <p className="analysis-output-notice">El resultado se despliega en los extractos, las pestañas de evidencia y modelos, y la bitácora editorial de esta misma vista.</p>}
+       <p className="analysis-audit-notice">La aseveración y su decisión se conservan durante 7 días para auditoría interna; el texto fuente completo no se guarda.</p>
       <p className="analysis-disclaimer">Las propuestas y su comparación son insumos no vinculantes. La decisión editorial siempre la toma una persona.</p>
     </section>
   );
@@ -134,10 +136,6 @@ function isValidInput(value: string): boolean {
     }
   }
   return input.length >= 20 && input.length <= 20_000;
-}
-
-function traceId(event: AnalysisEvent): string | undefined {
-  return "traceEventId" in event.data ? event.data.traceEventId || undefined : undefined;
 }
 
 function downloadAnalysis(events: readonly AnalysisEvent[], analysisId: string): void {

@@ -4,6 +4,7 @@ export const CLAIM_EXTRACTION_MODEL = "@cf/zai-org/glm-4.7-flash" as const;
 export const LUNA_EXTRACTION_MODEL = "openai/gpt-5.6-luna" as const;
 export const EXTRACTION_ATTEMPT_TIMEOUT_MS = 20_000;
 export const EXTRACTION_TIMEOUT_MS = 45_000;
+export const PROPOSAL_ATTEMPT_TIMEOUT_MS = 20_000;
 
 export const PROPOSAL_MODELS = [
   "@cf/zai-org/glm-4.7-flash",

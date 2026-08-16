@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { parseDemoCase } from "../src/shared/contracts";
 import a1FixtureJson from "../src/fixtures/cases/a1.json";
-import app from "../src/worker";
+import { app } from "../src/worker";
 
 describe("demo case route and contract schema", () => {
   it("returns the schema-valid A1 synthetic case without external calls", async () => {

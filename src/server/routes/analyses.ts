@@ -14,6 +14,7 @@ import { parseAnalysisInput, type AnalysisInput } from "../../shared/contracts";
 import { analyzeText, type AnalyzeTextOptions } from "../pipeline/analyze-text";
 import { ArticleFetchError, fetchArticleText, type ArticleFetchOptions } from "../article-fetch";
 import { PROPOSAL_MODELS } from "../config/models";
+import { AUDIT_RETENTION_MS, persistClaimExtractionAudit, type AuditDatabase } from "../audit/claim-extraction-audit";
 import { createAiSearchProvider, type AiSearchNamespaceBinding, type AiSearchProvider } from "../providers/ai-search";
 import { OpenRouterClient, type OpenRouterModelProvider } from "../providers/openrouter";
 import type { WorkersAiBinding } from "../providers/workers-ai";
@@ -23,6 +24,7 @@ export interface AnalysisRouteEnv {
   AI_SEARCH: AiSearchNamespaceBinding;
   BROWSER: BrowserRun;
   OPENROUTER_API_KEY?: string;
+  AUDIT_DB?: AuditDatabase;
 }
 
 export interface AnalysisRouteDependencies {
@@ -32,6 +34,7 @@ export interface AnalysisRouteDependencies {
   now?: () => number;
   analyze?: typeof analyzeText;
   fetchArticle?: (url: string, options: ArticleFetchOptions) => Promise<string>;
+  audit?: AuditDatabase;
 }
 
 export const analysisRoutes = createAnalysisRoutes();
@@ -67,6 +70,7 @@ export function createAnalysisRoutes(dependencies?: AnalysisRouteDependencies): 
     return streamSSE(context, async (stream) => {
       const controller = new AbortController();
       let startedAt = now();
+      const auditDegradations: string[] = [];
       const abort = () => controller.abort();
       stream.onAbort(abort);
       context.req.raw.signal.addEventListener("abort", abort, { once: true });
@@ -127,12 +131,39 @@ export function createAnalysisRoutes(dependencies?: AnalysisRouteDependencies): 
           now,
           onProgress: async (progress) => {
             if (progress.type === "claim.extracted") {
+              const auditDb = resolved.audit ?? env?.AUDIT_DB;
+              try {
+                await withTimeout(
+                  persistClaimExtractionAudit(auditDb, progress.claims.map((claim, claimIndex) => ({
+                    analysisId,
+                    claimIndex,
+                    traceEventId: progress.traceEvent.id,
+                    claimText: claim.verbatimText,
+                    extractorDecision: claim.extractionDecision,
+                    pipelineDisposition: claim.pipelineDisposition,
+                    rationale: claim.rationale ?? "",
+                    provider: progress.provenance.provider,
+                    modelId: progress.provenance.modelId,
+                    promptVersion: ANALYSIS_PROMPT_VERSION,
+                    pipelineVersion: ANALYSIS_PIPELINE_VERSION,
+                    canonicalHash: progress.traceEvent.canonicalHash,
+                    degradations: progress.degradations ?? [],
+                    createdAt: now(),
+                    expiresAt: now() + AUDIT_RETENTION_MS,
+                  }))),
+                  5_000,
+                );
+              } catch {
+                const limitation = "La auditoría interna no está disponible; la evidencia y las propuestas continúan, pero el análisis termina como parcial.";
+                auditDegradations.push(limitation);
+              }
               await write("claim.extracted", {
                 analysisId,
                 claims: progress.claims,
                 provenance: progress.provenance,
                 traceEventId: progress.traceEventId,
-              }, { retries: progress.retries, degradations: progress.degradations });
+                traceEvent: progress.traceEvent,
+              }, { retries: progress.retries, degradations: [...(progress.degradations ?? []), ...auditDegradations] });
             } else if (progress.type === "evidence.retrieved") {
               await write("evidence.retrieved", {
                 analysisId,
@@ -159,13 +190,14 @@ export function createAnalysisRoutes(dependencies?: AnalysisRouteDependencies): 
         };
         const result = await runAnalysis(options);
         const traceEventIds = result.traceEvents.map((event) => event.id);
+        const terminalLimitations = [...new Set([...result.limitations, ...auditDegradations])];
         await write("analysis.completed", {
           analysisId,
-          status: result.status === "invalid" ? "failed" : result.status,
+          status: auditDegradations.length > 0 ? "partial" : result.status === "invalid" ? "failed" : result.status,
           claims: result.claims,
-          limitations: result.limitations,
+          limitations: terminalLimitations,
           traceEventIds,
-        }, { degradations: result.limitations });
+        }, { degradations: terminalLimitations });
       } catch (error) {
         if (!controller.signal.aborted && !stream.aborted) {
           const message = error instanceof Error ? error.message : "El análisis no pudo completarse.";
@@ -197,4 +229,18 @@ export function createAnalysisRoutes(dependencies?: AnalysisRouteDependencies): 
   });
 
   return routes;
+}
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => reject(new Error("La auditoría agotó el tiempo disponible.")), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
+  }
 }
