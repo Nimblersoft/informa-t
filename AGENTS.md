@@ -3,7 +3,7 @@
 informa-t is a proposed MediaHack II MVP for journalists and fact-checking teams to investigate electoral-information claims against auditable primary sources. It assists analysis and evidence tracing; an editor retains every public verification decision.
 
 > [!NOTE]
-> `prototype/index.html` is an exploratory, non-productive visual reference only. The functional and accessible implementation resides under `src/` and is served via Vite + React.
+> The functional and accessible implementation resides under `src/` and is served via Vite + React. Public presentation and prototype views are available at `/presentation` and `/prototype`.
 
 > [!WARNING]
 > `AGENTS.md` is the agent-context SSOT. Domain terminology belongs in [CONTEXT.md](CONTEXT.md); decisions in `docs/adr/`; specifications in `docs/specs/`. Filing rules: [docs/docs-organization-blueprint.md](docs/docs-organization-blueprint.md).

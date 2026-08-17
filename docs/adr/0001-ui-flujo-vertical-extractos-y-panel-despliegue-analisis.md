@@ -8,7 +8,7 @@ reemplazado_por: "docs/adr/0003-ui-editorial-con-evidencia-modelos-y-logs.md"
 fuentes:
   - "docs/specs/mediahack-prd-draft.md"
   - "https://notebook.google.com/notebook/d4459705-32df-4b72-8c47-6a4730d5f461"
-  - "prototype/index.html"
+  - "src/client/components/PrototypePreview.tsx"
 ---
 
 # ADR-0001: Arquitectura de Interfaz - Flujo Vertical de Extractos y Panel de Despliegue de Análisis Reactivo
@@ -17,7 +17,7 @@ fuentes:
 
 Para la plataforma **informa-t** (MVP de MediaHack II), periodistas y salas de redacción requieren una interfaz para investigar publicaciones dudosas y contrastarlas contra fuentes primarias oficiales (planes de trabajo registrados ante el CNE, encuestas del INEC, legislación vigente). 
 
-Durante el proceso de prototipado interactivo ([`prototype/index.html`](../../prototype/index.html)) se evaluaron tres propuestas estructurales de interfaz y se consultaron las recomendaciones del proyecto **Stanford Web Credibility**, la norma **JTI (CEN CWA 17493)**, los **8 Indicadores de The Trust Project** y los patrones de diseño de **AI UX (Citations & Verification Lifecycle)**.
+Durante el proceso de prototipado interactivo ([`PrototypePreview.tsx`](../../src/client/components/PrototypePreview.tsx)) se evaluaron tres propuestas estructurales de interfaz y se consultaron las recomendaciones del proyecto **Stanford Web Credibility**, la norma **JTI (CEN CWA 17493)**, los **8 Indicadores de The Trust Project** y los patrones de diseño de **AI UX (Citations & Verification Lifecycle)**.
 
 Un reto central identificado es que un documento, video o URL de campaña electoral contiene múltiples aseveraciones fácticas distribuidas a lo largo de varios minutos o párrafos. Tratar el documento como un bloque monolítico genera ambigüedad, oculta discrepancias específicas y dificulta la emisión de calificaciones editoriales precisas.
 

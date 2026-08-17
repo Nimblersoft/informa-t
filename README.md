@@ -3,7 +3,7 @@
 informa-t es un MVP propuesto para MediaHack II que permite a periodistas y equipos de verificación examinar afirmaciones sobre información electoral con fuentes primarias auditables. Opera estrictamente como un asistente editorial de soporte a la decisión, preservando el control humano exclusivo sobre cualquier veredicto de verificación pública.
 
 > [!NOTE]
-> `prototype/index.html` es una referencia visual exploratoria no productiva. La implementación funcional y accesible del shell editorial reside en `src/client/` y se ejecuta mediante la aplicación React + Vite.
+> La implementación funcional y accesible del shell editorial reside en `src/client/` y se ejecuta mediante la aplicación React + Vite. Las vistas públicas de presentación y prototipo están disponibles en `/presentation` y `/prototype`.
 
 ## Estado del Proyecto
 
