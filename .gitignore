@@ -20,3 +20,6 @@ docs/pitch/
 corpus/
 
 .kilo
+
+# Orchestrator agent workspace (local-only)
+.agents/orchestrator/
