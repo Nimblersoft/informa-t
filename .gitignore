@@ -23,3 +23,6 @@ corpus/
 
 # Orchestrator agent workspace (local-only)
 .agents/orchestrator/
+
+# Generated QA screenshots from agent runs
+presentation/screenshots/
