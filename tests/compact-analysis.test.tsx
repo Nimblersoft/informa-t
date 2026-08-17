@@ -43,7 +43,7 @@ describe("PublicWalkthrough", () => {
 
     expect(screen.getByTestId("walkthrough-shell").getAttribute("data-ready")).toBe("true");
     expect(screen.getByRole("heading", { name: "Recorrido de la demostración" })).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Iniciar análisis en vivo" }).getAttribute("href")).toBe("/");
+    expect(screen.getByRole("link", { name: "Iniciar análisis en vivo" }).getAttribute("href")).toBe("/app");
     expect(screen.getByRole("link", { name: "Abrir caso A1 de demostración" }).getAttribute("href")).toBe("/demo");
     expect(screen.getByRole("link", { name: "Abrir vista compacta" }).getAttribute("href")).toBe("/compact");
     expect(screen.getByText("La decisión editorial no se automatiza")).toBeTruthy();

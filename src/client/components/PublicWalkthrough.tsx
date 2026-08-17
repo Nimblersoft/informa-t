@@ -19,7 +19,7 @@ export const PublicWalkthrough: React.FC = () => (
               <p>
                 Pega texto o una URL pública para organizar afirmaciones, evidencia primaria enlazable y límites del análisis.
               </p>
-              <a className="walkthrough-action" href="/">
+              <a className="walkthrough-action" href="/app">
                 Iniciar análisis en vivo
               </a>
             </article>
