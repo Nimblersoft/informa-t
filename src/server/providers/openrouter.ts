@@ -46,6 +46,8 @@ export class OpenRouterClient implements OpenRouterModelProvider {
       headers: {
         authorization: `Bearer ${this.apiKey}`,
         "content-type": "application/json",
+        "HTTP-Referer": "https://informa-t.nimblersoft.com",
+        "X-Title": "informa-t",
       },
       body: JSON.stringify({ model, messages: payload.messages, response_format: { type: "json_object" } }),
       signal: options?.signal,

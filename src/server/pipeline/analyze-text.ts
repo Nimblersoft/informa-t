@@ -32,6 +32,10 @@ export interface ProposalAttempt {
     attempted: boolean;
     reason: "timeout" | "quota" | "outage" | "invalid_response";
     outcome: "success" | "failed";
+    fromProvider?: "workers-ai" | "openrouter";
+    toProvider?: "workers-ai" | "openrouter";
+    fromModel?: string;
+    toModel?: string;
   };
   retries: number;
 }
@@ -174,7 +178,7 @@ export async function analyzeText(options: AnalyzeTextOptions): Promise<TextAnal
       limitations.push(limitation);
     }
     if (extraction.fallback?.attempted && extraction.fallback.outcome === "success") {
-      const fallbackLimitation = "La extracción supervisora Luna no estuvo disponible; se utilizó Workers AI como respaldo.";
+      const fallbackLimitation = "La extracción supervisora de OpenRouter no estuvo disponible; se utilizó Workers AI como respaldo.";
       extractionDegradations.push(fallbackLimitation);
       limitations.push(fallbackLimitation);
     }
@@ -315,16 +319,19 @@ async function analyzeClaim(claim: ExtractedClaim, extractionProvenance: ModelPr
       traceEventId: proposalTrace.id,
     });
     if (proposal.fallback?.attempted) {
+      const fallbackProviderName = proposal.fallback.toProvider === "workers-ai" ? "Workers AI" : "OpenRouter";
       traceEvents.push(await createTrace(
         "Análisis",
         "Respaldo de proveedor",
         proposal.fallback.outcome === "success"
-          ? "Se utilizó OpenRouter como respaldo para esta propuesta."
-          : "El respaldo OpenRouter no produjo una propuesta válida.",
+          ? `Se utilizó ${fallbackProviderName} como respaldo para esta propuesta.`
+          : `El respaldo ${fallbackProviderName} no produjo una propuesta válida.`,
         proposal.fallback.outcome === "success" ? "Completado" : "Fallido",
         {
-          fromProvider: "workers-ai",
-          toProvider: "openrouter",
+          fromProvider: proposal.fallback.fromProvider,
+          toProvider: proposal.fallback.toProvider,
+          fromModel: proposal.fallback.fromModel,
+          toModel: proposal.fallback.toModel,
           reason: proposal.fallback.reason,
           provider: proposal.provenance.provider,
           model: proposal.provenance.modelId,
@@ -446,16 +453,33 @@ async function runModel<T>(options: AnalyzeTextOptions, model: typeof CLAIM_EXTR
   signal: AbortSignal;
   timeoutMs?: number;
 }) {
+  if (!options.openRouter || options.openRouter.isConfigured === false) {
+    return runJsonWithProviderFallback<T>({
+      primary: options.ai,
+      primaryModel: model,
+      input: request.input,
+      repairInput: request.repairInput,
+      guard: request.guard,
+      signal: request.signal,
+      timeoutMs: request.timeoutMs,
+      fallbackUnavailableLimitation: "No hay una clave de OpenRouter configurada; el análisis continúa solo con Workers AI.",
+    });
+  }
+
   return runJsonWithProviderFallback<T>({
-    primary: options.ai,
-    primaryModel: model,
-    fallback: options.openRouter && options.openRouter.isConfigured !== false ? { ai: options.openRouter, model: getOpenRouterModel(model) } : undefined,
+    primary: options.openRouter,
+    primaryModel: getOpenRouterModel(model),
+    primaryProvider: "openrouter",
+    fallback: { ai: options.ai, model },
+    fallbackProvider: "workers-ai",
+    fallbackOnInvalidResponse: true,
     input: request.input,
     repairInput: request.repairInput,
     guard: request.guard,
     signal: request.signal,
     timeoutMs: request.timeoutMs,
     fallbackUnavailableLimitation: "No hay una clave de OpenRouter configurada; el análisis continúa solo con Workers AI.",
+    fallbackLabel: "Workers AI",
   });
 }
 

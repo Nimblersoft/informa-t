@@ -12,7 +12,7 @@ function record(overrides: Partial<ClaimExtractionAuditRecord> = {}): ClaimExtra
     pipelineDisposition: "continuar_con_contexto",
     rationale: "Falta período, geografía o base.",
     provider: "openrouter",
-    modelId: "openai/gpt-5.6-luna",
+    modelId: "google/gemma-4-31b-it:free",
     promptVersion: "claim-extraction-prompt.v4",
     pipelineVersion: "analysis-sse.v1",
     canonicalHash: "a".repeat(64),

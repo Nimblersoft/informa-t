@@ -1,18 +1,18 @@
-# Spec: Respaldo de modelos Luna y Workers AI
+# Spec: Respaldo de modelos OpenRouter Free y Workers AI
 
 ## Alcance
 
-La extracción usa OpenRouter con `openai/gpt-5.6-luna` como proveedor supervisor para `claim-extraction.v4`, con prompt `claim-extraction-prompt.v4`. El modelo devuelve únicamente el fragmento literal, un encuadre supervisor breve y una decisión explícita. Si Luna falla por indisponibilidad, cuota, tiempo agotado o JSON inválido después de una reparación, intenta la extracción actual de Workers AI como respaldo y conserva una degradación visible. Las propuestas `proposal.v1` mantienen Workers AI como primario y su respaldo OpenRouter equivalente.
+La extracción usa OpenRouter con `google/gemma-4-31b-it:free` como proveedor supervisor para `claim-extraction.v4`, con prompt `claim-extraction-prompt.v4`. El modelo devuelve únicamente el fragmento literal, un encuadre supervisor breve y una decisión explícita. Si el supervisor falla por indisponibilidad, cuota, tiempo agotado o JSON inválido después de una reparación, intenta la extracción de Workers AI (`@cf/zai-org/glm-4.7-flash`) como respaldo y conserva una degradación visible. Las propuestas multi-modelo utilizan los modelos gratuitos de OpenRouter como proveedor primario (`z-ai/glm-5.2:free`, `google/gemma-4-31b-it:free`, `nvidia/nemotron-3-nano-30b-a3b:free`) y Cloudflare Workers AI como respaldo.
 
 ## Configuración y secretos
 
-- `src/server/config/models.ts` contiene el mapa de equivalencias entre IDs de Workers AI y slugs de OpenRouter.
+- `src/server/config/models.ts` contiene el mapa de equivalencias entre IDs de Workers AI y modelos gratuitos de OpenRouter (`:free`).
 - `OPENROUTER_API_KEY` se obtiene exclusivamente del entorno o binding de secreto inyectado por el runtime. Nunca se registra, persiste ni incluye en trazas.
 - Sin clave configurada, el motor conserva el comportamiento Workers-AI-only y agrega una limitación visible en español; no lanza un error de configuración al usuario.
 
 ## Cliente y presupuesto
 
-`OpenRouterClient` usa `fetch` contra `/api/v1/chat/completions`, envía los mensajes de extracción y `response_format: { type: "json_object" }`. Cada intento de extracción tiene 20.000 ms y puede repetirse exactamente una vez cuando se agota el tiempo; la etapa completa tiene un techo de 45.000 ms, independiente y menor que el presupuesto total predeterminado de 90.000 ms. Cada intento de propuesta, primario o de respaldo, también tiene un techo independiente de 20.000 ms. Estos límites aplican tanto a Luna como a Workers AI y evitan que una invocación colgada consuma todo el análisis. La entrada de extracción se limita a 8.000 caracteres; si se recorta, se registra una limitación visible en español.
+`OpenRouterClient` usa `fetch` contra `/api/v1/chat/completions`, envía los mensajes de extracción, cabeceras `HTTP-Referer` y `X-Title` para la política de OpenRouter, y `response_format: { type: "json_object" }`. Cada intento de extracción tiene 20.000 ms y puede repetirse exactamente una vez cuando se agota el tiempo; la etapa completa tiene un techo de 45.000 ms, independiente y menor que el presupuesto total predeterminado de 90.000 ms. Cada intento de propuesta, primario o de respaldo, también tiene un techo independiente de 20.000 ms. Estos límites aplican tanto al supervisor como a Workers AI y evitan que una invocación colgada consuma todo el análisis. La entrada de extracción se limita a 8.000 caracteres; si se recorta, se registra una limitación visible en español.
 
 Cada proveedor conserva exactamente un intento de reparación para una respuesta JSON inválida. En extracción, una respuesta inválida después de la reparación activa Workers AI; en propuestas se conserva la regla existente y no se fabrica una propuesta. Para una aseveración `ambigüedad`, la reparación exige `reviewFocus: "Revisar contexto"`, incertidumbre no vacía y al menos una limitación.
 

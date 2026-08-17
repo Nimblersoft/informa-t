@@ -68,4 +68,4 @@ El rollback de Workers es inmediato y sin reconstrucción (mismo código ya subi
 
 - La auditoría de extracción persiste solo decisiones mínimas durante siete días; el Cron Trigger elimina filas vencidas. No existe una ruta pública para consultar la tabla.
 - `OPENROUTER_API_KEY` vive en secretos del Worker (Infisical como fuente); nunca en código ni en este runbook.
-- La cuota de OpenRouter es de pago por uso; una demo consume ~2-4 invocaciones de extracción. Si se agota, la etapa cae al respaldo Workers AI automáticamente (con procedencia visible en la traza).
+- El sistema utiliza modelos gratuitos de OpenRouter (`google/gemma-4-31b-it:free`, `z-ai/glm-5.2:free`, `nvidia/nemotron-3-nano-30b-a3b:free`) con costo $0 de inferencia. Si OpenRouter se agota o no está configurado, la etapa cae al respaldo Workers AI o fixtures automáticamente (con procedencia visible en la traza).

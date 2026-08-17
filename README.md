@@ -53,6 +53,20 @@ npm run test:unit
 npm run test:e2e
 ```
 
+## Colaboración Abierta y Continuidad del Proyecto
+
+`informa-t` es un proyecto de código abierto disponible para periodistas, investigadores y desarrolladores que deseen colaborar en herramientas de verificación auditable y trazabilidad documental.
+
+### Modelos Gratuitos de OpenRouter y Presupuesto Cero
+El motor está optimizado para operar sin costos recurrentes utilizando modelos de nivel gratuito (`:free`) de [OpenRouter](https://openrouter.ai):
+- **Extractor Supervisor:** `google/gemma-4-31b-it:free` (extracción estructurada de aseveraciones con contexto de 262k).
+- **Propuestas Multi-Modelo:** Respaldos automáticos a `z-ai/glm-5.2:free`, `google/gemma-4-31b-it:free` y `nvidia/nemotron-3-nano-30b-a3b:free`.
+- **Ejecución Local / Pruebas:** Opera con fixtures sintéticos sin requerir claves de API externas.
+
+### Endpoints Disponibles
+- `GET /api/demo/cases/a1`: Caso demo A1 estructurado con trazabilidad y citas completas.
+- `POST /api/analyses`: Pipeline de análisis en vivo por SSE (recibe `{ text: string }` o `{ url: string }`).
+
 ## Documentación
 
 - [AGENTS.md](AGENTS.md): contexto operativo para agentes, comandos y arquitectura.
@@ -61,6 +75,7 @@ npm run test:e2e
 - [docs/specs/accessibility-shell.md](docs/specs/accessibility-shell.md): especificación de accesibilidad, teclado y diseño adaptativo.
 - [docs/specs/editorial-panel.md](docs/specs/editorial-panel.md): especificación del panel de revisión editorial.
 - [docs/specs/editorial-decision.md](docs/specs/editorial-decision.md): especificación de la frontera de decisión editorial y exportaciones.
+- [docs/specs/model-fallback.md](docs/specs/model-fallback.md): especificación de modelos gratuitos OpenRouter y respaldos Workers AI.
 - [docs/specs/claim-extraction-audit.md](docs/specs/claim-extraction-audit.md): datos, retención y degradación de la auditoría D1.
 - [docs/specs/mediahack-prd-draft.md](docs/specs/mediahack-prd-draft.md): contrato funcional del MVP de MediaHack II.
 

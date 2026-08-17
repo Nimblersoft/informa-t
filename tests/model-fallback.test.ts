@@ -89,52 +89,66 @@ describe("OpenRouter model fallback", () => {
     expect(EXTRACTION_TIMEOUT_MS).toBe(45_000);
   });
 
+  it("uses OpenRouter free models as primary provider for extraction and proposals", async () => {
+    const { transport, calls } = createTransport(200, proposal);
+    const customTransport: OpenRouterTransport = async (input, init) => {
+      calls.push(new Request(input, init));
+      const body = JSON.parse((init?.body as string) ?? "{}");
+      return openRouterResponse(body.model === "google/gemma-4-31b-it:free" ? extraction : proposal);
+    };
+    const result = await analyzeText({ text, ai: new FakeAi(new Set(PROPOSAL_MODELS), true), search: fakeSearch(), openRouter: createOpenRouter(customTransport) });
+
+    expect(result.claims[0].provenance).toEqual({ provider: "openrouter", modelId: "google/gemma-4-31b-it:free" });
+    expect(result.claims[0].proposals[0].provenance).toEqual({ provider: "openrouter", modelId: getOpenRouterModel(PROPOSAL_MODELS[0]) });
+    expect(result.claims[0].consensus?.reviewFocus).toBe("Contrastar evidencia");
+  });
+
   it.each([
-    ["error", new Error("Workers AI service unavailable")],
-    ["quota", new Error("quota exhausted 429")],
-    ["timeout", new DOMException("aborted", "AbortError")],
-  ])("falls back after Workers AI %s and preserves structured provenance", async (_reason, failure) => {
+    ["error", new Response("upstream unavailable", { status: 500 })],
+    ["quota", new Response("quota exhausted 429", { status: 429 })],
+  ])("falls back to Workers AI when OpenRouter proposal fails with %s and preserves provenance", async (_reason, failureResponse) => {
     const failedModel = PROPOSAL_MODELS[0];
-    const { transport, calls } = createTransport();
-    const ai: WorkersAiBinding = {
-      async run(model, input: any): Promise<unknown> {
-        if (isExtraction(input)) return JSON.stringify(extraction);
-        if (model === failedModel) throw failure;
-        return proposal;
-      },
+    const failedRouterModel = getOpenRouterModel(failedModel);
+    const customTransport: OpenRouterTransport = async (_input, init) => {
+      const body = JSON.parse((init?.body as string) ?? "{}");
+      if (body.model === failedRouterModel) return failureResponse;
+      return openRouterResponse(body.model === "google/gemma-4-31b-it:free" ? extraction : proposal);
     };
 
-    const result = await analyzeText({ text, ai, search: fakeSearch(), openRouter: createOpenRouter(transport) });
+    const ai = new FakeAi();
+    const result = await analyzeText({ text, ai, search: fakeSearch(), openRouter: createOpenRouter(customTransport) });
     const fallbackProposal = result.claims[0].proposals.find((item) => item.model === failedModel);
 
     expect(fallbackProposal?.status).toBe("valid");
-    expect(fallbackProposal?.provenance).toEqual({ provider: "openrouter", modelId: getOpenRouterModel(failedModel) });
+    expect(fallbackProposal?.provenance).toEqual({ provider: "workers-ai", modelId: failedModel });
+    expect(result.claims[0].provenance).toEqual({ provider: "openrouter", modelId: "google/gemma-4-31b-it:free" });
+    expect(result.traceEvents.some((event) => event.title === "Respaldo de proveedor" && event.details.includes("workers-ai"))).toBe(true);
+  });
+
+  it("falls back to Workers AI for extraction when OpenRouter extraction fails", async () => {
+    const customTransport: OpenRouterTransport = async (_input, init) => {
+      const body = JSON.parse((init?.body as string) ?? "{}");
+      if (body.model === "google/gemma-4-31b-it:free") return new Response("upstream 503", { status: 503 });
+      return openRouterResponse(proposal);
+    };
+    const result = await analyzeText({ text, ai: new FakeAi(), search: fakeSearch(), openRouter: createOpenRouter(customTransport) });
+
     expect(result.claims[0].provenance).toEqual({ provider: "workers-ai", modelId: "@cf/zai-org/glm-4.7-flash" });
-    expect(JSON.parse(await calls[0].text()).model).toBe("openai/gpt-5.6-luna");
-    expect(result.traceEvents.some((event) => event.title === "Respaldo de proveedor" && event.details.includes("openrouter"))).toBe(true);
-  });
-
-  it("falls back for extraction and keeps the claim result non-editorial", async () => {
-    const { transport } = createTransport(200, extraction);
-    const result = await analyzeText({ text, ai: new FakeAi(new Set(), true), search: fakeSearch(), openRouter: createOpenRouter(transport) });
-
-    expect(result.claims[0].provenance).toEqual({ provider: "openrouter", modelId: "openai/gpt-5.6-luna" });
     expect(result.claims[0].consensus?.reviewFocus).toBe("Contrastar evidencia");
-    expect(result.traceEvents.some((event) => event.title === "Extracción de aseveraciones" && event.details.includes("openrouter"))).toBe(true);
+    expect(result.traceEvents.some((event) => event.title === "Respaldo de proveedor" && event.details.includes("workers-ai"))).toBe(true);
   });
 
-  it("surfaces an honest failure when the fallback also fails", async () => {
+  it("surfaces an honest failure when both OpenRouter and Workers AI fail", async () => {
     const { transport } = createTransport(503);
     const result = await analyzeText({
       text,
-      ai: new FakeAi(new Set(PROPOSAL_MODELS)),
+      ai: new FakeAi(new Set(PROPOSAL_MODELS), true),
       search: fakeSearch(),
       openRouter: createOpenRouter(transport),
     });
 
-    expect(result.claims[0].proposals.every((item) => item.status === "failed")).toBe(true);
-    expect(result.claims[0].consensus).toBeNull();
-    expect(result.limitations.join(" ")).toContain("respaldo OpenRouter también falló");
+    expect(result.claims).toHaveLength(0);
+    expect(result.limitations.join(" ")).toContain("falló");
     expect(result.traceEvents.some((event) => event.title === "Respaldo de proveedor" && event.status === "Fallido")).toBe(true);
   });
 
