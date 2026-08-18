@@ -14,6 +14,23 @@ const rootElement = document.getElementById("root");
 if (rootElement) {
   const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
 
+  const routeMetadata: Record<string, string> = {
+    "/": "informa-t | Asistente editorial y verificación de información electoral con fuentes auditables",
+    "/app": "informa-t | Consola de Análisis en Vivo y Contraste de Fuentes",
+    "/app/live": "informa-t | Consola de Análisis en Vivo y Contraste de Fuentes",
+    "/live": "informa-t | Consola de Análisis en Vivo y Contraste de Fuentes",
+    "/presentation": "informa-t | Pitch MediaHack II - Verificación Electoral Auditable",
+    "/prototype": "informa-t | Prototipo Visual Interactivo de Cockpit Editorial",
+    "/demo": "informa-t | Caso Demo A1 - Panel de Revisión Editorial",
+    "/compact": "informa-t | Verificación Compacta y Widgets Embeddable",
+    "/walkthrough": "informa-t | Guía y Recorrido de Trazabilidad Auditable",
+  };
+
+  const title = routeMetadata[pathname] || (pathname.startsWith("/app") ? routeMetadata["/app"] : routeMetadata["/"]);
+  if (title) {
+    document.title = title;
+  }
+
   const renderComponent = () => {
     switch (pathname) {
       case "/":

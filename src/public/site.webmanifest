@@ -1,0 +1,23 @@
+{
+  "name": "informa-t | Asistente de Verificación Electoral",
+  "short_name": "informa-t",
+  "description": "Asistente editorial y fact-checking para periodistas que contrasta afirmaciones electorales contra fuentes primarias auditables.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f8fb",
+  "theme_color": "#075985",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/og-image.jpg",
+      "sizes": "1200x675",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}
