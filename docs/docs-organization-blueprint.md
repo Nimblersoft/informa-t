@@ -21,7 +21,7 @@ Dos entornos deliberadamente separados:
 2. **Los borradores son insumo, nunca resultado.** Un agente puede leer el espacio de borradores para sintetizar un documento, pero el resultado sintetizado se confirma en `docs/`.
 3. **No hay superficie compartida de escritura.** No montar ni sincronizar el espacio de borradores dentro del arbol de trabajo del repositorio. Leerlo por su propia interfaz, sintetizar y confirmar los cambios.
 4. **Citar, no insertar.** Cuando un archivo de `docs/` sintetiza material extenso, debe expresar la conclusion y enlazar a la fuente completa en lugar de copiarla.
-5. **Estado actual, historial de decisiones en ADR.** Las especificaciones y los demás documentos que no sean ADR describen el estado actual o una guía reutilizable; se actualizan en su lugar. No deben usarse como changelogs, cronologías, notas de versión ni registros históricos de cambios. Solo `docs/adr/` conserva la justificación histórica de decisiones o las decisiones reemplazadas.
+5. **Estado actual e historial de versiones.** Las especificaciones y los documentos que no sean ADR describen el estado actual, excepto `CHANGELOG.md`, SSOT del historial completo de versiones. Reunir cambios pendientes en `[Unreleased]`, conservar las entradas publicadas y agruparlas por versión y fecha reales; no inventar versiones anteriores. `docs/adr/` conserva la justificación de decisiones; Git y Plane guardan el detalle de commits y tareas. Enlazar al propietario sin copiar el historial en las especificaciones.
 6. **Ciclo de vida de ADR.** Durante el trabajo no liberado, los ADR relacionados pueden editarse, combinarse o compactarse para conservar la decisión más reciente antes de la liberación. Después de una liberación, conservar los ADR publicados y registrar las decisiones posteriores en un ADR nuevo con `supersedes`.
 7. **Higiene de contexto antes de escribir.** Aplicar la skill `context-hygiene` antes de agregar o modificar cualquier documentación o especificación. Encontrar el propietario existente, escribir solo el delta y enlazar al SSOT detallado en vez de duplicarlo; completar su verificación antes de terminar.
 
@@ -46,6 +46,7 @@ Una **estructura hibrida de carpetas y etiquetas**:
 ├── CLAUDE.md                        # Referencia breve a AGENTS.md
 ├── CONTEXT.md                       # Glosario del dominio
 ├── README.md                        # Resumen para personas
+├── CHANGELOG.md                     # Historial completo de versiones y cambios pendientes
 └── docs/
     ├── index.md                     # Portada de la wiki y mapa documental
     ├── docs-organization-blueprint.md  # Este archivo
@@ -74,7 +75,7 @@ Crear una carpeta cuando reciba su primer archivo real. `adr/` y `specs/` siempr
 | `docs/research/` | Conclusiones de investigación | Personas y agentes | ¿Qué aprendimos y recomendamos? |
 | `docs/templates/` | Plantillas documentales | Personas y agentes | ¿Qué estructura debe usar este documento? |
 
-- **ADR frente a especificación:** un ADR registra una elección entre alternativas y queda congelado al decidirse; una especificación registra el comportamiento requerido vigente y cambia junto con ese comportamiento.
+- **ADR frente a especificación:** un ADR registra una elección entre alternativas y sigue el ciclo de vida previo/posterior a la liberación de §1; una especificación registra el comportamiento requerido vigente y cambia junto con ese comportamiento.
 - **Flujo frente a guía operativa:** un flujo explica un ciclo de vida y sus transiciones; una guía operativa entrega comandos exactos. Si puede copiarse y pegarse, pertenece a `docs/runbooks/`.
 
 ---
